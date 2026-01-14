@@ -1,8 +1,12 @@
-
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       currentTenantId?: string;
@@ -14,10 +18,10 @@ declare global {
 @Injectable()
 export class TenantContextMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    const tenantId = req.headers['x-tenant-id'] as string;
+    const tenantId = req.headers["x-tenant-id"] as string;
 
     if (!tenantId) {
-      throw new UnauthorizedException('Tenant ID is required');
+      throw new UnauthorizedException("Tenant ID is required");
     }
 
     req.currentTenantId = tenantId;

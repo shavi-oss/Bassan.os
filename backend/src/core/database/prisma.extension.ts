@@ -1,12 +1,12 @@
-import { Prisma } from '@prisma/client';
-import { Injectable, Logger } from '@nestjs/common';
-import { ClsService } from 'nestjs-cls';
+import { Prisma } from "@prisma/client";
+import { Injectable, Logger } from "@nestjs/common";
+import { ClsService } from "nestjs-cls";
 
 /**
  * PrismaTenantExtension - Core Multi-Tenancy Enforcement
- * 
+ *
  * 🛡️ CRITICAL SECURITY COMPONENT
- * 
+ *
  * This extension automatically:
  * 1. INJECTS organizationId into WHERE clauses for tenant-scoped models
  * 2. INJECTS organizationId into CREATE data
@@ -14,53 +14,48 @@ import { ClsService } from 'nestjs-cls';
  * 4. OVERWRITES any manual organizationId to prevent injection attacks
  * 5. BLOCKS organizationId mutation in update operations
  * 6. LOGS all queries for security audit
- * 
+ *
  * SECURITY POLICY: FAIL-CLOSED
  * - Only GLOBAL_MODELS can be accessed without tenant context
  * - ALL OTHER MODELS require orgId or throw TENANT_ISOLATION_VIOLATION
- * 
+ *
  * @security NEVER modify without security review
  */
 
 /**
  * GLOBAL MODELS - EXPLICIT WHITELIST
- * 
+ *
  * ONLY these models can be accessed without tenant context.
  * These are truly system-wide entities not tied to any organization.
- * 
+ *
  * @security Adding a model here is a SECURITY DECISION - requires review
  */
 const GLOBAL_MODELS = [
-  'Organization',     // Root entity - organizations themselves
-  'SystemConfig',     // System-wide configuration (if exists)
+  "Organization", // Root entity - organizations themselves
+  "SystemConfig", // System-wide configuration (if exists)
 ];
 
 /**
  * MODELS WITH INDIRECT TENANT ASSOCIATION
- * 
+ *
  * These models don't have organizationId directly but are scoped via relations.
  * They require special handling - filtered by related entity's tenant.
- * 
+ *
  * NOTE: Currently these are allowed with orgId context but don't get orgId injected
  * because they have no organizationId column. The relation chain enforces isolation.
  */
 const INDIRECTLY_SCOPED_MODELS = [
-  'Permission',       // Scoped via Role -> Organization (roleId required)
-  'UserRole',         // Scoped via User -> Organization (userId required)
-  'RefreshToken',     // Scoped via User -> Organization (userId required)
+  "Permission", // Scoped via Role -> Organization (roleId required)
+  "UserRole", // Scoped via User -> Organization (userId required)
+  "RefreshToken", // Scoped via User -> Organization (userId required)
 ];
 
 /**
  * MODELS WITH DIRECT organizationId FIELD
- * 
+ *
  * These models have organizationId column and get auto-filtering.
  */
-const DIRECTLY_SCOPED_MODELS = [
-  'User',
-  'Role',
-  'Lead',
-  'Task',
-];
+const DIRECTLY_SCOPED_MODELS = ["User", "Role", "Lead", "Task"];
 
 export interface TenantContext {
   orgId: string | null;
@@ -69,7 +64,7 @@ export interface TenantContext {
 
 /**
  * Injectable Prisma Tenant Extension
- * 
+ *
  * Uses ClsService directly for context retrieval.
  */
 @Injectable()
@@ -94,16 +89,16 @@ export class PrismaTenantExtension {
     const hasDirectOrgId = this.hasDirectOrgId.bind(this);
 
     return Prisma.defineExtension({
-      name: 'tenant-isolation-enforcer',
+      name: "tenant-isolation-enforcer",
       query: {
         $allModels: {
           async $allOperations({ model, operation, args, query }) {
-            const orgId = clsService.get('orgId');
-            const userId = clsService.get('userId');
+            const orgId = clsService.get("orgId");
+            const userId = clsService.get("userId");
 
             // 🔍 AUDIT LOG: Track all database operations
             logger.debug(
-              `[QUERY] ${model}.${operation} | OrgId: ${orgId || 'NONE'} | UserId: ${userId || 'NONE'}`
+              `[QUERY] ${model}.${operation} | OrgId: ${orgId || "NONE"} | UserId: ${userId || "NONE"}`,
             );
 
             // ══════════════════════════════════════════════════════════════
@@ -112,13 +107,16 @@ export class PrismaTenantExtension {
 
             // ✅ GLOBAL MODELS - Explicit whitelist, allowed without orgId
             if (GLOBAL_MODELS.includes(model)) {
-              logger.debug(`[GLOBAL] ${model} - Allowing without tenant filter`);
+              logger.debug(
+                `[GLOBAL] ${model} - Allowing without tenant filter`,
+              );
               return query(args);
             }
 
             // 🚨 FAIL-CLOSED: ALL non-global models require tenant context
             if (!orgId) {
-              const errorMsg = `TENANT_ISOLATION_VIOLATION: No tenant context for ${model}.${operation}. ` +
+              const errorMsg =
+                `TENANT_ISOLATION_VIOLATION: No tenant context for ${model}.${operation}. ` +
                 `Model is not in GLOBAL_MODELS whitelist.`;
               logger.error(`🚨 ${errorMsg}`);
               throw new Error(errorMsg);
@@ -136,7 +134,9 @@ export class PrismaTenantExtension {
             // Skip organizationId injection for indirectly-scoped models
             // (they don't have the column, isolation is via relations)
             if (INDIRECTLY_SCOPED_MODELS.includes(model)) {
-              logger.debug(`[INDIRECT] ${model} - Has orgId context, skipping direct injection`);
+              logger.debug(
+                `[INDIRECT] ${model} - Has orgId context, skipping direct injection`,
+              );
               return query(args);
             }
 
@@ -145,31 +145,36 @@ export class PrismaTenantExtension {
               // ──────────────────────────────────────────────────────────────
               // CREATE OPERATIONS
               // ──────────────────────────────────────────────────────────────
-              if (operation === 'create') {
+              if (operation === "create") {
                 if (!(args as any).data) {
                   (args as any).data = {};
                 }
-                
+
                 // 🚫 OVERWRITE any manual organizationId (security)
-                if ((args as any).data.organizationId && (args as any).data.organizationId !== orgId) {
+                if (
+                  (args as any).data.organizationId &&
+                  (args as any).data.organizationId !== orgId
+                ) {
                   logger.warn(
                     `⚠️ [SECURITY] Blocked organizationId injection in CREATE: ` +
-                    `${(args as any).data.organizationId} -> ${orgId}`
+                      `${(args as any).data.organizationId} -> ${orgId}`,
                   );
                 }
-                
+
                 (args as any).data.organizationId = orgId;
                 logger.debug(`[CREATE] Injected organizationId: ${orgId}`);
               }
 
               // For createMany - inject into each record
-              if (operation === 'createMany') {
+              if (operation === "createMany") {
                 if ((args as any).data && Array.isArray((args as any).data)) {
                   (args as any).data = (args as any).data.map((item: any) => ({
                     ...item,
                     organizationId: orgId, // Overwrite any existing
                   }));
-                  logger.debug(`[CREATE_MANY] Injected organizationId into ${(args as any).data.length} records`);
+                  logger.debug(
+                    `[CREATE_MANY] Injected organizationId into ${(args as any).data.length} records`,
+                  );
                 }
               }
 
@@ -177,58 +182,68 @@ export class PrismaTenantExtension {
               // READ OPERATIONS - Add WHERE filter
               // ──────────────────────────────────────────────────────────────
               if (
-                operation.includes('find') ||
-                operation === 'count' ||
-                operation === 'aggregate'
+                operation.includes("find") ||
+                operation === "count" ||
+                operation === "aggregate"
               ) {
                 if (!(args as any).where) {
                   (args as any).where = {};
                 }
                 (args as any).where.organizationId = orgId;
-                logger.debug(`[FILTER] Added organizationId to WHERE: ${orgId}`);
+                logger.debug(
+                  `[FILTER] Added organizationId to WHERE: ${orgId}`,
+                );
               }
 
               // ──────────────────────────────────────────────────────────────
               // UPDATE OPERATIONS - Filter + BLOCK organizationId mutation
               // ──────────────────────────────────────────────────────────────
-              if (operation === 'update') {
+              if (operation === "update") {
                 if (!(args as any).where) {
                   (args as any).where = {};
                 }
                 (args as any).where.organizationId = orgId;
 
                 // 🚫 CRITICAL: Block organizationId mutation
-                if ((args as any).data && (args as any).data.organizationId !== undefined) {
+                if (
+                  (args as any).data &&
+                  (args as any).data.organizationId !== undefined
+                ) {
                   logger.warn(
                     `⚠️ [SECURITY] Blocked organizationId mutation in UPDATE: ` +
-                    `Attempted to set ${(args as any).data.organizationId}`
+                      `Attempted to set ${(args as any).data.organizationId}`,
                   );
                   delete (args as any).data.organizationId;
                 }
                 logger.debug(`[UPDATE] Filtered by organizationId: ${orgId}`);
               }
 
-              if (operation === 'updateMany') {
+              if (operation === "updateMany") {
                 if (!(args as any).where) {
                   (args as any).where = {};
                 }
                 (args as any).where.organizationId = orgId;
 
                 // 🚫 CRITICAL: Block organizationId mutation in bulk updates
-                if ((args as any).data && (args as any).data.organizationId !== undefined) {
+                if (
+                  (args as any).data &&
+                  (args as any).data.organizationId !== undefined
+                ) {
                   logger.warn(
                     `⚠️ [SECURITY] Blocked organizationId mutation in UPDATE_MANY: ` +
-                    `Attempted to set ${(args as any).data.organizationId}`
+                      `Attempted to set ${(args as any).data.organizationId}`,
                   );
                   delete (args as any).data.organizationId;
                 }
-                logger.debug(`[UPDATE_MANY] Filtered by organizationId: ${orgId}`);
+                logger.debug(
+                  `[UPDATE_MANY] Filtered by organizationId: ${orgId}`,
+                );
               }
 
               // ──────────────────────────────────────────────────────────────
               // DELETE OPERATIONS
               // ──────────────────────────────────────────────────────────────
-              if (operation.includes('delete')) {
+              if (operation.includes("delete")) {
                 if (!(args as any).where) {
                   (args as any).where = {};
                 }
@@ -239,12 +254,12 @@ export class PrismaTenantExtension {
               // ──────────────────────────────────────────────────────────────
               // UPSERT OPERATIONS
               // ──────────────────────────────────────────────────────────────
-              if (operation === 'upsert') {
+              if (operation === "upsert") {
                 if (!(args as any).where) {
                   (args as any).where = {};
                 }
                 (args as any).where.organizationId = orgId;
-                
+
                 if ((args as any).create) {
                   (args as any).create.organizationId = orgId;
                 }
@@ -257,7 +272,8 @@ export class PrismaTenantExtension {
             } else {
               // 🚨 FAIL-CLOSED: Unknown/uncategorized models are BLOCKED
               // This prevents security gaps when new models are added without proper categorization
-              const errorMsg = `TENANT_ISOLATION_VIOLATION: Model '${model}' is not categorized for tenant enforcement. ` +
+              const errorMsg =
+                `TENANT_ISOLATION_VIOLATION: Model '${model}' is not categorized for tenant enforcement. ` +
                 `Add to GLOBAL_MODELS, DIRECTLY_SCOPED_MODELS, or INDIRECTLY_SCOPED_MODELS.`;
               logger.error(`🚨 ${errorMsg}`);
               throw new Error(errorMsg);
@@ -268,7 +284,9 @@ export class PrismaTenantExtension {
 
             // 🔍 AUDIT: Log result count for monitoring
             if (Array.isArray(result)) {
-              logger.debug(`[RESULT] ${model}.${operation} returned ${result.length} records`);
+              logger.debug(
+                `[RESULT] ${model}.${operation} returned ${result.length} records`,
+              );
             }
 
             return result;

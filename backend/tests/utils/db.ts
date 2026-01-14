@@ -1,12 +1,14 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 // SAFETY: Only allow DB reset in test environment
-if (process.env.NODE_ENV && process.env.NODE_ENV !== 'test') {
-  throw new Error('SECURITY_VIOLATION: resetDb can only be used in test environment');
+if (process.env.NODE_ENV && process.env.NODE_ENV !== "test") {
+  throw new Error(
+    "SECURITY_VIOLATION: resetDb can only be used in test environment",
+  );
 }
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is required for test utilities');
+  throw new Error("DATABASE_URL is required for test utilities");
 }
 
 export const prismaUnsafe = new PrismaClient();
@@ -36,7 +38,7 @@ export async function resetDb() {
     `);
   } catch (error) {
     // Fallback: deleteMany in FK-safe order
-    console.warn('TRUNCATE failed, falling back to deleteMany:', error);
+    console.warn("TRUNCATE failed, falling back to deleteMany:", error);
     await prismaUnsafe.$transaction([
       prismaUnsafe.workflowTransition.deleteMany(),
       prismaUnsafe.workflowState.deleteMany(),

@@ -1,25 +1,30 @@
-import { Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
-import { PrismaService } from '../../prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  Logger,
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import * as bcrypt from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
+import { PrismaService } from "../../prisma/prisma.service";
+import { RegisterDto } from "./dto/register.dto";
+import { LoginDto } from "./dto/login.dto";
 
 /**
  * AuthService - Authentication business logic
- * 
+ *
  * @security This service uses _unsafeClient for authentication operations.
- * 
+ *
  * JUSTIFICATION: During login/register, there is NO authenticated user yet,
  * so CLS context cannot be established. Authentication is inherently a
  * "system-level" operation that must access users across all organizations:
- * 
+ *
  * - Register: Creates new Organization, User, Role (no prior context)
  * - Login: Must find user by email globally to validate credentials
  * - RefreshToken: Validates tokens before user context is established
- * 
+ *
  * This is an EXCEPTIONAL case. All other services MUST use prisma.client.
  */
 @Injectable()
@@ -47,7 +52,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Email already registered');
+      throw new ConflictException("Email already registered");
     }
 
     // Hash password
@@ -57,15 +62,15 @@ export class AuthService {
     const organization = await this.db.organization.create({
       data: {
         name: dto.organizationName,
-        slug: dto.organizationName.toLowerCase().replace(/\s+/g, '-'),
+        slug: dto.organizationName.toLowerCase().replace(/\s+/g, "-"),
       },
     });
 
     // Create admin role for organization
     const adminRole = await this.db.role.create({
       data: {
-        name: 'Admin',
-        description: 'Organization administrator',
+        name: "Admin",
+        description: "Organization administrator",
         organizationId: organization.id,
       },
     });
@@ -73,8 +78,8 @@ export class AuthService {
     // Create user role for organization
     await this.db.role.create({
       data: {
-        name: 'User',
-        description: 'Standard user',
+        name: "User",
+        description: "Standard user",
         organizationId: organization.id,
       },
     });
@@ -103,10 +108,16 @@ export class AuthService {
       },
     });
 
-    this.logger.log(`✅ User registered: ${user.email} in org: ${organization.name}`);
+    this.logger.log(
+      `✅ User registered: ${user.email} in org: ${organization.name}`,
+    );
 
     // Generate tokens
-    const tokens = await this.generateTokens(user.id, user.email, organization.id);
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      organization.id,
+    );
 
     return {
       user: this.sanitizeUser(user),
@@ -128,17 +139,21 @@ export class AuthService {
     });
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const passwordValid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     this.logger.log(`✅ User logged in: ${user.email}`);
 
-    const tokens = await this.generateTokens(user.id, user.email, user.organizationId);
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      user.organizationId,
+    );
 
     return {
       user: this.sanitizeUser(user),
@@ -153,7 +168,7 @@ export class AuthService {
     });
 
     if (!token || token.revokedAt || token.expiresAt < new Date()) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException("Invalid refresh token");
     }
 
     // Revoke old token
@@ -163,7 +178,11 @@ export class AuthService {
     });
 
     // Generate new tokens
-    return this.generateTokens(token.user.id, token.user.email, token.user.organizationId);
+    return this.generateTokens(
+      token.user.id,
+      token.user.email,
+      token.user.organizationId,
+    );
   }
 
   async logout(userId: string) {
@@ -173,7 +192,7 @@ export class AuthService {
       data: { revokedAt: new Date() },
     });
 
-    return { message: 'Logged out successfully' };
+    return { message: "Logged out successfully" };
   }
 
   async getProfile(userId: string) {
@@ -190,19 +209,27 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException("User not found");
     }
 
     return this.sanitizeUser(user);
   }
 
-  private async generateTokens(userId: string, email: string, organizationId: string) {
+  private async generateTokens(
+    userId: string,
+    email: string,
+    organizationId: string,
+  ) {
     const payload = { sub: userId, email, organizationId };
 
     const accessToken = this.jwtService.sign(payload);
-    
+
     const refreshToken = uuidv4();
-    const refreshExpiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const refreshExpiresIn = this.configService.get<string>(
+      "JWT_REFRESH_EXPIRES_IN",
+      "7d",
+    );
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
@@ -217,11 +244,12 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '15m'),
+      expiresIn: this.configService.get<string>("JWT_EXPIRES_IN", "15m"),
     };
   }
 
   private sanitizeUser(user: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...sanitized } = user;
     return {
       ...sanitized,

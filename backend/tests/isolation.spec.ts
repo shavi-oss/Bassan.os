@@ -1,14 +1,14 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../src/prisma/prisma.service';
-import { ClsService, ClsModule } from 'nestjs-cls';
-import { PrismaTenantExtension } from '../src/core/database/prisma.extension';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PrismaService } from "../src/prisma/prisma.service";
+import { ClsModule } from "nestjs-cls";
+import { PrismaTenantExtension } from "../src/core/database/prisma.extension";
 
 /**
  * Basic Tenant Isolation Tests
- * 
+ *
  * Tests that PrismaService is properly configured with CLS and extension.
  */
-describe('Tenant Isolation', () => {
+describe("Tenant Isolation", () => {
   let prismaService: PrismaService;
 
   beforeEach(async () => {
@@ -25,11 +25,11 @@ describe('Tenant Isolation', () => {
     await prismaService.onModuleDestroy();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(prismaService).toBeDefined();
   });
 
-  it('should return an extended client', () => {
+  it("should return an extended client", () => {
     const client = prismaService.client;
     expect(client).toBeDefined();
     // The client should NOT be the same object as prismaService (it's extended)

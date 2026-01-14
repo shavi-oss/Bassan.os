@@ -1,13 +1,13 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { execSync } from 'child_process';
+import * as fs from "fs";
+import * as path from "path";
+import { execSync } from "child_process";
 
 /**
  * Security Linter (Consolidated)
- * 
+ *
  * Enforces architectural security & scope rules.
  * MUST FAIL if any violation detected.
- * 
+ *
  * Rules:
  * S2-L1: _unsafeClient ONLY in auth/organizations/prisma (FORBIDDEN in workflows)
  * S2-L2: Module allowlist (auth, organizations, users, roles, workflows)
@@ -17,66 +17,66 @@ import { execSync } from 'child_process';
  * S2-L6: Dependency Freeze (package.json immutable)
  */
 
-describe('Security Linter', () => {
-  const srcDir = path.join(__dirname, '../../src');
-  const projectRoot = path.join(__dirname, '../../');
+describe("Security Linter", () => {
+  const srcDir = path.join(__dirname, "../../src");
+  const projectRoot = path.join(__dirname, "../../");
 
   // Allowed paths for _unsafeClient
   // S2-L1: workflows NOT allowed
   const UNSAFE_CLIENT_ALLOWED_PATHS = [
-    'modules/auth',
-    'modules/organizations',
-    'prisma',
+    "modules/auth",
+    "modules/organizations",
+    "prisma",
   ];
 
   // Allowed modules
   // S2-L2: Added 'workflows'
   const ALLOWED_MODULES = [
-    'auth',
-    'organizations',
-    'users',
-    'roles',
-    'workflows',
+    "auth",
+    "organizations",
+    "users",
+    "roles",
+    "workflows",
   ];
 
   // Allowed endpoints
   // S2-L3: Added Workflow endpoints
   const ALLOWED_ENDPOINTS = [
     // Stage 1
-    { method: 'POST', path: '/auth/login' },
-    { method: 'GET', path: '/auth/me' },
-    { method: 'POST', path: '/organizations' },
-    { method: 'GET', path: '/organizations/:id' },
-    { method: 'POST', path: '/users' },
-    { method: 'GET', path: '/users' },
-    { method: 'POST', path: '/roles' },
-    { method: 'GET', path: '/roles' },
-    { method: 'POST', path: '/roles/:roleId/permissions' },
-    { method: 'GET', path: '/roles/:roleId/permissions' },
-    
+    { method: "POST", path: "/auth/login" },
+    { method: "GET", path: "/auth/me" },
+    { method: "POST", path: "/organizations" },
+    { method: "GET", path: "/organizations/:id" },
+    { method: "POST", path: "/users" },
+    { method: "GET", path: "/users" },
+    { method: "POST", path: "/roles" },
+    { method: "GET", path: "/roles" },
+    { method: "POST", path: "/roles/:roleId/permissions" },
+    { method: "GET", path: "/roles/:roleId/permissions" },
+
     // Stage 2 - Workflows
-    { method: 'POST', path: '/workflows' },
-    { method: 'GET', path: '/workflows' },
-    { method: 'GET', path: '/workflows/:id' },
-    { method: 'PATCH', path: '/workflows/:id' },
-    { method: 'POST', path: '/workflows/:id/activate' },
-    { method: 'POST', path: '/workflows/:id/archive' },
-    
+    { method: "POST", path: "/workflows" },
+    { method: "GET", path: "/workflows" },
+    { method: "GET", path: "/workflows/:id" },
+    { method: "PATCH", path: "/workflows/:id" },
+    { method: "POST", path: "/workflows/:id/activate" },
+    { method: "POST", path: "/workflows/:id/archive" },
+
     // Stage 2 - States
-    { method: 'POST', path: '/workflows/:id/states' },
-    { method: 'GET', path: '/workflows/:id/states' },
-    { method: 'PATCH', path: '/workflows/:id/states/:stateId' },
-    { method: 'DELETE', path: '/workflows/:id/states/:stateId' },
-    
+    { method: "POST", path: "/workflows/:id/states" },
+    { method: "GET", path: "/workflows/:id/states" },
+    { method: "PATCH", path: "/workflows/:id/states/:stateId" },
+    { method: "DELETE", path: "/workflows/:id/states/:stateId" },
+
     // Stage 2 - Transitions
-    { method: 'POST', path: '/workflows/:id/transitions' },
-    { method: 'GET', path: '/workflows/:id/transitions' },
-    { method: 'DELETE', path: '/workflows/:id/transitions/:transitionId' },
+    { method: "POST", path: "/workflows/:id/transitions" },
+    { method: "GET", path: "/workflows/:id/transitions" },
+    { method: "DELETE", path: "/workflows/:id/transitions/:transitionId" },
   ];
 
   function getAllFiles(dir: string, fileList: string[] = []): string[] {
     if (!fs.existsSync(dir)) return fileList;
-    
+
     const files = fs.readdirSync(dir);
     files.forEach((file) => {
       const filePath = path.join(dir, file);
@@ -90,26 +90,26 @@ describe('Security Linter', () => {
   }
 
   function isPathAllowed(filePath: string, allowedPaths: string[]): boolean {
-    const normalizedPath = filePath.replace(/\\/g, '/');
+    const normalizedPath = filePath.replace(/\\/g, "/");
     return allowedPaths.some((allowed) =>
-      normalizedPath.includes(allowed.replace(/\\/g, '/')),
+      normalizedPath.includes(allowed.replace(/\\/g, "/")),
     );
   }
 
-  describe('S2-L1: _unsafeClient usage restriction', () => {
-    it('should only allow _unsafeClient in auth/organizations/prisma', () => {
+  describe("S2-L1: _unsafeClient usage restriction", () => {
+    it("should only allow _unsafeClient in auth/organizations/prisma", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
 
       allFiles.forEach((file) => {
-        if (!file.endsWith('.ts') || file.includes('.spec.ts')) return;
-        
-        const content = fs.readFileSync(file, 'utf-8');
-        if (content.includes('_unsafeClient')) {
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        if (content.includes("_unsafeClient")) {
           if (!isPathAllowed(file, UNSAFE_CLIENT_ALLOWED_PATHS)) {
-            const lines = content.split('\n');
+            const lines = content.split("\n");
             lines.forEach((line, index) => {
-              if (line.includes('_unsafeClient')) {
+              if (line.includes("_unsafeClient")) {
                 violations.push(
                   `${file}:${index + 1} - _unsafeClient usages outside allowed paths`,
                 );
@@ -121,29 +121,37 @@ describe('Security Linter', () => {
 
       if (violations.length > 0) {
         throw new Error(
-          `S2-L1 VIOLATION: _unsafeClient found in forbidden paths:\n${violations.join('\n')}`,
+          `S2-L1 VIOLATION: _unsafeClient found in forbidden paths:\n${violations.join("\n")}`,
         );
       }
     });
   });
 
-  describe('L2: Indirect model relation-based filters', () => {
-    it('should enforce relation-based filters for Permission queries', () => {
+  describe("L2: Indirect model relation-based filters", () => {
+    it("should enforce relation-based filters for Permission queries", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
 
       allFiles.forEach((file) => {
-        if (!file.endsWith('.ts') || file.includes('.spec.ts') || file.includes('.e2e-spec.ts')) return;
-        
-        const content = fs.readFileSync(file, 'utf-8');
-        
+        if (
+          !file.endsWith(".ts") ||
+          file.includes(".spec.ts") ||
+          file.includes(".e2e-spec.ts")
+        )
+          return;
+
+        const content = fs.readFileSync(file, "utf-8");
+
         // Check for Permission queries
-        const hasPermissionQuery = /\.permission\.(findMany|findFirst|findUnique|update|updateMany|delete|deleteMany)\(/.test(content);
-        
+        const hasPermissionQuery =
+          /\.permission\.(findMany|findFirst|findUnique|update|updateMany|delete|deleteMany)\(/.test(
+            content,
+          );
+
         if (hasPermissionQuery) {
           // Must have relation-based filter: role: { organizationId
           const hasRelationFilter = /role:\s*\{\s*organizationId/.test(content);
-          
+
           if (!hasRelationFilter) {
             violations.push(
               `${file} - Permission query without relation filter (role: { organizationId })`,
@@ -154,22 +162,23 @@ describe('Security Linter', () => {
 
       if (violations.length > 0) {
         throw new Error(
-          `L2 VIOLATION: Permission queries must use relation-based tenant filter:\n${violations.join('\n')}`,
+          `L2 VIOLATION: Permission queries must use relation-based tenant filter:\n${violations.join("\n")}`,
         );
       }
     });
 
-    it('should enforce relation-based filters for RefreshToken queries', () => {
+    it("should enforce relation-based filters for RefreshToken queries", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
 
       allFiles.forEach((file) => {
-        if (!file.endsWith('.ts') || file.includes('.spec.ts')) return;
-        if (isPathAllowed(file, ['modules/auth'])) return; 
-        
-        const content = fs.readFileSync(file, 'utf-8');
-        const hasRefreshTokenQuery = /\.refreshToken\.(findMany|findFirst)\(/.test(content);
-        
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+        if (isPathAllowed(file, ["modules/auth"])) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        const hasRefreshTokenQuery =
+          /\.refreshToken\.(findMany|findFirst)\(/.test(content);
+
         if (hasRefreshTokenQuery) {
           const hasRelationFilter = /user:\s*\{\s*organizationId/.test(content);
           if (!hasRelationFilter) {
@@ -182,30 +191,33 @@ describe('Security Linter', () => {
 
       if (violations.length > 0) {
         throw new Error(
-          `L2 VIOLATION: RefreshToken queries must use relation-based tenant filter:\n${violations.join('\n')}`,
+          `L2 VIOLATION: RefreshToken queries must use relation-based tenant filter:\n${violations.join("\n")}`,
         );
       }
     });
   });
 
-  describe('S2-L4: Controller guard enforcement', () => {
-    it('should enforce @UseGuards(JwtAuthGuard, TenantGuard) on controllers', () => {
+  describe("S2-L4: Controller guard enforcement", () => {
+    it("should enforce @UseGuards(JwtAuthGuard, TenantGuard) on controllers", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
 
       allFiles.forEach((file) => {
-        if (!file.endsWith('.controller.ts')) return;
-        
-        const content = fs.readFileSync(file, 'utf-8');
-        const routeMatches = content.matchAll(/@(Get|Post|Put|Patch|Delete)\s*\([^)]*\)/g);
+        if (!file.endsWith(".controller.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        const routeMatches = content.matchAll(
+          /@(Get|Post|Put|Patch|Delete)\s*\([^)]*\)/g,
+        );
         const routes = Array.from(routeMatches);
-        
+
         if (routes.length === 0) return;
-        
+
         const hasJwtGuard = /@UseGuards\([^)]*JwtAuthGuard/.test(content);
         const hasTenantGuard = /@UseGuards\([^)]*TenantGuard/.test(content);
-        const hasPublicRoute = /@Public\(\)/.test(content) || content.includes('/login');
-        
+        const hasPublicRoute =
+          /@Public\(\)/.test(content) || content.includes("/login");
+
         if (!hasPublicRoute && routes.length > 0) {
           if (!hasJwtGuard || !hasTenantGuard) {
             violations.push(
@@ -217,37 +229,46 @@ describe('Security Linter', () => {
 
       if (violations.length > 0) {
         throw new Error(
-          `S2-L4 VIOLATION: Controllers must use @UseGuards(JwtAuthGuard, TenantGuard):\n${violations.join('\n')}`,
+          `S2-L4 VIOLATION: Controllers must use @UseGuards(JwtAuthGuard, TenantGuard):\n${violations.join("\n")}`,
         );
       }
     });
   });
 
-  describe('S2-L3: Endpoint allowlist enforcement', () => {
-    it('should only allow Stage 1+2 endpoints', () => {
+  describe("S2-L3: Endpoint allowlist enforcement", () => {
+    it("should only allow Stage 1+2 endpoints", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
-      const foundEndpoints: Array<{ method: string; path: string; file: string; line: number }> = [];
+      const foundEndpoints: Array<{
+        method: string;
+        path: string;
+        file: string;
+        line: number;
+      }> = [];
 
       allFiles.forEach((file) => {
-        if (!file.endsWith('.controller.ts')) return;
-        
-        const content = fs.readFileSync(file, 'utf-8');
-        const lines = content.split('\n');
-        
-        const controllerMatch = content.match(/@Controller\s*\(\s*['"]([^'"]*)['"]\s*\)/);
-        const basePath = controllerMatch ? `/${controllerMatch[1]}` : '';
-        
+        if (!file.endsWith(".controller.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        const lines = content.split("\n");
+
+        const controllerMatch = content.match(
+          /@Controller\s*\(\s*['"]([^'"]*)['"]\s*\)/,
+        );
+        const basePath = controllerMatch ? `/${controllerMatch[1]}` : "";
+
         lines.forEach((line, index) => {
-          const methodMatch = line.match(/@(Get|Post|Put|Patch|Delete)\s*\(\s*['"]?([^'")]*?)['"]?\s*\)/);
+          const methodMatch = line.match(
+            /@(Get|Post|Put|Patch|Delete)\s*\(\s*['"]?([^'")]*?)['"]?\s*\)/,
+          );
           if (methodMatch) {
             const method = methodMatch[1].toUpperCase();
-            const routePath = methodMatch[2] || '';
-            const fullPath = basePath + (routePath ? `/${routePath}` : '');
-            
+            const routePath = methodMatch[2] || "";
+            const fullPath = basePath + (routePath ? `/${routePath}` : "");
+
             foundEndpoints.push({
               method,
-              path: fullPath.replace(/\/+/g, '/'),
+              path: fullPath.replace(/\/+/g, "/"),
               file,
               line: index + 1,
             });
@@ -272,9 +293,11 @@ describe('Security Linter', () => {
       // Validating strict method usage
       foundEndpoints.forEach((endpoint) => {
         // PATCH/DELETE permitted in Stage 2 if path matches allowlist
-        const isAllowedMethod = ['GET', 'POST', 'PATCH', 'DELETE'].includes(endpoint.method);
+        const isAllowedMethod = ["GET", "POST", "PATCH", "DELETE"].includes(
+          endpoint.method,
+        );
         if (!isAllowedMethod) {
-             violations.push(
+          violations.push(
             `${endpoint.file}:${endpoint.line} - SCOPE VIOLATION: ${endpoint.method} not allowed`,
           );
         }
@@ -282,26 +305,26 @@ describe('Security Linter', () => {
 
       if (violations.length > 0) {
         throw new Error(
-          `S2-L3 VIOLATION: Endpoints outside allowlist:\n${violations.join('\n')}`,
+          `S2-L3 VIOLATION: Endpoints outside allowlist:\n${violations.join("\n")}`,
         );
       }
     });
   });
 
-  describe('S2-L2: Module allowlist enforcement', () => {
-    it('should only allow Stage 1+2 modules', () => {
-      const modulesDir = path.join(srcDir, 'modules');
+  describe("S2-L2: Module allowlist enforcement", () => {
+    it("should only allow Stage 1+2 modules", () => {
+      const modulesDir = path.join(srcDir, "modules");
       if (!fs.existsSync(modulesDir)) return;
-      
+
       const violations: string[] = [];
       const modules = fs.readdirSync(modulesDir);
-      
+
       modules.forEach((module) => {
         const modulePath = path.join(modulesDir, module);
         if (fs.statSync(modulePath).isDirectory()) {
           // Ignore archived
-          if (module.startsWith('_')) return;
-          
+          if (module.startsWith("_")) return;
+
           if (!ALLOWED_MODULES.includes(module)) {
             violations.push(
               `src/modules/${module} - Module not allowed in Stage 2 scope`,
@@ -312,37 +335,45 @@ describe('Security Linter', () => {
 
       if (violations.length > 0) {
         throw new Error(
-          `S2-L2 VIOLATION: Modules outside Stage 2 scope:\n${violations.join('\n')}`,
+          `S2-L2 VIOLATION: Modules outside Stage 2 scope:\n${violations.join("\n")}`,
         );
       }
     });
   });
 
-  describe('S2-L6: Dependency Freeze', () => {
-    it('package.json must be immutable (no changes allowed)', () => {
+  describe("S2-L6: Dependency Freeze", () => {
+    it("package.json must be immutable (no changes allowed)", () => {
       // Check git diff for package.json
       // Requires git to be available
       try {
-        const diff = execSync('git diff --name-only package.json', { cwd: projectRoot, encoding: 'utf-8' });
+        const diff = execSync("git diff --name-only package.json", {
+          cwd: projectRoot,
+          encoding: "utf-8",
+        });
         if (diff && diff.trim().length > 0) {
-           throw new Error(`S2-L6 VIOLATION: package.json has been modified! Dependency changes are FORBIDDEN.`);
-        }
-        
-        // Also check staged changes
-        const stagedDiff = execSync('git diff --name-only --cached package.json', { cwd: projectRoot, encoding: 'utf-8' });
-         if (stagedDiff && stagedDiff.trim().length > 0) {
-           throw new Error(`S2-L6 VIOLATION: package.json has staged changes! Dependency changes are FORBIDDEN.`);
+          throw new Error(
+            `S2-L6 VIOLATION: package.json has been modified! Dependency changes are FORBIDDEN.`,
+          );
         }
 
+        // Also check staged changes
+        const stagedDiff = execSync(
+          "git diff --name-only --cached package.json",
+          { cwd: projectRoot, encoding: "utf-8" },
+        );
+        if (stagedDiff && stagedDiff.trim().length > 0) {
+          throw new Error(
+            `S2-L6 VIOLATION: package.json has staged changes! Dependency changes are FORBIDDEN.`,
+          );
+        }
       } catch (error: any) {
         // If git fails or strict mode violation
-        if (error.message.includes('S2-L6 VIOLATION')) {
-            throw error;
+        if (error.message.includes("S2-L6 VIOLATION")) {
+          throw error;
         }
         // If git is missing, we might warn, but for now we assume environment has git
         // console.warn('Could not check dependency freeze via git:', error.message);
       }
     });
   });
-
 });

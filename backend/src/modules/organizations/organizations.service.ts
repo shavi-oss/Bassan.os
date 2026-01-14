@@ -1,13 +1,17 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import * as bcrypt from 'bcrypt';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CreateOrganizationDto } from "./dto/create-organization.dto";
+import * as bcrypt from "bcrypt";
 
 /**
  * OrganizationsService
- * 
+ *
  * Handles organization bootstrap and retrieval.
- * 
+ *
  * SECURITY NOTE: Organization creation uses _unsafeClient because
  * there is no tenant context yet (we're creating the first org).
  * All other operations use the secure client.
@@ -18,7 +22,7 @@ export class OrganizationsService {
 
   /**
    * Create organization with admin user and role
-   * 
+   *
    * SECURITY JUSTIFICATION: Uses _unsafeClient because this is org bootstrap.
    * No tenant context exists yet.
    */
@@ -29,7 +33,7 @@ export class OrganizationsService {
     });
 
     if (existingUser) {
-      throw new ForbiddenException('Email already registered');
+      throw new ForbiddenException("Email already registered");
     }
 
     // Hash password
@@ -39,15 +43,15 @@ export class OrganizationsService {
     const organization = await this.prisma._unsafeClient.organization.create({
       data: {
         name: dto.name,
-        slug: dto.name.toLowerCase().replace(/\\s+/g, '-'),
+        slug: dto.name.toLowerCase().replace(/\\s+/g, "-"),
       },
     });
 
     // Create admin role
     const adminRole = await this.prisma._unsafeClient.role.create({
       data: {
-        name: 'Admin',
-        description: 'Organization administrator with full permissions',
+        name: "Admin",
+        description: "Organization administrator with full permissions",
         organizationId: organization.id,
       },
     });
@@ -55,11 +59,11 @@ export class OrganizationsService {
     // Create basic permissions for admin
     await this.prisma._unsafeClient.permission.createMany({
       data: [
-        { action: 'create', resource: 'users', roleId: adminRole.id },
-        { action: 'read', resource: 'users', roleId: adminRole.id },
-        { action: 'create', resource: 'roles', roleId: adminRole.id },
-        { action: 'read', resource: 'roles', roleId: adminRole.id },
-        { action: 'assign', resource: 'permissions', roleId: adminRole.id },
+        { action: "create", resource: "users", roleId: adminRole.id },
+        { action: "read", resource: "users", roleId: adminRole.id },
+        { action: "create", resource: "roles", roleId: adminRole.id },
+        { action: "read", resource: "roles", roleId: adminRole.id },
+        { action: "assign", resource: "permissions", roleId: adminRole.id },
       ],
     });
 
@@ -95,13 +99,13 @@ export class OrganizationsService {
 
   /**
    * Get organization by ID
-   * 
+   *
    * SECURITY: Enforces that user can only read their own organization
    */
   async findOne(id: string, userOrgId: string) {
     // Explicit org ownership check
     if (id !== userOrgId) {
-      throw new ForbiddenException('Cannot access other organizations');
+      throw new ForbiddenException("Cannot access other organizations");
     }
 
     const organization = await this.prisma.client.organization.findUnique({
@@ -109,13 +113,14 @@ export class OrganizationsService {
     });
 
     if (!organization) {
-      throw new NotFoundException('Organization not found');
+      throw new NotFoundException("Organization not found");
     }
 
     return organization;
   }
 
   private sanitizeUser(user: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...sanitized } = user;
     return {
       ...sanitized,

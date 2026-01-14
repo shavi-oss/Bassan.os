@@ -3,22 +3,22 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
-} from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { WorkflowValidationService } from './workflow-validation.service';
-import { CreateWorkflowDto } from './dto/create-workflow.dto';
-import { UpdateWorkflowDto } from './dto/update-workflow.dto';
-import { CreateStateDto } from './dto/create-state.dto';
-import { UpdateStateDto } from './dto/update-state.dto';
-import { CreateTransitionDto } from './dto/create-transition.dto';
-import { WorkflowStatus } from '@prisma/client';
+} from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { WorkflowValidationService } from "./workflow-validation.service";
+import { CreateWorkflowDto } from "./dto/create-workflow.dto";
+import { UpdateWorkflowDto } from "./dto/update-workflow.dto";
+import { CreateStateDto } from "./dto/create-state.dto";
+import { UpdateStateDto } from "./dto/update-state.dto";
+import { CreateTransitionDto } from "./dto/create-transition.dto";
+import { WorkflowStatus } from "@prisma/client";
 
 /**
  * WorkflowsService
- * 
+ *
  * SECURITY: All operations use prisma.client (tenant-scoped).
  * organizationId comes from CLS context set by TenantGuard.
- * 
+ *
  * BUSINESS LAWS:
  * - ACTIVE workflows are IMMUTABLE
  * - ARCHIVED workflows are READ-ONLY
@@ -55,7 +55,7 @@ export class WorkflowsService {
           select: { states: true, transitions: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     return workflows;
@@ -76,7 +76,7 @@ export class WorkflowsService {
     });
 
     if (!workflow) {
-      throw new NotFoundException('Workflow not found');
+      throw new NotFoundException("Workflow not found");
     }
 
     return workflow;
@@ -109,13 +109,13 @@ export class WorkflowsService {
 
   /**
    * Activate workflow
-   * 
+   *
    * ACTIVATION TRANSACTION LAW:
    * 1. Re-fetch definition + states + transitions
    * 2. Run validation (pure domain service)
    * 3. If valid → update status to ACTIVE
    * 4. If invalid → throw and DO NOT update
-   * 
+   *
    * Single transaction boundary - no partial activation.
    */
   async activate(id: string) {
@@ -130,7 +130,7 @@ export class WorkflowsService {
       });
 
       if (!workflow) {
-        throw new NotFoundException('Workflow not found');
+        throw new NotFoundException("Workflow not found");
       }
 
       if (workflow.status !== WorkflowStatus.DRAFT) {
@@ -149,7 +149,7 @@ export class WorkflowsService {
       // Step 3: If invalid → throw (transaction rolls back)
       if (!validationResult.valid) {
         throw new BadRequestException({
-          message: 'Workflow validation failed',
+          message: "Workflow validation failed",
           errors: validationResult.errors,
         });
       }
@@ -168,7 +168,7 @@ export class WorkflowsService {
     const workflow = await this.findOne(id);
 
     if (workflow.status === WorkflowStatus.ARCHIVED) {
-      throw new BadRequestException('Workflow is already archived');
+      throw new BadRequestException("Workflow is already archived");
     }
 
     const archived = await this.prisma.client.workflowDefinition.update({
@@ -212,7 +212,7 @@ export class WorkflowsService {
 
     const states = await this.prisma.client.workflowState.findMany({
       where: { workflowDefinitionId: workflowId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
 
     return states;
@@ -236,7 +236,7 @@ export class WorkflowsService {
     });
 
     if (!state) {
-      throw new NotFoundException('State not found');
+      throw new NotFoundException("State not found");
     }
 
     const updated = await this.prisma.client.workflowState.update({
@@ -270,14 +270,14 @@ export class WorkflowsService {
     });
 
     if (!state) {
-      throw new NotFoundException('State not found');
+      throw new NotFoundException("State not found");
     }
 
     await this.prisma.client.workflowState.delete({
       where: { id: stateId },
     });
 
-    return { message: 'State deleted successfully' };
+    return { message: "State deleted successfully" };
   }
 
   // ============================================================
@@ -305,9 +305,7 @@ export class WorkflowsService {
     ]);
 
     if (!fromState || !toState) {
-      throw new BadRequestException(
-        'Both states must belong to this workflow',
-      );
+      throw new BadRequestException("Both states must belong to this workflow");
     }
 
     const transition = await this.prisma.client.workflowTransition.create({
@@ -332,7 +330,7 @@ export class WorkflowsService {
         fromState: { select: { id: true, name: true } },
         toState: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
 
     return transitions;
@@ -356,13 +354,13 @@ export class WorkflowsService {
     });
 
     if (!transition) {
-      throw new NotFoundException('Transition not found');
+      throw new NotFoundException("Transition not found");
     }
 
     await this.prisma.client.workflowTransition.delete({
       where: { id: transitionId },
     });
 
-    return { message: 'Transition deleted successfully' };
+    return { message: "Transition deleted successfully" };
   }
 }
