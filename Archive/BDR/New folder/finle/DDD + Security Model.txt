@@ -1,0 +1,970 @@
+DDD + Security Model
+🏗️ نظام "باسان" - نموذج DDC الكامل مع Security Model
+🎯 الجزء 1: Domain-Driven Design (DDD) - النموذج الكامل
+1.1 السياقات المحدودة (Bounded Contexts)
+BC1: سياق الهوية والوصول (Identity & Access Context)
+yaml
+الغرض: إدارة هويات المستخدمين والصلاحيات
+الكيانات المجمعة (Aggregates):
+• User (جذر التجمع)
+  - UserProfile
+  - UserCredentials
+  - UserPreferences
+  - Roles
+
+القيمة (Value Objects):
+• Email
+• PhoneNumber
+• PasswordHash
+• PermissionSet
+
+خدمات المجال (Domain Services):
+• AuthenticationService
+• AuthorizationService
+• SessionManagementService
+
+أحداث المجال (Domain Events):
+• UserRegistered
+• UserAuthenticated
+• RoleChanged
+• PermissionUpdated
+
+القواعد (Domain Rules):
+• مستخدم واحد يمكن أن ينتمي لشركات متعددة بأدوار مختلفة
+• الصلاحيات مبنية على RBAC مع هرمية
+• التحقق الثنائي اختياري للشركات
+BC2: سياق الشركة (Company Context)
+yaml
+الغرض: إدارة بيانات الشركات والهيكل التنظيمي
+الكيانات المجمعة:
+• Company (جذر التجمع)
+  - CompanyProfile
+  - CompanySettings
+  - Subscription
+  - Departments
+
+القيمة:
+• CompanyAddress
+• TaxInformation
+• SubscriptionPlan
+• SettingsConfiguration
+
+خدمات المجال:
+• CompanyRegistrationService
+• DepartmentManagementService
+• SubscriptionService
+
+أحداث المجال:
+• CompanyCreated
+• DepartmentAdded
+• SubscriptionUpgraded
+• SettingsUpdated
+
+القواعد:
+• شركة واحدة فقط لكل مستخدم كمؤسس
+• يمكن إضافة أقسام غير محدودة
+• الإعدادات قابلة للتخصيص حسب خطة الاشتراك
+BC3: سياق الموظفين (Employee Context)
+yaml
+الغرض: إدارة علاقات التوظيف والعقود
+الكيانات المجمعة:
+• Employee (جذر التجمع)
+  - EmploymentContract
+  - WorkSchedule
+  - PerformanceMetrics
+  - CareerPath
+
+القيمة:
+• ContractTerms
+• SalaryStructure
+• WorkHours
+• PerformanceScore
+
+خدمات المجال:
+• ContractManagementService
+• PerformanceEvaluationService
+• CareerDevelopmentService
+
+أحداث المجال:
+• EmployeeHired
+• ContractRenewed
+• PerformanceEvaluated
+• PromotionGranted
+
+القواعد:
+• موظف واحد يمكن أن يعمل في شركات متعددة
+• العقد يحدد نوع العمل (كامل، جزئي، عمولة)
+• المسار الوظيفي بناءً على الأداء والتدريب
+BC4: سياق العمولات (Commission Context)
+yaml
+الغرض: حساب وإدارة الحقوق المالية
+الكيانات المجمعة:
+• Commission (جذر التجمع)
+  - CommissionRule
+  - CalculationResult
+  - PaymentEvidence
+  - DisputeHistory
+
+القيمة:
+• MonetaryAmount
+• CalculationFormula
+• PaymentProof
+• DisputeReason
+
+خدمات المجال:
+• CommissionCalculator
+• RuleEngine
+• DisputeResolver
+
+أحداث المجال:
+• CommissionCalculated
+• RuleApplied
+• PaymentVerified
+• DisputeOpened
+
+القواعد:
+• العمولة تحسب بناءً على القواعد المحددة مسبقاً
+• يمكن تعديل القواعد مع الحفاظ على التاريخ
+• النزاعات تحل تلقائياً بنسبة 80%، والباقي يدوياً
+BC5: سياق المهام (Task Context)
+yaml
+الغرض: إدارة دورة حياة المهام والإنجازات
+الكيانات المجمعة:
+• Task (جذر التجمع)
+  - TaskDetails
+  - Assignment
+  - ProgressTracking
+  - Deliverables
+
+القيمة:
+• TaskDescription
+• Deadline
+• PriorityLevel
+• QualityMetrics
+
+خدمات المجال:
+• TaskAssignmentService
+• ProgressMonitoringService
+• QualityAssuranceService
+
+أحداث المجال:
+• TaskCreated
+• TaskAssigned
+• ProgressUpdated
+• TaskCompleted
+
+القواعد:
+• المهام توزع بناءً على المهارات والتوفر
+• التقدم يتتبع تلقائياً عبر النظام
+• الجودة تقيم بواسطة متعددة المعايير
+BC6: سياق الأدلة (Evidence Context)
+yaml
+الغرض: جمع وتوثيق إثباتات الإنجازات
+الكيانات المجمعة:
+• Evidence (جذر التجمع)
+  - EvidenceSource
+  - Metadata
+  - VerificationStatus
+  - ChainOfCustody
+
+القيمة:
+• SourceIdentifier
+• Timestamp
+• HashValue
+• VerificationScore
+
+خدمات المجال:
+• EvidenceCollector
+• VerificationService
+• ChainBuilder
+
+أحداث المجال:
+• EvidenceCollected
+• SourceVerified
+• ChainUpdated
+• EvidenceArchived
+
+القواعد:
+• كل دليل له مصدر موثق
+• السلسلة الزمنية محفوظة
+• التحقق متعدد الطبقات
+BC7: سياق السمعة (Reputation Context)
+yaml
+الغرض: بناء وتتبع السمعة والتصنيف
+الكيانات المجمعة:
+• Reputation (جذر التجمع)
+  - ScoreHistory
+  - RatingFactors
+  - TrustMetrics
+  - Badges
+
+القيمة:
+• ReputationScore
+• FactorWeight
+• TrendAnalysis
+• AchievementBadge
+
+خدمات المجال:
+• ScoreCalculator
+• TrendAnalyzer
+• BadgeAwarder
+
+أحداث المجال:
+• ScoreUpdated
+• RatingAdded
+• BadgeEarned
+• ReputationChanged
+
+القواعد:
+• السمعة تحسب بناءً على سلوكيات متعددة
+• الاتجاهات تؤثر في التقييم
+• الشارات تمنح للإنجازات البارزة
+BC8: سياق النزاعات (Dispute Context)
+yaml
+الغرض: إدارة وتسوية النزاعات
+الكيانات المجمعة:
+• Dispute (جذر التجمع)
+  - DisputeDetails
+  - EvidenceBundle
+  - ResolutionProcess
+  - SettlementTerms
+
+القيمة:
+• DisputeType
+• ClaimAmount
+• ResolutionStatus
+• SettlementAgreement
+
+خدمات المجال:
+• DisputeMediator
+• EvidenceAnalyzer
+• SettlementExecutor
+
+أحداث المجال:
+• DisputeFiled
+• EvidenceSubmitted
+• ResolutionProposed
+• DisputeSettled
+
+القواعد:
+• النزاعات تحل خلال 7 أيام كحد أقصى
+• القرارات تستند إلى الأدلة والقواعد
+• التسوية تطبق تلقائياً على النظام
+1.2 خرائط السياق (Context Maps)
+العلاقات بين السياقات:
+text
+Identity Context ────┐
+                     ├──→ Company Context
+Employee Context ────┘
+        │
+        ↓
+Task Context ───────→ Evidence Context
+        │                    │
+        ↓                    ↓
+Commission Context ←───────┐
+        │                  │
+        ↓                  │
+Reputation Context ←────── Dispute Context
+أنماط التكامل:
+مشاركة النواة (Shared Kernel):
+yaml
+بين:
+• Identity Context و Company Context
+• Employee Context و Task Context
+
+المشاركة:
+• User Reference
+• Company ID
+• Employee ID
+العملاء والموردون (Customer/Supplier):
+yaml
+Supplier → Customer:
+• Evidence Context → Commission Context
+• Task Context → Reputation Context
+• Dispute Context → Reputation Context
+الامتثال المتبادل (Conformist):
+yaml
+الممتثل → القائد:
+• جميع السياقات ← Identity Context (للمصادقة)
+• جميع السياقات ← Company Context (لعزل البيانات)
+طبقة مكافحة الفساد (Anti-Corruption Layer):
+yaml
+التطبيق ← ACL ← الأنظمة الخارجية:
+• Integration Context ← Shopify
+• Integration Context ← Payment Platforms
+• Integration Context ← Google Drive
+1.3 خدمات المجال الاستراتيجية
+خدمة تطبيق القواعد (Rule Application Service):
+yaml
+المسؤولية: تطبيق قواعد الأعمال عبر السياقات
+الواجهة:
+interface RuleApplicationService {
+  applyCommissionRules(saleData: SaleData): CommissionCalculation;
+  applyTaskAssignmentRules(task: Task): EmployeeAssignment;
+  applyReputationRules(behavior: EmployeeBehavior): ScoreAdjustment;
+}
+خدمة التحقق من التماسك (Consistency Verification Service):
+yaml
+المسؤولية: ضمان تماسك البيانات عبر السياقات
+الواجهة:
+interface ConsistencyVerifier {
+  verifyCommissionConsistency(commission: Commission): VerificationResult;
+  verifyEvidenceChain(evidence: Evidence): ChainValidity;
+  verifyReputationIntegrity(reputation: Reputation): IntegrityCheck;
+}
+خدمة بناء السمعة (Reputation Builder Service):
+yaml
+المسؤولية: بناء السمعة من مصادر متعددة
+الواجهة:
+interface ReputationBuilder {
+  buildFromCommissions(commissions: Commission[]): ReputationScore;
+  buildFromTasks(tasks: Task[]): PerformanceRating;
+  buildFromDisputes(disputes: Dispute[]): TrustLevel;
+}
+1.4 أحداث المجال الرئيسية
+سلسلة أحداث عملية البيع:
+text
+1. SaleOccurred (من Shopify)
+2. TaskCreated (للمتابعة)
+3. EvidenceCollected (لإثبات المتابعة)
+4. TaskCompleted (بعد الإنجاز)
+5. CommissionCalculated (بعد التقييم)
+6. PaymentVerified (بعد الدفع)
+7. ReputationUpdated (بعد التحقق)
+سلسلة أحداث النزاع:
+text
+1. CommissionDisputed (موظف يعترض)
+2. EvidenceGathered (جمع الأدلة)
+3. DisputeAnalyzed (تحليل النزاع)
+4. ResolutionProposed (اقتراح حل)
+5. SettlementApplied (تطبيق التسوية)
+6. ReputationAdjusted (تعديل السمعة)
+🔐 الجزء 2: Security Model - نموذج الأمان الكامل
+2.1 نموذج الأمان الطبقي (Layered Security Model)
+الطبقة 1: أمان الشبكة (Network Security)
+yaml
+التطبيق:
+• Virtual Private Cloud (VPC) مع Subnets
+• Network Security Groups (NSGs)
+• Web Application Firewall (WAF)
+• DDoS Protection
+
+القواعد:
+• كل خدمة في subnet منفصل
+• الاتصال بين الخدمات عبر Service Mesh
+• الاتصال الخارجي عبر API Gateway فقط
+• جميع الاتصالات مشفرة بـ TLS 1.3
+الطبقة 2: أمان التطبيق (Application Security)
+yaml
+التطبيق:
+• Input Validation في جميع الطبقات
+• Output Encoding للوقاية من XSS
+• CSRF Tokens لجميع النماذج
+• Content Security Policy (CSP)
+
+القواعد:
+• جميع المدخلات تطهر قبل المعالجة
+• جميع المخرجات ترميز قبل العرض
+• جلسات المستخدمين تدير بشكل آمن
+• ملفات Cookie محمية بـ HttpOnly و Secure
+الطبقة 3: أمان البيانات (Data Security)
+yaml
+التطبيق:
+• Encryption at Rest (AES-256)
+• Encryption in Transit (TLS 1.3)
+• Row-Level Security في PostgreSQL
+• Database Activity Monitoring
+
+القواعد:
+• البيانات الحساسة مشفرة في قاعدة البيانات
+• مفاتيح التشفير تدير عبر HSM/KMS
+• الوصول للبيانات عبر Stored Procedures
+• سجلات التدقيق لجميع عمليات الوصول
+الطبقة 4: أمان الهوية (Identity Security)
+yaml
+التطبيق:
+• Multi-Factor Authentication (MFA)
+• Role-Based Access Control (RBAC)
+• Attribute-Based Access Control (ABAC)
+• Session Management
+
+القواعد:
+• التحقق الثنائي إجباري للشركات الكبيرة
+• الصلاحيات تمنح على مبدأ "الحد الأدنى"
+• الجلسات تنتهي بعد فترة عدم نشاط
+• إعادة المصادقة للعمليات الحساسة
+2.2 نموذج التحكم في الوصول (Access Control Model)
+نموذج RBAC + ABAC الهجين:
+yaml
+RBAC Layer (الدور):
+• Owner: صلاحيات كاملة
+• Admin: صلاحيات إدارية
+• Manager: صلاحيات قسمية
+• Employee: صلاحيات شخصية
+• System: صلاحيات تقنية
+
+ABAC Layer (السمات):
+• company_id: الشركة المالكة
+• department_id: القسم التابع
+• employment_status: حالة التوظيف
+• reputation_score: درجة السمعة
+• subscription_plan: خطة الاشتراك
+مصفوفة الصلاحيات (Permission Matrix):
+yaml
+Commission Context:
+• Create: Owner, Admin, System
+• Read: Owner, Admin, Manager (قسمه), Employee (خاصته)
+• Update: Owner, Admin, Manager (قسمه)
+• Delete: Owner, Admin, System
+• Approve: Owner, Admin, Manager (حسب الحدود)
+
+Task Context:
+• Create: Owner, Admin, Manager
+• Assign: Owner, Admin, Manager
+• Update: Owner, Admin, Manager, Employee (مهامه)
+• Complete: Employee (مهامه)
+• Review: Owner, Admin, Manager
+
+Evidence Context:
+• Upload: Owner, Admin, Manager, Employee (أدلته)
+• Verify: Owner, Admin, Manager, System
+• Delete: System فقط (للأرشفة)
+قواعد الصلاحيات الديناميكية:
+javascript
+class AccessControlPolicy {
+  canViewCommission(user, commission) {
+    return (
+      // RBAC Check
+      user.hasRole(['owner', 'admin']) ||
+      
+      // ABAC Check - Same Department
+      (user.hasRole('manager') && 
+       user.department_id === commission.employee.department_id) ||
+      
+      // ABAC Check - Own Commission
+      (user.hasRole('employee') && 
+       user.id === commission.employee_id) ||
+      
+      // Reputation-based Access
+      (user.reputation_score >= 4.5 && 
+       commission.amount < user.reputation_based_limit)
+    );
+  }
+  
+  canApproveCommission(user, commission) {
+    const approvalLimits = {
+      manager: 50000,
+      admin: 200000,
+      owner: Infinity
+    };
+    
+    return (
+      user.hasRole(['owner', 'admin', 'manager']) &&
+      commission.amount <= approvalLimits[user.role] &&
+      user.department_id === commission.employee.department_id
+    );
+  }
+}
+2.3 نموذج عزل المستأجرين (Tenant Isolation Model)
+مستويات العزل المتعددة:
+yaml
+المستوى 1: عزل قاعدة البيانات
+• Database Schema لكل مستأجر كبير
+• Row-Level Security للجميع
+• Connection Pooling منفصل
+
+المستوى 2: عزل التخزين
+• Bucket/S3 لكل مستأزر
+• Folder Structure معزول
+• Access Policies خاصة
+
+المستوى 3: عزل التخزين المؤقت
+• Redis Database Index منفصل
+• Cache Key Prefix حسب tenant_id
+• Cache Invalidation منفصل
+
+المستوى 4: عزل المفاتيح
+• Encryption Keys لكل مستأزر
+• Key Rotation منفصل
+• Key Access Logging
+تنفيذ Row-Level Security:
+sql
+-- سياسات PostgreSQL RLS
+CREATE POLICY tenant_isolation_policy ON commissions
+    USING (tenant_id = current_setting('app.current_tenant')::UUID);
+
+CREATE POLICY department_isolation_policy ON commissions
+    FOR SELECT TO manager_role
+    USING (
+        tenant_id = current_setting('app.current_tenant')::UUID AND
+        department_id IN (
+            SELECT department_id 
+            FROM department_managers 
+            WHERE manager_id = current_user_id()
+        )
+    );
+2.4 نموذج تدقيق الأمان (Security Audit Model)
+سجلات التدقيق الشاملة:
+yaml
+التسجيلات الإلزامية:
+1. أحداث المصادقة:
+   • Login Success/Failure
+   • MFA Attempts
+   • Password Changes
+   • Session Creation/Destruction
+
+2. أحداث الصلاحيات:
+   • Role Changes
+   • Permission Grants/Revokes
+   • Access Attempts (Success/Failure)
+
+3. أحداث البيانات:
+   • Create/Read/Update/Delete
+   • Export Operations
+   • Bulk Operations
+
+4. أحداث النظام:
+   • Configuration Changes
+   • Integration Events
+   • Security Policy Updates
+سلسلة الكتل للتدقيق (Audit Blockchain):
+yaml
+البنية:
+• كل كتلة تحتوي مجموعة من السجلات
+• Hash لكل كتلة يشمل hash الكتلة السابقة
+• التوقيع الرقمي من النظام
+• Timestamp من خدمة موثوقة
+
+التطبيق:
+• جميع التعديلات المالية
+• تغييرات الصلاحيات
+• قرارات النزاعات
+• تحديثات السمعة
+
+الوصول:
+• Read-Only للجميع
+• Write للنظام فقط
+• Verification للمستخدمين المصرح لهم
+2.5 نموذج التحقق من النزاهة (Integrity Verification Model)
+التحقق متعدد الطبقات:
+yaml
+الطبقة 1: التحقق من المصدر
+• Digital Signatures للمصادر الخارجية
+• HMAC Verification للـ Webhooks
+• Certificate Pinning للاتصالات
+
+الطبقة 2: التحقق من البيانات
+• Data Hash قبل وبعد المعالجة
+• Schema Validation للبيانات الواردة
+• Business Rule Validation
+
+الطبقة 3: التحقق من العمليات
+• Idempotency Checks
+• Sequence Verification
+• Consistency Validation
+
+الطبقة 4: التحقق من النتائج
+• Result Hash Comparison
+• Audit Trail Verification
+• Blockchain Proof Verification
+خدمة التوقيع المشفرة (Cryptographic Signing Service):
+typescript
+interface CryptographicSigner {
+  // توقيع البيانات
+  signData(data: any, keyId: string): SignedData;
+  
+  // التحقق من التوقيع
+  verifySignature(signedData: SignedData): VerificationResult;
+  
+  // توليد Hash
+  generateHash(data: any): string;
+  
+  // حفظ الإثبات
+  storeProof(proof: CryptographicProof): string;
+}
+
+class CommissionSigner {
+  async signCommission(commission: Commission) {
+    // 1. توليد Hash للعمولة
+    const commissionHash = this.generateHash({
+      id: commission.id,
+      amount: commission.amount,
+      employeeId: commission.employeeId,
+      calculationRules: commission.calculationRules
+    });
+    
+    // 2. التوقيع الرقمي
+    const signature = await this.signData(commissionHash, 'commission-key');
+    
+    // 3. حفظ في سلسلة الكتل
+    const proofId = await this.storeProof({
+      type: 'commission_calculation',
+      dataHash: commissionHash,
+      signature: signature,
+      timestamp: new Date(),
+      signedBy: 'system'
+    });
+    
+    return { commissionHash, signature, proofId };
+  }
+}
+2.6 نموذج اكتشاف الشذوذ (Anomaly Detection Model)
+أنماط الشذوذ المراقبة:
+yaml
+النمط 1: شذوذ الوصول
+• محاولات وصول من أماكن غير معتادة
+• معدل فشل مصادقة مرتفع
+• وقت وصول غير طبيعي
+
+النمط 2: شذوذ البيانات
+• قيم غير متوقعة في الحسابات
+• أنماط مبيعات غير طبيعية
+• تغييرات مفاجئة في الأداء
+
+النمط 3: شذوذ السلوك
+• تغييرات مفاجئة في عادات العمل
+• تفاعلات غير معتادة مع النظام
+• محاولات تجاوز الصلاحيات
+
+النمط 4: شذوذ النظام
+• زيادة غير طبيعية في الحمل
+• أخطاء غير مألوفة
+• تغييرات في الأداء
+خدمة اكتشاف الشذوذ (Anomaly Detection Service):
+python
+class AnomalyDetector:
+    def __init__(self):
+        self.models = {
+            'access_pattern': AccessPatternModel(),
+            'commission_pattern': CommissionPatternModel(),
+            'behavior_pattern': BehaviorPatternModel(),
+            'system_pattern': SystemPatternModel()
+        }
+    
+    def detect_anomalies(self, context, data):
+        anomalies = []
+        
+        # التحقق من أنماط الوصول
+        if self.models['access_pattern'].is_anomalous(data['access_data']):
+            anomalies.append({
+                'type': 'access_anomaly',
+                'severity': 'high',
+                'description': 'نمط وصول غير طبيعي'
+            })
+        
+        # التحقق من أنماط العمولات
+        if self.models['commission_pattern'].is_anomalous(data['commission_data']):
+            anomalies.append({
+                'type': 'commission_anomaly',
+                'severity': 'critical',
+                'description': 'نمط عمولات مشبوه'
+            })
+        
+        return anomalies
+2.7 نموذج الاستجابة للحوادث (Incident Response Model)
+خطة الاستجابة:
+yaml
+المستوى 1: حوادث منخفضة الخطورة
+• الاستجابة: تشغيل Alerting تلقائي
+• الإجراء: تسجيل وتتبع
+• الوقت المستهدف: < 1 ساعة
+
+المستوى 2: حوادث متوسطة الخطورة
+• الاستجابة: تنبيه الفريق الأمني
+• الإجراء: عزل وتحقيق
+• الوقت المستهدف: < 4 ساعات
+
+المستوى 3: حوادث عالية الخطورة
+• الاستجابة: تشغيل خطة الطوارئ
+• الإجراء: احتواء واستعادة
+• الوقت المستهدف: < 1 ساعة
+
+المستوى 4: حوادث حرجة
+• الاستجابة: تنبيه الإدارة العليا
+• الإجراء: اتصال بالسلطات
+• الوقت المستهدف: فوري
+خطوات الاستجابة التفصيلية:
+text
+1. الاكتشاف (Detection):
+   • Monitoring Systems
+   • Anomaly Detection
+   • User Reports
+
+2. التقييم (Assessment):
+   • تحديد النطاق
+   • تقييم الأثر
+   • تصنيف الحادث
+
+3. الاحتواء (Containment):
+   • عزل الأنظمة المتأثرة
+   • تغيير الصلاحيات
+   • تنفيذ إجراءات طارئة
+
+4. الاستئصال (Eradication):
+   • إزالة سبب الحادث
+   • تطبيق إصلاحات
+   • تأمين الأنظمة
+
+5. الاستعادة (Recovery):
+   • استعادة البيانات
+   • إعادة الخدمة
+   • المراقبة المعززة
+
+6. التعلم (Lessons Learned):
+   • تحليل الجذر
+   • تحسين الإجراءات
+   • تحديث السياسات
+2.8 نموذج الامتثال (Compliance Model)
+متطلبات الامتثال:
+yaml
+الامتثال المالي:
+• PCI DSS (لبيانات الدفع)
+• SOX (للضوابط المالية)
+• AML (لمكافحة غسيل الأموال)
+
+الامتثال للخصوصية:
+• GDPR (للعملاء الأوروبيين)
+• PDPL (للسعودية)
+• CCPA (لكاليفورنيا)
+
+الامتثال الأمني:
+• ISO 27001
+• SOC 2 Type II
+• NIST Cybersecurity Framework
+ضوابط الامتثال:
+yaml
+ضوابط الوصول:
+• Multi-Factor Authentication
+• Role-Based Access Control
+• Access Logging and Monitoring
+
+ضوابط البيانات:
+• Data Encryption at Rest and in Transit
+• Data Retention Policies
+• Data Subject Rights Management
+
+ضوابط العمليات:
+• Change Management Procedures
+• Incident Response Plans
+• Business Continuity Plans
+
+ضوابط التدقيق:
+• Regular Security Audits
+• Third-Party Assessments
+• Compliance Reporting
+🔗 الجزء 3: تكامل DDD مع Security Model
+3.1 حقن الأمان في سياقات المجال
+حقن التحقق في كل سياق:
+typescript
+// في كل سياق، حقن خدمة التحقق
+class CommissionContext {
+  constructor(
+    private commissionRepository: CommissionRepository,
+    private securityVerifier: SecurityVerifier,
+    private auditLogger: AuditLogger
+  ) {}
+  
+  async calculateCommission(saleData: SaleData): Promise<Commission> {
+    // 1. التحقق الأمني قبل العملية
+    await this.securityVerifier.verifyAccess(
+      currentUser(),
+      'calculate_commission',
+      { saleData }
+    );
+    
+    // 2. تنفيذ منطق المجال
+    const commission = this.calculate(saleData);
+    
+    // 3. التحقق الأمني بعد العملية
+    await this.securityVerifier.verifyIntegrity(commission);
+    
+    // 4. تسجيل التدقيق
+    await this.auditLogger.log({
+      action: 'commission_calculated',
+      entity: commission,
+      user: currentUser(),
+      timestamp: new Date()
+    });
+    
+    return commission;
+  }
+}
+3.2 أحداث المجال الأمنية
+أحداث أمنية مخصصة:
+yaml
+SecurityEvents:
+• AccessDenied: رفض وصول
+• PermissionEscalationAttempt: محاولة تصعيد صلاحيات
+• DataBreachAttempt: محاولة اختراق بيانات
+• AnomalyDetected: اكتشاف شذوذ
+• ComplianceViolation: مخالفة امتثال
+
+Integration:
+• ترتبط جميع الأحداث الأمنية بـ Audit Context
+• تتفاعل مع Reputation Context (تعديل السمعة)
+• تثير استجابات في Incident Response Context
+3.3 سياسات الأمان كقواعد مجال
+تعريف سياسات الأمان في المجال:
+typescript
+// سياسات الأمان كقواعد مجال
+class SecurityPolicies {
+  // سياسة فصل المهام
+  static ensureSegregationOfDuties(
+    user: User, 
+    action: string, 
+    context: any
+  ): boolean {
+    const conflictingRoles = {
+      'approve_commission': ['calculate_commission'],
+      'verify_payment': ['receive_payment'],
+      'audit_logs': ['modify_logs']
+    };
+    
+    return !user.hasAnyRole(conflictingRoles[action] || []);
+  }
+  
+  // سياسة الحدود المالية
+  static checkFinancialLimits(
+    user: User,
+    amount: number,
+    action: string
+  ): boolean {
+    const limits = {
+      'manager': { 'approve_commission': 50000 },
+      'admin': { 'approve_commission': 200000 },
+      'owner': { 'approve_commission': Infinity }
+    };
+    
+    const userLimit = limits[user.role]?.[action];
+    return amount <= userLimit;
+  }
+}
+3.4 أنماط تصميم أمنية في DDD
+النمط 1: Anti-Corruption Layer للأمان
+typescript
+// طبقة عزل لعمليات الأمان الخارجية
+class SecurityACL {
+  async verifyExternalPayment(paymentData: any): Promise<VerificationResult> {
+    // 1. تحويل التنسيق الخارجي للتنسيق الداخلي
+    const internalData = this.transformToInternalFormat(paymentData);
+    
+    // 2. تطبيق قواعد التحقق الداخلية
+    const validationResult = this.validateInternalData(internalData);
+    
+    // 3. التحقق من النزاهة
+    const integrityCheck = this.checkDataIntegrity(internalData);
+    
+    // 4. إرجاع النتيجة المعيارية
+    return {
+      verified: validationResult.valid && integrityCheck.passed,
+      confidence: this.calculateConfidence(validationResult, integrityCheck),
+      evidence: this.collectEvidence(internalData)
+    };
+  }
+}
+النمط 2: Domain Events للأمان
+typescript
+// أحداث المجال التي تثير استجابات أمنية
+class SecurityAwareDomainEvents {
+  // حدث حساب عمولة يثير تحقق أمني
+  @DomainEvent()
+  commissionCalculated(commission: Commission) {
+    // تشغيل تحقق الشذوذ
+    this.anomalyDetector.checkCommissionPattern(commission);
+    
+    // تحديث تحليل المخاطر
+    this.riskAnalyzer.updateRiskProfile(commission.employee);
+    
+    // تسجيل للتدقيق
+    this.auditService.logCommissionCalculation(commission);
+  }
+  
+  // حدث وصول مرفوض يثير استجابة
+  @DomainEvent()
+  accessDenied(user: User, resource: string, reason: string) {
+    // تحديث سمعة المستخدم
+    this.reputationService.adjustScore(user, -10, 'access_denied');
+    
+    // تشغيل اكتشاف الشذوذ
+    this.anomalyDetector.detectAccessPattern(user, resource);
+    
+    // إشعار فريق الأمن إذا تكرر
+    if (this.isRepeatedAttempt(user, resource)) {
+      this.securityTeam.notify({
+        type: 'suspicious_access',
+        user: user,
+        attempts: this.getAttemptCount(user, resource)
+      });
+    }
+  }
+}
+🏆 الخلاصة: التكامل الكامل
+نموذج DDD + Security المتكامل:
+text
+الهيكل المتكامل:
+Domain Contexts (DDD) ←→ Security Model
+       ↓                           ↓
+ Business Rules              Security Policies
+       ↓                           ↓
+Domain Events               Security Events
+       ↓                           ↓
+  Audit Trail              Incident Response
+       ↓                           ↓
+ Reputation System         Compliance Reporting
+المبادئ الأساسية:
+1. الأمان كجزء من المجال (Security as Domain):
+text
+• سياسات الأمان هي قواعد مجال
+• أحداث الأمان هي أحداث مجال
+• التحقق الأمني هو جزء من منطق الأعمال
+2. العزل والحدود (Isolation & Boundaries):
+text
+• كل سياق له حدود أمنية واضحة
+• التكامل بين السياقات عبر واجهات آمنة
+• عزل البيانات بين المستأجرين في جميع المستويات
+3. التدقيق الشامل (Comprehensive Audit):
+text
+• كل عمل يترك أثراً
+• كل قرار له سبب مسجل
+• كل تغيير له سلسلة إثبات
+4. الاستجابة الذكية (Intelligent Response):
+text
+• اكتشاف تلقائي للشذوذ
+• استجابة تلقائية للحوادث
+• تعلم مستمر من السلوكيات
+القيمة المضافة:
+text
+نظام "باسان" مع DDD + Security Model يوفر:
+
+1. نظام أعمال قوي:
+   • منطق أعمال واضح ومنظم
+   • قواعد مجال معزولة وقابلة للصيانة
+   • أحداث ونماذج غنية
+
+2. نظام أمان شامل:
+   • حماية متعددة الطبقات
+   • تحكم دقيق في الوصول
+   • تدقيق وتتبع كامل
+
+3. نظام عدالة حقيقي:
+   • شفافية في كل خطوة
+   • إثباتات غير قابلة للتغيير
+   • سمعة مبنية على الأدلة
+
+4. نظام امتثال كامل:
+   • متوافق مع المعايير العالمية
+   • قابل للتدقيق والمراجعة
+   • مستعد لأي متطلبات تنظيمية
+جاهز للإنتاج:
+text
+✅ التصميم المعياري مكتمل
+✅ نماذج الأمان شاملة
+✅ خطط الاستجابة جاهزة
+✅ متطلبات الامتثال مغطاة
+✅ قابل للتطوير والتوسع
+
+جميع المكونات مصممة للعمل معاً
+في نظام متكامل يضمن العدالة والأمان
+للشركات العربية الناشئة والمتوسطة.
+نهاية نموذج DDD + Security الكامل
+حالة: جاهز للتنفيذ الفوري

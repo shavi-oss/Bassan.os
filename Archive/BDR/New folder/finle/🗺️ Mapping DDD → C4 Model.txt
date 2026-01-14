@@ -1,0 +1,617 @@
+🗺️ Mapping DDD → C4 Model لنظام "باسان"
+🎯 الفلسفة الربطية
+القاعدة الأساسية:
+text
+DDD (Domain-Driven Design) ← يحدد "ماذا"
+C4 Model ← يحدد "كيف"
+
+DDD: التركيز على النطاق التجاري
+C4: التركيز على الهيكل التقني
+📊 الجدول الربطي الكامل
+DDD Concept	C4 Counterpart	مثال في نظام "باسان"	ملاحظات الربط
+النطاق التجاري (Business Domain)	System Context	• نطاق الحقوق
+• نطاق الإنجازات
+• نطاق التحقق	DDD يحدد النطاقات، C4 يحدد حدود النظام
+النطاق المحدد (Bounded Context)	Container	• خدمة الحقوق (Rights Service)
+• خدمة الإنجازات (Achievement Service)	كل Bounded Context ≈ حاوية مستقلة
+الوحدة المجمعة (Aggregate)	Component	• حاسب الحقوق (Rights Calculator)
+• محقق المدفوعات (Payment Investigator)	Aggregate ≈ مجموعة من المكونات المنطقية
+الكيان (Entity)	Database Table/Entity	• Employee (جدول الموظفين)
+• Commission (جدول العمولات)	Entity ≈ نموذج بيانات في قاعدة البيانات
+الكائن القيمة (Value Object)	Data Transfer Object	• CommissionRule (قاعدة العمولة)
+• PaymentVerification (نتيجة التحقق)	VO ≈ كائن بيانات يمر بين المكونات
+المستودع (Repository)	Data Access Component	• Rights Repository
+• Achievement Repository	Repository ≈ مكون الوصول للبيانات
+خدمة النطاق (Domain Service)	Business Logic Component	• Rule Engine (محرك القواعد)
+• Verification Engine (محرك التحقق)	Domain Service ≈ مكون منطق الأعمال
+حدث النطاق (Domain Event)	Message/Event	• RightsCalculated (حقوق محسوبة)
+• PaymentVerified (دفع تم التحقق منه)	Domain Event ≈ رسالة في Event Bus
+وحدة المجال (Module)	Package/Namespace	• rights.calculator
+• verification.payment	Module ≈ هيكل المجلدات/التسمية
+سياق الخريطة (Context Map)	Container Diagram	• تدفق البيانات بين الخدمات
+• اعتماديات بين الحاويات	Context Map ≈ رسم تخطيطي للحاويات
+لغة منتشرة (Ubiquitous Language)	Glossary/Dictionary	• موظف (Employee)
+• عمولة (Commission)
+• مهمة (Task)	لغة مشتركة في الوثائق والكود
+الطبقة المضادة للفساد (Anti-Corruption Layer)	Adapter/Integration Service	• Shopify Adapter
+• Payment Gateway Adapter	ACL ≈ خدمة تكامل مع أنظمة خارجية
+🏗️ التفصيل الربطي لكل نطاق
+1. نطاق الحقوق (Rights Domain)
+DDD Structure:
+yaml
+Aggregates:
+  1. CommissionAggregate:
+     • Entities: Commission, Employee
+     • Value Objects: CommissionRule, CalculationResult
+     • Domain Services: RightsCalculator
+     • Repositories: CommissionRepository
+     • Domain Events: RightsCalculated, CommissionApproved
+
+  2. RuleAggregate:
+     • Entities: CommissionRule
+     • Value Objects: RuleCondition, RuleAction
+     • Domain Services: RuleEngine
+     • Repositories: RuleRepository
+     • Domain Events: RuleCreated, RuleModified
+C4 Mapping:
+yaml
+Container: Rights Service
+Components:
+  1. Rights Calculator (Domain Service)
+     • Responsibility: حساب الحقوق
+     • Dependencies: Rule Repository, Commission Repository
+     
+  2. Rule Engine (Domain Service)
+     • Responsibility: تطبيق القواعد
+     • Dependencies: Rule Repository, Historical Context Engine
+     
+  3. Rights Repository (Repository)
+     • Responsibility: وصول بيانات الحقوق
+     • Storage: PostgreSQL - Rights Database
+     
+  4. Rule Repository (Repository)
+     • Responsibility: وصول بيانات القواعد
+     • Storage: PostgreSQL - Rules Database
+2. نطاق الإنجازات (Achievement Domain)
+DDD Structure:
+yaml
+Aggregates:
+  1. TaskAggregate:
+     • Entities: Task, Employee
+     • Value Objects: TaskSpecification, DeliveryEvidence
+     • Domain Services: TaskDistributor
+     • Repositories: TaskRepository
+     • Domain Events: TaskCreated, TaskCompleted
+
+  2. EvidenceAggregate:
+     • Entities: Evidence, Attachment
+     • Value Objects: FileMetadata, VerificationResult
+     • Domain Services: EvidenceValidator
+     • Repositories: EvidenceRepository
+     • Domain Events: EvidenceSubmitted, EvidenceVerified
+C4 Mapping:
+yaml
+Container: Achievement Service
+Components:
+  1. Task Distributor (Domain Service)
+     • Responsibility: توزيع المهام
+     • Dependencies: Task Repository, Employee Service
+     
+  2. Evidence Validator (Domain Service)
+     • Responsibility: التحقق من الأدلة
+     • Dependencies: Evidence Repository, Integration Service
+     
+  3. Task Repository (Repository)
+     • Responsibility: وصول بيانات المهام
+     • Storage: PostgreSQL - Tasks Database
+     
+  4. Evidence Repository (Repository)
+     • Responsibility: وصول بيانات الأدلة
+     • Storage: PostgreSQL + Cloud Storage
+3. نطاق التحقق (Verification Domain)
+DDD Structure:
+yaml
+Aggregates:
+  1. PaymentVerificationAggregate:
+     • Entities: PaymentVerification, Transaction
+     • Value Objects: VerificationCriteria, MatchResult
+     • Domain Services: PaymentInvestigator
+     • Repositories: VerificationRepository
+     • Domain Events: PaymentVerified, DiscrepancyFound
+
+  2. ExternalIntegrationAggregate:
+     • Entities: IntegrationConfig, APICredentials
+     • Value Objects: APIResponse, WebhookPayload
+     • Domain Services: IntegrationCoordinator
+     • Repositories: IntegrationRepository
+     • Domain Events: IntegrationSucceeded, IntegrationFailed
+C4 Mapping:
+yaml
+Container: Verification Service
+Components:
+  1. Payment Investigator (Domain Service)
+     • Responsibility: التحقق من المدفوعات
+     • Dependencies: Verification Repository, Integration Service
+     
+  2. Integration Coordinator (Domain Service)
+     • Responsibility: تنسيق التكاملات الخارجية
+     • Dependencies: Integration Repository, External APIs
+     
+  3. Verification Repository (Repository)
+     • Responsibility: وصول بيانات التحقق
+     • Storage: PostgreSQL - Verification Database
+     
+  4. Statement Analyzer (Domain Service)
+     • Responsibility: تحليل كشوف الحسابات
+     • Dependencies: OCR Engine, Bank Statement Templates
+4. نطاق التسوية (Settlement Domain)
+DDD Structure:
+yaml
+Aggregates:
+  1. DisputeAggregate:
+     • Entities: Dispute, ArbitrationCase
+     • Value Objects: DisputeClaim, ArbitrationDecision
+     • Domain Services: DisputeResolver
+     • Repositories: DisputeRepository
+     • Domain Events: DisputeOpened, DisputeResolved
+
+  2. ReputationAggregate:
+     • Entities: ReputationScore, BehaviorRecord
+     • Value Objects: ScoreCalculation, TrendAnalysis
+     • Domain Services: ReputationAnalyzer
+     • Repositories: ReputationRepository
+     • Domain Events: ReputationUpdated, PenaltyApplied
+C4 Mapping:
+yaml
+Container: Settlement Service
+Components:
+  1. Dispute Resolver (Domain Service)
+     • Responsibility: حل النزاعات
+     • Dependencies: Dispute Repository, Evidence Service
+     
+  2. Reputation Analyzer (Domain Service)
+     • Responsibility: تحليل السمعة
+     • Dependencies: Reputation Repository, Analytics Service
+     
+  3. Dispute Repository (Repository)
+     • Responsibility: وصول بيانات النزاعات
+     • Storage: PostgreSQL - Disputes Database
+     
+  4. Reputation Repository (Repository)
+     • Responsibility: وصول بيانات السمعة
+     • Storage: PostgreSQL - Reputation Database
+🔄 تدفق الأحداث والنطاقات
+سيناريو: عملية بيع جديدة
+DDD Events Flow:
+text
+1. Shopify OrderCreated Event (External)
+   ↓
+2. SaleRecorded Event (Achievement Domain)
+   ↓
+3. RightsCalculated Event (Rights Domain)
+   ↓
+4. PaymentExpected Event (Verification Domain)
+   ↓
+5. PaymentVerified Event (Verification Domain)
+   ↓
+6. ReputationUpdated Event (Settlement Domain)
+C4 Components Interaction:
+text
+Shopify (External) → Integration Service → Event Bus
+                  ↓
+          [Event: NEW_SALE]
+                  ↓
+           ┌─────────────┐
+           │ Rights      │   ← Rights Calculator
+           │ Service     │   ← Rule Engine
+           └─────┬───────┘
+                 │
+           [Event: RIGHTS_CALCULATED]
+                 │
+           ┌─────▼───────┐
+           │ Verification│   ← Payment Investigator
+           │ Service     │   ← Integration Coordinator
+           └─────┬───────┘
+                 │
+           [Event: PAYMENT_VERIFIED]
+                 │
+           ┌─────▼───────┐
+           │ Settlement  │   ← Reputation Analyzer
+           │ Service     │   ← Dispute Resolver
+           └─────────────┘
+🏢 هيكل المجلدات والوحدات (DDD → Code Structure)
+Project Structure:
+text
+basan-system/
+├── 📁 src/
+│   ├── 📁 domains/
+│   │   ├── 📁 rights/                    ← نطاق الحقوق
+│   │   │   ├── 📁 aggregates/
+│   │   │   │   ├── commission/          ← Commission Aggregate
+│   │   │   │   └── rule/                ← Rule Aggregate
+│   │   │   ├── 📁 entities/
+│   │   │   ├── 📁 value-objects/
+│   │   │   ├── 📁 domain-services/
+│   │   │   ├── 📁 repositories/
+│   │   │   └── 📁 events/
+│   │   │
+│   │   ├── 📁 achievements/              ← نطاق الإنجازات
+│   │   │   ├── 📁 aggregates/
+│   │   │   │   ├── task/                ← Task Aggregate
+│   │   │   │   └── evidence/            ← Evidence Aggregate
+│   │   │   └── ... (نفس الهيكل)
+│   │   │
+│   │   ├── 📁 verification/              ← نطاق التحقق
+│   │   │   ├── 📁 aggregates/
+│   │   │   │   ├── payment-verification/
+│   │   │   │   └── external-integration/
+│   │   │   └── ... (نفس الهيكل)
+│   │   │
+│   │   └── 📁 settlement/                ← نطاق التسوية
+│   │       ├── 📁 aggregates/
+│   │       │   ├── dispute/             ← Dispute Aggregate
+│   │       │   └── reputation/          ← Reputation Aggregate
+│   │       └── ... (نفس الهيكل)
+│   │
+│   ├── 📁 applications/                  ← Application Services
+│   │   ├── rights-service/              ← Rights Service App
+│   │   ├── achievement-service/         ← Achievement Service App
+│   │   ├── verification-service/        ← Verification Service App
+│   │   └── settlement-service/          ← Settlement Service App
+│   │
+│   └── 📁 infrastructure/               ← Infrastructure Layer
+│       ├── 📁 persistence/
+│       ├── 📁 messaging/
+│       ├── 📁 external-integrations/
+│       └── 📁 security/
+│
+├── 📁 services/                         ← C4 Containers
+│   ├── rights-service/                  ← Rights Service Container
+│   ├── achievement-service/             ← Achievement Service Container
+│   ├── verification-service/            ← Verification Service Container
+│   └── settlement-service/              ← Settlement Service Container
+│
+└── 📁 deployments/                      ← Deployment Configuration
+Mapping الكود:
+typescript
+// مثال: Commission Aggregate في نطاق الحقوق
+📁 domains/rights/aggregates/commission/
+├── 📄 commission.aggregate.ts          ← Aggregate Root
+├── 📄 commission.entity.ts             ← Commission Entity
+├── 📄 employee.entity.ts               ← Employee Entity (نفس النطاق)
+├── 📄 commission-rule.vo.ts           ← Value Object
+├── 📄 calculation-result.vo.ts        ← Value Object
+├── 📄 rights-calculator.service.ts    ← Domain Service
+├── 📄 commission.repository.ts        ← Repository Interface
+├── 📄 rights-calculated.event.ts      ← Domain Event
+└── 📄 commission-approved.event.ts    ← Domain Event
+
+// المكون المقابل في C4
+📁 services/rights-service/components/
+├── 📄 rights-calculator.component.ts   ← Rights Calculator Component
+├── 📄 rights-repository.component.ts   ← Rights Repository Component
+└── 📄 rule-engine.component.ts        ← Rule Engine Component
+🧩 نماذج التكامل بين النطاقات
+النمط 1: الاشتراك في الأحداث (Event Subscription)
+typescript
+// في نطاق التحقق
+class PaymentVerificationAggregate {
+  // يستمع لحدث من نطاق الحقوق
+  @Subscribe(RightsCalculatedEvent)
+  async handleRightsCalculated(event: RightsCalculatedEvent) {
+    // تحقق من الدفع المقابل لهذا الحق
+    await this.verifyPayment(event.rightId, event.amount);
+  }
+}
+النمط 2: استدعاء مباشر عبر APIs (إذا كان ضرورياً)
+typescript
+// في نطاق التسوية
+class ReputationAnalyzer {
+  constructor(
+    private rightsService: RightsServiceClient, // RPC Client
+    private verificationService: VerificationServiceClient
+  ) {}
+  
+  async analyzeCompanyReputation(companyId: string) {
+    // استدعاء مباشر (نادر، يفضل الأحداث)
+    const paymentHistory = await this.verificationService
+      .getPaymentHistory(companyId);
+      
+    const rightsCompliance = await this.rightsService
+      .getComplianceRate(companyId);
+      
+    return this.calculateReputation(paymentHistory, rightsCompliance);
+  }
+}
+النمط 3: البيانات المشتركة عبر قاعدة بيانات منفصلة
+sql
+-- Shared Database للبيانات المشتركة بين النطاقات
+CREATE SCHEMA shared;
+
+-- بيانات الموظفين (تستخدم في كل النطاقات)
+CREATE TABLE shared.employees (
+    employee_id UUID PRIMARY KEY,
+    company_id UUID NOT NULL,
+    full_name VARCHAR(255),
+    -- ... بيانات أساسية فقط
+);
+🚨 قواعد الربط والحدود
+قاعدة 1: حدود النطاق = حدود الحاوية
+text
+إذا كان هناك Bounded Context جديد في DDD:
+• يجب أن يكون Container جديد في C4
+• له قاعدة بيانات منفصلة (إن أمكن)
+• اتصالات محددة عبر APIs/Events
+قاعدة 2: Aggregate ≈ مجموعة مكونات
+text
+Aggregate في DDD يتكون من:
+• 1+ Entities
+• 0+ Value Objects
+• 0+ Domain Services
+• 1 Repository
+
+وهذا يترجم في C4 إلى:
+• 1+ Components داخل Container
+• قد يحتاج قاعدة بيانات منفصلة
+• ينشر/يستمع لأحداث محددة
+قاعدة 3: الابتعاد عن الاقتران المباشر
+text
+❌ سيء: Rights Service يتصل مباشرة بـ Verification Database
+❌ سيء: Achievement Service يستدعي Settlement Service مباشرة
+
+✅ جيد: Rights Service ينشر RightsCalculatedEvent
+✅ جيد: Verification Service يستمع للحدث ويستجيب
+✅ جيد: البيانات المشتركة في Shared Database
+قاعدة 4: التكاملات الخارجية كـ Anti-Corruption Layer
+text
+أنظمة خارجية (Shopify, Telegram, etc.):
+• في DDD: تعامل كنطاقات خارجية
+• في C4: Integration Service + Adapters
+• الفصل: لا تسمح للتأثيرات الخارجية بفساد النطاقات الداخلية
+📈 تحليل الربط لسيناريوهات معقدة
+سيناريو: نزاع على عمولة
+DDD Analysis:
+yaml
+النطاقات المشاركة:
+1. Rights Domain:
+   • Aggregate: CommissionAggregate
+   • Event: CommissionDisputed
+   
+2. Achievement Domain:
+   • Aggregate: EvidenceAggregate
+   • Event: EvidenceRequested
+   
+3. Verification Domain:
+   • Aggregate: PaymentVerificationAggregate
+   • Event: PaymentReexamined
+   
+4. Settlement Domain:
+   • Aggregate: DisputeAggregate
+   • Event: DisputeResolved
+C4 Implementation:
+yaml
+التفاعل بين الحاويات:
+1. Rights Service:
+   • ينشر: CommissionDisputedEvent
+   
+2. Achievement Service (يستمع للحدث):
+   • يجمع الأدلة ذات الصلة
+   • ينشر: EvidenceCollectedEvent
+   
+3. Verification Service (يستمع للأحداث):
+   • يعيد فحص التحقق
+   • ينشر: VerificationUpdatedEvent
+   
+4. Settlement Service (يستمع لكل الأحداث):
+   • يجمع كل المعلومات
+   • يحلل النزاع
+   • يتخذ قرار التحكيم
+   • ينشر: DisputeResolvedEvent
+   
+5. جميع الخدمات (تستمع للقرار):
+   • تحديث البيانات الداخلية
+   • تعديل السمعة إذا لزم
+الكود المقابل:
+typescript
+// في Settlement Service
+class DisputeResolver {
+  @Subscribe(CommissionDisputedEvent)
+  @Subscribe(EvidenceCollectedEvent)
+  @Subscribe(VerificationUpdatedEvent)
+  async resolveDispute(events: DomainEvent[]) {
+    const dispute = this.createDisputeCase(events);
+    const decision = await this.arbitrate(dispute);
+    
+    await this.publish(new DisputeResolvedEvent(decision));
+    
+    // تحديث السمعة في نفس النطاق
+    await this.updateReputation(
+      dispute.companyId, 
+      dispute.employeeId, 
+      decision
+    );
+  }
+}
+🎯 أفضل الممارسات في الربط
+1. الحفاظ على استقلالية النطاقات
+yaml
+ممارسة صحيحة:
+• كل نطاق له قاعدة بيانات خاصة (إن أمكن)
+• الاتصال فقط عبر Events/APIs محددة
+• لا مشاركة للنماذج الداخلية
+
+ممارسة خاطئة:
+• استيراد Entities من نطاق آخر
+• الوصول المباشر لقاعدة بيانات نطاق آخر
+• الاقتران المباشر بين Domain Services
+2. تصميم الأحداث بعناية
+yaml
+أحداث جيدة:
+• CommissionCalculated (حقوق محسوبة)
+• PaymentVerified (دفع تم التحقق)
+• TaskCompleted (مهمة مكتملة)
+
+أحداث سيئة:
+• EmployeeDataChanged (تغيير بيانات موظف - عام جداً)
+• SystemUpdated (تحديث نظام - غير محدد)
+• EverythingHappened (كل شيء حدث - غير مفيد)
+3. إدارة البيانات المشتركة
+yaml
+البيانات التي يمكن مشاركتها:
+• Employee Basic Info (اسم، بريد، هاتف)
+• Company Basic Info (اسم، صناعة)
+• Product Catalog (منتجات، أسعار)
+
+البيانات التي لا تشارك:
+• Commission Calculations (حسابات خاصة بالنطاق)
+• Payment Details (تفاصيل مالية حساسة)
+• Dispute Discussions (مناقشات نزاع خاصة)
+4. تصميم الـ APIs بين النطاقات
+yaml
+REST APIs (للحالات النادرة):
+• GET /api/rights/summary/{employeeId}
+• POST /api/verification/verify-payment
+• PUT /api/settlement/reputation/{companyId}
+
+gRPC (للأداء العالي):
+• rights.GetCommissionSummary
+• verification.VerifyPayment
+• settlement.CalculateReputation
+
+Events (الأفضل غالباً):
+• rights.calculated
+• payment.verified
+• dispute.resolved
+🔍 أدوات الربط والمراقبة
+1. Event Catalog (DDD + C4)
+yaml
+Event: RightsCalculated
+- Source: Rights Domain (Rights Service)
+- Payload: { rightId, employeeId, amount, calculationDate }
+- Subscribers:
+  • Verification Service (للتحقق من الدفع)
+  • Settlement Service (لتحديث السمعة)
+  • Notification Service (للإشعار)
+- Storage: Event Store + Audit Blockchain
+
+Event: PaymentVerified
+- Source: Verification Domain (Verification Service)
+- Payload: { paymentId, verifiedAmount, verificationMethod, confidence }
+- Subscribers:
+  • Rights Service (لتحديث حالة الحق)
+  • Settlement Service (لتحديث السمعة)
+  • Analytics Service (للتحليل)
+2. Context Map Visualization
+text
+┌─────────────────────────────────────────────────────┐
+│                Context Map - نظام باسان              │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  [Rights Context]        [Achievement Context]     │
+│  • Calculates rights     • Manages tasks           │
+│  • Applies rules         • Tracks achievements     │
+│  • Commissions DB        • Evidence DB             │
+│                                                     │
+│         │ publishes                  │ publishes    │
+│         ▼                           ▼              │
+│  [RightsCalculated]         [TaskCompleted]        │
+│         │                           │              │
+│         └──────────────┬────────────┘              │
+│                        │                           │
+│                        ▼                           │
+│              [Verification Context]                │
+│              • Verifies payments                   │
+│              • Integrates externals                │
+│              • Verification DB                     │
+│                                                     │
+│                        │ publishes                 │
+│                        ▼                           │
+│              [PaymentVerified]                     │
+│                        │                           │
+│                        ▼                           │
+│              [Settlement Context]                  │
+│              • Resolves disputes                   │
+│              • Manages reputation                  │
+│              • Settlement DB                       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+3. Dependency Matrix (C4 Perspective)
+yaml
+Containers Dependencies:
+- Rights Service → Depends on:
+  • Auth Service (للمصادقة)
+  • Achievement Service (للحصول على الإنجازات)
+  • Event Bus (لنشر الأحداث)
+  
+- Achievement Service → Depends on:
+  • Rights Service (للإبلاغ عن الإنجازات)
+  • Integration Service (للوصول للأدلة الخارجية)
+  • Event Bus (لنشر الأحداث)
+  
+- Verification Service → Depends on:
+  • Integration Service (للوصول لبوابات الدفع)
+  • Event Bus (للاستماع للأحداث)
+  • Rights Service (للحصول على الحقوق المتوقعة)
+  
+- Settlement Service → Depends on:
+  • جميع الخدمات الأخرى (للحصول على البيانات)
+  • Event Bus (للاستماع لكل الأحداث)
+  • Analytics Service (لتحليل السمعة)
+✅ الخلاصة: DDD + C4 = تصميم متكامل
+مزايا الربط:
+yaml
+1. وضوح الهيكل:
+   • DDD: يحدد "لماذا" و"ماذا"
+   • C4: يحدد "كيف" و"أين"
+
+2. قابلية الصيانة:
+   • تغييرات في النطاق ← تغييرات في الحاوية فقط
+   • حدود واضحة ← أخطاء محدودة الانتشار
+
+3. قابلية التوسع:
+   • نطاق جديد ← حاوية جديدة
+   • نمو في النطاق ← توسع في الحاوية
+
+4. الاتساق:
+   • نفس اللغة في جميع المستويات
+   • نفس المبادئ في التصميم والتنفيذ
+النموذج النهائي المتكامل:
+text
+┌─────────────────────────────────────────────────────┐
+│           نموذج النظام المتكامل (DDD + C4)          │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  [DDD: Business Domains]    [C4: Technical View]   │
+│                                                     │
+│  • Rights Domain           → Rights Service        │
+│     - CommissionAggregate  → Rights Calculator     │
+│     - RuleAggregate        → Rule Engine           │
+│                                                     │
+│  • Achievement Domain      → Achievement Service   │
+│     - TaskAggregate        → Task Distributor      │
+│     - EvidenceAggregate    → Evidence Validator    │
+│                                                     │
+│  • Verification Domain     → Verification Service  │
+│     - PaymentVerification  → Payment Investigator  │
+│     - ExternalIntegration  → Integration Coordinator│
+│                                                     │
+│  • Settlement Domain       → Settlement Service    │
+│     - DisputeAggregate     → Dispute Resolver      │
+│     - ReputationAggregate  → Reputation Analyzer   │
+│                                                     │
+│  [Shared Kernel]           → Shared Services       │
+│     - Employee             → Auth Service          │
+│     - Company              → Company Service       │
+│                                                     │
+│  [Event Storming]          → Event Bus             │
+│     - Domain Events        → Kafka/RabbitMQ        │
+│     - Event Handlers       → Event Consumers       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+القاعدة الذهبية:
+text
+"صمم النطاقات (DDD) كما لو أن كل منها نظام مستقل،
+ثم نفذ الحاويات (C4) كما لو أن كل منها خدمة قابلة للنشر بشكل مستقل."
+
+نتيجة: نظام مرن، قابل للصيانة، قابل للتوسع، وسهل الفهم
+من مستوى الأعمال إلى مستوى التنفيذ التقني.

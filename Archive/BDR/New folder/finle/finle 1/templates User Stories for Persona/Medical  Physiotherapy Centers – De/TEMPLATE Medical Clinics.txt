@@ -1,0 +1,651 @@
+🏥 TEMPLATE: Medical Clinics
+
+(عيادات عامة – متعددة التخصصات – عيادات فردية أو سلاسل)
+
+🎯 نوع العملاء
+
+عيادات فردية (باطنة – أطفال – عظام – نساء)
+
+مجمع عيادات
+
+عيادات أسنان
+
+عيادات تجميل
+
+سلاسل عيادات صغيرة ومتوسطة
+
+1️⃣ الهيكل الإداري العام (Main Departments)
+
+الهيكل ده هو اللي بيتطبق فعلًا في 90% من العيادات الناجحة:
+
+1. Patient Management (إدارة المرضى)
+2. Appointments & Scheduling (الحجوزات)
+3. Medical Records (الملف الطبي)
+4. Doctors & Staff (الأطباء والطاقم)
+5. Services & Pricing (الخدمات والأسعار)
+6. Billing & Finance (الحسابات)
+7. Pharmacy / Supplies (اختياري)
+8. CRM & Communication
+9. Operations & Compliance
+10. Reports & Analytics
+
+سنفصّل كل قسم بعمق 👇
+
+1️⃣ Patient Management (إدارة المرضى)
+الوظائف الأساسية
+
+تسجيل مريض جديد
+
+ملف مريض موحد
+
+تاريخ زيارات
+
+بيانات تأمين (إن وجد)
+
+حالة المريض (نشط / متوقف)
+
+بيانات المريض الواقعية
+
+الاسم
+
+السن
+
+رقم الهاتف
+
+العنوان
+
+سبب الزيارة
+
+طبيب المتابعة
+
+ملاحظات إدارية (مش طبية)
+
+نقاط واقعية
+
+مريض بيروح أكتر من طبيب
+
+مريض عنده مرافق
+
+مرضى متكررين
+
+2️⃣ Appointments & Scheduling (الحجوزات)
+أنواع الحجز
+
+كشف أول
+
+إعادة
+
+إجراء
+
+طوارئ
+
+آلية الجدولة
+
+لكل طبيب جدول مستقل
+
+تحديد مدة الكشف
+
+فترات راحة
+
+Overbooking (اختياري)
+
+قنوات الحجز
+
+استقبال
+
+اتصال
+
+واتساب
+
+أونلاين (اختياري)
+
+تدفق العمل الواقعي
+
+حجز
+
+تأكيد
+
+حضور / عدم حضور
+
+تحويل لحسابات
+
+تحديث الملف الطبي
+
+3️⃣ Medical Records (الملف الطبي)
+
+⚠️ مهم جدًا: فصل الطبي عن الإداري
+
+محتوى الملف الطبي
+
+شكاوى المريض
+
+التشخيص
+
+الفحوصات
+
+الأشعة
+
+العلاج
+
+خطة المتابعة
+
+صلاحيات
+
+الطبيب فقط
+
+لا يظهر للمحاسب
+
+لا يظهر للاستقبال
+
+واقعية التشغيل
+
+مريض عنده تاريخ طويل
+
+مقارنة زيارات
+
+تحميل ملفات خارجية
+
+4️⃣ Doctors & Staff Management
+الأطباء
+
+تخصص
+
+جدول
+
+نسبة / أجر
+
+عدد المرضى
+
+الطاقم
+
+استقبال
+
+تمريض
+
+محاسبة
+
+إدارة
+
+نقاط واقعية
+
+أطباء زائرين
+
+أطباء بالساعة
+
+عمولة على الإجراء
+
+5️⃣ Services & Pricing (الخدمات)
+أنواع الخدمات
+
+كشف
+
+إجراء
+
+تحليل
+
+باقة
+
+تسعير واقعي
+
+سعر أساسي
+
+سعر تأمين
+
+خصومات
+
+عروض
+
+ربط الخدمة بـ
+
+طبيب
+
+غرفة
+
+معدات
+
+6️⃣ Billing & Finance (الحسابات)
+أنواع التحصيل
+
+نقدي
+
+كارت
+
+تحويل
+
+تأمين
+
+الفواتير
+
+فاتورة زيارة
+
+فاتورة إجراء
+
+فواتير مجمعة
+
+تدفقات واقعية
+
+دفع جزئي
+
+متبقي
+
+مرتجع
+
+7️⃣ Pharmacy / Medical Supplies (اختياري)
+إدارة
+
+أدوية
+
+مستهلكات
+
+تواريخ صلاحية
+
+حد إعادة الطلب
+
+الاستخدام الواقعي
+
+خصم من المخزون عند الإجراء
+
+تقارير استهلاك
+
+8️⃣ CRM & Communication
+تواصل
+
+تذكير موعد
+
+متابعة علاج
+
+تقييم الخدمة
+
+قنوات
+
+SMS
+
+WhatsApp
+
+مكالمات
+
+9️⃣ Operations & Compliance
+تشغيل يومي
+
+فتح / غلق اليوم
+
+عدد المرضى
+
+المشاكل التشغيلية
+
+امتثال
+
+خصوصية بيانات
+
+سجل التعديلات
+
+من دخل على ملف مين
+
+🔟 Reports & Analytics
+تقارير أساسية
+
+عدد المرضى
+
+إيراد يومي
+
+أداء طبيب
+
+خدمات الأكثر طلبًا
+
+No-show rate
+
+تقارير إدارية
+
+أرباح
+
+تكاليف
+
+نمو شهري
+
+👥 User Roles (صلاحيات حقيقية)
+Role	صلاحيات
+Clinic Owner	كل شيء
+Clinic Manager	تشغيل + تقارير
+Receptionist	حجز + تسجيل
+Doctor	ملف طبي فقط
+Nurse	إجراءات
+Accountant	فواتير
+Patient (اختياري)	مواعيد
+🔁 Core Workflows الواقعية
+🧩 Patient Visit Flow
+
+حجز
+
+تسجيل حضور
+
+كشف
+
+تسجيل طبي
+
+تحصيل
+
+متابعة
+
+🧩 Daily Clinic Flow
+
+فتح اليوم
+
+جدولة
+
+تشغيل
+
+تحصيل
+
+إغلاق
+
+تقرير
+
+⚙️ Ready-Made Setup عند اختيار القالب
+
+أقسام جاهزة
+
+صلاحيات مفعلة
+
+خدمات افتراضية
+
+تقارير أساسية
+
+Dashboards لكل Role
+
+---------------------------------
+🏥 Medical Clinics Template
+User Stories & Personas (Enterprise-Grade, Real-World)
+SECTION 1: Personas / User Roles
+1. Clinic Owner / Medical Director
+Attribute	Details
+Role	Clinic Owner / Medical Director
+Age	40–60
+Background	Physician or investor managing one or multiple clinics
+Experience	10–25 years in medical practice or healthcare management
+Goals	Profitability, compliance, operational visibility, growth
+Pain Points	Revenue leakage, poor reporting, staff dependency
+Success Criteria	Clear dashboards, controlled costs, compliant operations
+2. Clinic Manager / Operations Manager
+Attribute	Details
+Role	Clinic Manager
+Age	30–45
+Background	Healthcare administration
+Experience	5–15 years
+Goals	Smooth daily operations, staff coordination
+Pain Points	Missed appointments, scheduling chaos, manual work
+Success Criteria	On-time schedules, low no-show rate, smooth days
+3. Receptionist / Front Desk Staff
+Attribute	Details
+Role	Receptionist
+Age	22–35
+Background	Customer service
+Experience	1–5 years
+Goals	Fast check-in, accurate bookings
+Pain Points	Angry patients, double bookings, system complexity
+Success Criteria	Fast processing, minimal complaints
+4. Doctor / Physician
+Attribute	Details
+Role	Doctor
+Age	28–60
+Background	Medical professional
+Experience	3–30 years
+Goals	Focus on patients, not admin work
+Pain Points	Missing patient history, interruptions
+Success Criteria	Clean medical records, efficient consultations
+5. Accountant / Financial Officer
+Attribute	Details
+Role	Accountant
+Age	30–50
+Background	Accounting / finance
+Experience	5–20 years
+Goals	Accurate billing and reporting
+Pain Points	Missing payments, unclear services
+Success Criteria	Clean books, zero discrepancies
+SECTION 2: User Stories (Detailed & Mapped)
+🧑‍⚕️ Persona: Clinic Owner / Medical Director
+Story 1: Clinic Performance Overview
+
+As a Clinic Owner, I want to view a real-time dashboard of clinic performance, so that I can make informed business decisions.
+
+Acceptance Criteria
+
+Dashboard shows daily, weekly, monthly revenue
+
+Revenue broken down by doctor and service
+
+Patient volume trends displayed
+
+Accessible only to owner role
+
+Priority: High
+Module: Analytics & Reporting
+
+Story 2: Doctor Performance Monitoring
+
+As a Clinic Owner, I want to monitor doctor productivity and revenue contribution, so that compensation and scheduling are optimized.
+
+Acceptance Criteria
+
+Number of patients per doctor
+
+Revenue per doctor
+
+No-show rate per doctor
+
+Exportable reports
+
+Priority: High
+Module: Doctors & Staff Management
+
+Story 3: Compliance & Audit Visibility
+
+As a Clinic Owner, I want to track access logs to medical records, so that patient data privacy is ensured.
+
+Acceptance Criteria
+
+Log shows who accessed each medical record
+
+Timestamp and action recorded
+
+Non-editable audit trail
+
+Priority: High
+Module: Operations & Compliance
+
+🧑‍💼 Persona: Clinic Manager
+Story 4: Appointment Scheduling Control
+
+As a Clinic Manager, I want to manage doctor schedules and appointment slots, so that clinic flow remains balanced.
+
+Acceptance Criteria
+
+Configure working hours per doctor
+
+Define appointment durations
+
+Block unavailable periods
+
+Prevent double booking
+
+Priority: High
+Module: Appointments & Scheduling
+
+Story 5: No-Show Management
+
+As a Clinic Manager, I want to track patient no-shows, so that operational losses are reduced.
+
+Acceptance Criteria
+
+Mark no-show visits
+
+Generate no-show reports
+
+Trigger follow-up reminders
+
+Priority: Medium
+Module: CRM & Communication
+
+Story 6: Daily Clinic Operations
+
+As a Clinic Manager, I want to open and close clinic operational days, so that daily performance is tracked accurately.
+
+Acceptance Criteria
+
+Open day initializes counters
+
+Close day locks data
+
+Generates end-of-day report
+
+Priority: High
+Module: Operations Management
+
+🧾 Persona: Receptionist
+Story 7: Patient Registration
+
+As a Receptionist, I want to register new patients quickly, so that waiting time is minimized.
+
+Acceptance Criteria
+
+Mandatory fields validation
+
+Duplicate patient detection
+
+Auto-assign patient ID
+
+Priority: High
+Module: Patient Management
+
+Story 8: Appointment Booking
+
+As a Receptionist, I want to book appointments based on doctor availability, so that scheduling conflicts are avoided.
+
+Acceptance Criteria
+
+Visual calendar view
+
+Real-time availability
+
+Confirmation sent to patient
+
+Priority: High
+Module: Appointments & Scheduling
+
+Story 9: Visit Check-In
+
+As a Receptionist, I want to mark patient arrival, so that doctors are notified automatically.
+
+Acceptance Criteria
+
+One-click check-in
+
+Status visible to doctor
+
+Timestamp recorded
+
+Priority: Medium
+Module: Front Desk Operations
+
+🧑‍⚕️ Persona: Doctor
+Story 10: Access Patient Medical History
+
+As a Doctor, I want to access full patient medical history, so that diagnosis is accurate.
+
+Acceptance Criteria
+
+View previous diagnoses
+
+View medications and test results
+
+Read-only access to past visits
+
+Priority: High
+Module: Medical Records
+
+Story 11: Record Consultation Details
+
+As a Doctor, I want to document diagnosis and treatment during the visit, so that continuity of care is maintained.
+
+Acceptance Criteria
+
+Structured medical form
+
+Attach files (labs, scans)
+
+Save draft and finalize
+
+Priority: High
+Module: Medical Records
+
+Story 12: Follow-Up Scheduling
+
+As a Doctor, I want to recommend follow-up visits, so that treatment plans are enforced.
+
+Acceptance Criteria
+
+Suggest follow-up date
+
+Visible to receptionist
+
+Optional reminder trigger
+
+Priority: Medium
+Module: Appointments
+
+💰 Persona: Accountant
+Story 13: Generate Patient Invoice
+
+As an Accountant, I want to generate invoices based on services rendered, so that billing is accurate.
+
+Acceptance Criteria
+
+Auto-fetch services from visit
+
+Apply pricing rules
+
+Issue invoice number
+
+Priority: High
+Module: Billing & Finance
+
+Story 14: Payment Tracking
+
+As an Accountant, I want to record payments and outstanding balances, so that financial records remain accurate.
+
+Acceptance Criteria
+
+Support partial payments
+
+Track outstanding amounts
+
+Payment method logging
+
+Priority: High
+Module: Billing & Finance
+
+Story 15: Financial Reporting
+
+As an Accountant, I want to generate financial reports, so that clinic profitability is transparent.
+
+Acceptance Criteria
+
+Daily / monthly reports
+
+Export to Excel/PDF
+
+Filter by service or doctor
+
+Priority: Medium
+Module: Finance & Reporting
+
+✅ Status
+
+This Medical Clinics template is now:
+
+BRD-ready
+
+SRS-ready
+
+Implementation-ready
+
+Aligned with real clinic operations

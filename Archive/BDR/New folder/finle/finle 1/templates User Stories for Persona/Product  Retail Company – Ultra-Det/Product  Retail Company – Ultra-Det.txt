@@ -1,0 +1,345 @@
+Product / Retail Company – Ultra-Detailed Personas & User Stories
+Personas / User Roles – تفصيل كامل
+1️⃣ CEO / Owner – Mahmoud El-Sayed
+
+Age: 42
+
+Background: مؤسس سلسلة متاجر منتجات، خبرة 20 سنة في التجارة وإدارة المتاجر
+
+Goals / Objectives:
+
+متابعة أداء كل فرع والمتجر الإلكتروني
+
+ضمان تحقيق المبيعات المستهدفة والأرباح
+
+مراقبة المخزون، عمليات البيع، الشحن والتوصيل
+
+تحسين تجربة العملاء ورضاهم
+
+Pain Points / Challenges:
+
+صعوبة متابعة المبيعات والمخزون عبر كل الفروع
+
+نقص الرؤية اللحظية لأداء الموظفين والعملاء
+
+مشاكل في مراقبة عمليات التسليم والدفع
+
+Tools / Modules Used:
+
+CRM Module: بيانات العملاء، تاريخ المشتريات
+
+Sales Module: المبيعات اليومية، العملاء الجدد
+
+Operations / Inventory Module: المخزون، الشحن، التوصيل
+
+Finance Module: الأرباح، الفواتير، العمولات
+
+Notifications Module: التنبيهات عند نفاد المخزون أو مشاكل الطلب
+
+Inputs / Outputs:
+
+Inputs: تقارير المبيعات، بيانات العملاء، المخزون، الطلبيات
+
+Outputs: مؤشرات الأداء اليومية، تنبيهات، تقارير أسبوعية / شهرية
+
+Interactions / Integrations:
+
+مع Store Managers لمتابعة الفروع
+
+مع Finance لمراجعة الأرباح والمصاريف
+
+مع Clients لمتابعة الطلبات والرضا
+
+Success Criteria:
+
+متابعة دقيقة لكل عمليات المتجر
+
+رضا العملاء ≥ 90%
+
+تقليل الأخطاء في المخزون والشحن بنسبة ≥ 95%
+
+2️⃣ Store / Branch Manager – Dina Saad
+
+Age: 38
+
+Background: مديرة فرع المتجر، خبرة 10 سنوات في الإدارة والتجارة
+
+Goals / Objectives:
+
+متابعة كل عمليات البيع اليومية
+
+مراقبة المخزون وإعادة التوريد عند الحاجة
+
+إدارة الفريق اليومي وتوزيع المهام
+
+متابعة شكاوى العملاء وحلها بسرعة
+
+Pain Points / Challenges:
+
+صعوبة معرفة مستويات المخزون اللحظية
+
+مشاكل في تنسيق المهام بين الموظفين
+
+تأخر تحديث بيانات المبيعات على النظام
+
+Tools / Modules Used:
+
+Sales Module: تتبع المبيعات اليومية، العملاء الجدد
+
+Inventory Module: مراقبة المخزون، إعادة الطلب
+
+Operations Module: توزيع المهام على الموظفين
+
+Notifications Module: تذكيرات بالمخزون والطلبيات
+
+Inputs / Outputs:
+
+Inputs: بيانات المخزون، الطلبات، تقارير المبيعات
+
+Outputs: تقارير يومية للـ CEO، إشعارات، تحديث بيانات المخزون
+
+Interactions / Integrations:
+
+مع Warehouse / Stock Team لمتابعة التوريدات
+
+مع Finance Module لتحديث المدفوعات والفواتير
+
+مع Customer Support Team لمتابعة الطلبات والشكاوى
+
+Success Criteria:
+
+متابعة دقيقة لكل العمليات اليومية
+
+تحسين سرعة معالجة الطلبات بنسبة ≥ 95%
+
+تقارير دقيقة للـ CEO بدون أخطاء
+
+3️⃣ Inventory / Warehouse Staff – Ahmed Khaled
+
+Age: 30
+
+Background: موظف مخزن، خبرة 5 سنوات في إدارة المخزون
+
+Goals / Objectives:
+
+متابعة مستويات المخزون لكل المنتج
+
+تجهيز الطلبيات للشحن والتوصيل
+
+تحديث النظام تلقائيًا عند وصول أو خروج المنتجات
+
+Pain Points / Challenges:
+
+صعوبة معرفة المنتجات المنتهية أو منخفضة المخزون
+
+أخطاء في تسجيل الشحنات والمرتجعات
+
+تأخير التحديثات على النظام المركزي
+
+Tools / Modules Used:
+
+Inventory Module: مستويات المخزون، إدارة المرتجعات
+
+Operations Module: متابعة تجهيز الطلبات
+
+Notifications Module: تنبيهات نفاد المخزون أو وصول شحنات
+
+Inputs / Outputs:
+
+Inputs: بيانات وصول المخزون، طلبات الشحن، المرتجعات
+
+Outputs: تحديث المخزون في النظام، إشعارات للمدير
+
+Interactions / Integrations:
+
+مع Store Manager لتحديث مستويات المخزون
+
+مع Operations Module لتجهيز الطلبات
+
+مع Logistics / Delivery لتنسيق الشحن
+
+Success Criteria:
+
+تقليل الأخطاء في المخزون ≥ 98%
+
+تجهيز الطلبات في الوقت المحدد
+
+تحديث النظام في الوقت الفعلي
+
+4️⃣ Sales Staff / Cashiers – Mariam Adel
+
+Age: 25–35
+
+Background: موظف مبيعات، خبرة 2–5 سنوات
+
+Goals / Objectives:
+
+إتمام عمليات البيع في المتجر بسرعة ودقة
+
+تسجيل المبيعات في النظام تلقائيًا
+
+مساعدة العملاء في اختيار المنتجات
+
+Pain Points / Challenges:
+
+أخطاء في تسجيل المبيعات اليدوية
+
+صعوبة متابعة عروض وخصومات المنتجات
+
+تداخل المبيعات بين النظام والفروع الأخرى
+
+Tools / Modules Used:
+
+Sales Module: تسجيل المبيعات، العملاء الجدد
+
+CRM Module: متابعة العملاء والطلب السابق
+
+Notifications Module: التنبيهات بالعروض والمنتجات الجديدة
+
+Inputs / Outputs:
+
+Inputs: بيانات العملاء، المنتجات، الطلبات
+
+Outputs: تسجيل المبيعات، إشعارات للمدير، تحديث CRM
+
+Interactions / Integrations:
+
+مع Store Manager لتحديث المبيعات اليومية
+
+مع Inventory Staff لمعرفة المنتجات المتاحة
+
+مع CRM Module لتحديث بيانات العملاء
+
+Success Criteria:
+
+دقة في تسجيل المبيعات ≥ 99%
+
+رضا العملاء ≥ 90%
+
+تسليم المنتجات للعملاء بسرعة ودقة
+
+5️⃣ Client / Shopper – Mostafa Hassan
+
+Age: 18–50
+
+Background: عميل المتجر أو المتجر الإلكتروني
+
+Goals / Objectives:
+
+شراء المنتجات بسهولة عبر المتجر أو أونلاين
+
+متابعة حالة الطلبات والدفع
+
+الوصول لعروض وخصومات مناسبة
+
+Pain Points / Challenges:
+
+صعوبة معرفة المنتجات المتوفرة
+
+مشاكل في الدفع أو التأخير في التوصيل
+
+صعوبة التواصل مع خدمة العملاء
+
+Tools / Modules Used:
+
+Client Portal / E-commerce Platform: متابعة الطلبات، الدفع
+
+Notifications Module: تنبيهات الطلبات، العروض
+
+Customer Support Module: التواصل وحل المشاكل
+
+Inputs / Outputs:
+
+Inputs: طلبات الشراء، الدفع، بيانات العميل
+
+Outputs: تأكيد الطلب، إشعارات، تحديث حالة التوصيل
+
+Interactions / Integrations:
+
+مع Sales Staff لتأكيد الطلبات
+
+مع Inventory Module لتحديث المخزون
+
+مع Delivery / Logistics لتوصيل المنتجات
+
+Success Criteria:
+
+رضا العميل ≥ 95%
+
+تقليل التأخير في التوصيل ≥ 98%
+
+تجربة شراء سهلة وسريعة
+
+------
+
+Product / Retail Company – User Stories
+1️⃣ CEO / Owner – Mahmoud El-Sayed
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+CEO-US-01	As a CEO, I want to view real-time sales data across all branches, so that I can make informed strategic decisions.	1. Dashboard shows live sales data per branch.
+2. Ability to filter by date range and product category.
+3. Alerts on significant deviations.	High	Sales, Analytics, Notifications
+CEO-US-02	As a CEO, I want to monitor inventory levels, so that stockouts and overstock are minimized.	1. Inventory dashboard shows current stock per product.
+2. Notifications for low stock.
+3. Historical inventory trends available.	High	Inventory, Notifications, Analytics
+CEO-US-03	As a CEO, I want to track employee performance and commissions, so that rewards and accountability are transparent.	1. Employee performance reports available.
+2. Commission calculations automated.
+3. Alerts if targets are not met.	High	Sales, HR, Finance
+CEO-US-04	As a CEO, I want to track client satisfaction and complaints, so that I can improve customer experience.	1. Customer feedback aggregated.
+2. Complaints flagged and tracked until resolution.
+3. KPIs for satisfaction over time.	Medium	CRM, Customer Support, Analytics
+2️⃣ Store / Branch Manager – Dina Saad
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+MANAGER-US-01	As a Store Manager, I want to assign daily tasks to staff, so that operations run smoothly.	1. Task creation interface is available.
+2. Staff receive notifications.
+3. Completion status is tracked in real-time.	High	Operations, Notifications
+MANAGER-US-02	As a Store Manager, I want to monitor sales in real-time, so that I can adjust staffing or promotions.	1. Live sales feed per cashier.
+2. Alerts if daily targets not on track.
+3. Reports exportable to PDF/Excel.	High	Sales, Analytics
+MANAGER-US-03	As a Store Manager, I want to track inventory movement, so that replenishment is timely.	1. Inventory movements tracked automatically.
+2. Alerts for low stock.
+3. Integration with warehouse for automatic updates.	High	Inventory, Operations
+MANAGER-US-04	As a Store Manager, I want to resolve client complaints escalated from sales staff, so that customer satisfaction is maintained.	1. Access to client complaint history.
+2. Resolution workflow available.
+3. Notifications sent on resolution.	Medium	Customer Support, CRM
+3️⃣ Inventory / Warehouse Staff – Ahmed Khaled
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+INVENTORY-US-01	As a Warehouse Staff, I want to update stock levels when products arrive or leave, so that inventory is always accurate.	1. Stock updates saved in real-time.
+2. Alerts sent for discrepancies.
+3. Reports updated automatically.	High	Inventory
+INVENTORY-US-02	As a Warehouse Staff, I want to prepare outgoing orders for delivery, so that shipments are accurate and on time.	1. Picking list generated per order.
+2. System verifies quantities before dispatch.
+3. Notifications to delivery team.	High	Operations, Inventory, Notifications
+INVENTORY-US-03	As a Warehouse Staff, I want to track returned items, so that the inventory reflects reality.	1. Returns logged with reason.
+2. Inventory updated automatically.
+3. Alerts sent to manager for damaged or missing items.	Medium	Inventory, CRM
+4️⃣ Sales Staff / Cashiers – Mariam Adel
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+SALES-US-01	As a Sales Staff, I want to register sales transactions quickly, so that checkout lines are efficient.	1. POS interface is fast and responsive.
+2. Sales recorded in system instantly.
+3. Receipts generated automatically.	High	Sales, CRM
+SALES-US-02	As a Sales Staff, I want to add new customers to the system, so that we can track their purchases.	1. New customer form available.
+2. Customer details saved to CRM.
+3. Duplicate entries prevented.	High	CRM, Sales
+SALES-US-03	As a Sales Staff, I want to apply promotions and discounts, so that customers get correct pricing.	1. Promotion codes accepted.
+2. System calculates discount correctly.
+3. Alerts if promotion expired.	Medium	Sales, CRM
+SALES-US-04	As a Sales Staff, I want to escalate customer issues to the manager, so that problems are resolved quickly.	1. Escalation button available.
+2. Notifications sent to manager.
+3. Issue tracked until resolution.	Medium	Customer Support, Operations
+5️⃣ Client / Shopper – Mostafa Hassan
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+CLIENT-US-01	As a Client, I want to browse available products easily, so that I can find what I want quickly.	1. Product catalog searchable and filterable.
+2. Categories clear.
+3. Real-time stock availability shown.	High	CRM, Frontend
+CLIENT-US-02	As a Client, I want to place orders online and offline, so that I can shop conveniently.	1. Orders can be placed via portal or in-store POS.
+2. Payment options flexible.
+3. Order confirmation sent automatically.	High	Sales, CRM, Payments
+CLIENT-US-03	As a Client, I want to track my order status, so that I know when my product will arrive.	1. Real-time order tracking.
+2. Notifications on each status change.
+3. Estimated delivery times shown.	High	CRM, Notifications, Operations
+CLIENT-US-04	As a Client, I want to request returns or exchanges easily, so that I feel secure in buying.	1. Return/exchange request forms available.
+2. Approval workflow automated.
+3. Status updates sent via notifications.	Medium	CRM, Inventory, Customer Support
+CLIENT-US-05	As a Client, I want to receive promotions and offers, so that I can benefit from deals.	1. Offers personalized.
+2. Notifications sent via preferred channels (email, WhatsApp, Telegram).
+3. Offers can be redeemed online or in-store.	Medium	Marketing, Notifications, CRM

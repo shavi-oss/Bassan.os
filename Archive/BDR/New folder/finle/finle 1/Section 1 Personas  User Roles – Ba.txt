@@ -1,0 +1,665 @@
+Section 1: Personas / User Roles – Bassan.os
+Persona Table – Multi-Industry Example
+Persona Name	Role / Department	Age / Experience	Goals / Objectives	Pain Points / Challenges	Success Criteria
+Ahmed El-Sayed	CEO / Owner	45, 20+ yrs in industry	الحصول على رؤية شاملة للشركة، متابعة أداء الأقسام، اتخاذ قرارات استراتيجية سريعة	عدم وضوح الأداء بين الأقسام، صعوبة تتبع المشاريع والعمليات عن بُعد	تقارير حية لكل قسم، رؤية دقيقة للعملاء والمبيعات، متابعة المشاريع والشركاء بسهولة
+Sara Hamed	Head of Marketing	38, 12 yrs	رفع معدل تحويل الحملات، معرفة ROI، تنظيم فرق التسويق داخليًا وخارجيًا	صعوبة تتبع نتائج الحملات بدقة، تحديات توزيع المهام بين الفرق الداخلية والخارجية	لوحة تحكم واضحة للحملات، تحليلات ROI دقيقة، توزيع مهام ذكي ومرن
+Khaled Tamer	Sales Manager	35, 10 yrs	زيادة نسبة التحويل للعملاء، متابعة العملاء المحتملين، حساب العمولات بدقة	صعوبة متابعة Leads من مصادر مختلفة، عدم معرفة أداء الفريق بدقة	إدارة خط المبيعات Pipeline مرنة، تتبع العملاء المحتملين، تقارير أداء دقيقة
+Nour El-Din	Operations Manager	40, 15 yrs	إدارة سير العمل، ضمان تنفيذ المهام في الوقت المحدد، التعامل مع الاستثناءات	اللخبطة في توزيع المهام، صعوبة متابعة الأداء عند العمل عن بُعد	توزيع ذكي للمهام، إشعارات وتنبيهات عند التأخير، متابعة أداء الموظفين والشركاء
+Mona Khalil	HR Manager	32, 8 yrs	إدارة الموظفين داخليًا وعن بعد، متابعة الأداء، التوظيف	صعوبة متابعة ملفات الموظفين، ربط الأداء بالKPI، متابعة الموظفين عن بُعد	ملفات موظفين محدثة، تقييمات KPI مباشرة، سهولة إضافة موظفين عن بُعد
+Youssef Samir	Finance / Accountant	37, 12 yrs	متابعة الفواتير والعمولات، إعداد التقارير المالية	عدم وضوح العمولات، صعوبة الربط بين الأقسام، ضياع بيانات مالية	تقارير مالية دقيقة، متابعة العمولات، ربط كامل مع Sales & Operations
+Rania Adel	Customer Support	28, 5 yrs	حل طلبات العملاء بسرعة، متابعة رضا العملاء، تصعيد التذاكر عند الحاجة	كثرة التذاكر، تأخر حل المشكلات، صعوبة تتبع العملاء الحاليين	نظام تذاكر فعال، تنبيهات تلقائية للتصعيد، تقارير رضا العملاء واضحة
+Remote Freelancer / Partner	Developer, Marketer, Sales	25-40	تنفيذ المهام الموكلة عن بُعد، تقديم أداء واضح	عدم وضوح المهام، صعوبة التواصل مع الشركة، تتبع الأداء	لوحة مهام واضحة، تتبع الوقت والنتائج، تقييم الأداء بشكل شفاف
+Client / End Customer	N/A	متنوع	متابعة حالة الخدمات أو المنتجات، الحصول على نتائج دقيقة	صعوبة معرفة حالة طلباتهم، عدم وصول المعلومات بسرعة	لوحة متابعة العملاء، إشعارات فورية، رؤية واضحة لكل الطلبات
+Multi-Industry Personas Notes
+
+Medical / Physiotherapy Centers
+
+CEO: متابعة الحجز، الكفاءة التشغيلية للعيادات، رضا المرضى
+
+Operations: توزيع الجلسات على المعالجين، إدارة المعدات والموارد
+
+Support: متابعة الشكاوى أو مشاكل العملاء مع المواعيد
+
+Educational Centers
+
+Head of Operations: متابعة الجدول الدراسي، توزيع المعلمين، متابعة الطلاب
+
+Marketing: متابعة حملات التسجيل للطلاب
+
+CRM: متابعة أولياء الأمور والتواصل معهم
+
+Product Stores / Retail
+
+Sales: إدارة المبيعات والطلبات
+
+Operations: مراقبة المخزون، شحن المنتجات، تنفيذ الطلبات
+
+Marketing: إدارة الحملات الترويجية، تتبع ROI للحملات
+
+Marketing Companies
+
+Marketing Manager: إدارة الحملات لعملاء متعددين
+
+Sales Manager: متابعة العملاء المحتملين وتحويلهم
+
+Operations: توزيع المهام على فرق العمل الداخلي والخارجي
+
+Specialized Medical Clinics
+
+CEO: متابعة الأداء الطبي والإداري
+
+Operations: إدارة مواعيد الأطباء، متابعة نتائج المرضى
+
+CRM / Support: متابعة العملاء / المرضى والتواصل معهم
+
+------------------------
+
+1️⃣ User Stories — Company Owner / CEO
+US-CEO-01: رؤية شاملة للشركة
+
+As a Company Owner,
+I want to view a real-time dashboard of all departments,
+so that I can make strategic decisions without waiting for reports.
+
+Acceptance Criteria
+
+Dashboard موحدة (مبيعات، تسويق، تشغيل، دعم، مال)
+
+بيانات محدثة لحظيًا
+
+إمكانية التصفية حسب الفترة / القسم
+
+عرض مؤشرات حمراء للمشاكل
+
+Priority: High
+Modules: Analytics, CRM, Sales, Operations, Finance
+
+US-CEO-02: اكتشاف الاختناقات التشغيلية
+
+As a Company Owner,
+I want to see bottlenecks and delays across workflows,
+so that I can intervene before clients are affected.
+
+Acceptance Criteria
+
+تنبيه عند تأخير أي مرحلة
+
+عرض السبب والمسؤول
+
+سجل تاريخي للتأخيرات
+
+Priority: High
+Modules: Operations, Notifications, Analytics
+
+US-CEO-03: مراقبة الأداء المالي
+
+As a Company Owner,
+I want to track revenue, costs, and profitability by department,
+so that I know where money is earned or wasted.
+
+Acceptance Criteria
+
+تقارير مالية حسب القسم
+
+مقارنة شهرية / ربع سنوية
+
+ربط الإيرادات بالمبيعات والحملات
+
+Priority: High
+Modules: Finance, Sales, Marketing, Analytics
+
+2️⃣ User Stories — Sales Manager
+US-SALES-01: إدارة الـ Leads
+
+As a Sales Manager,
+I want all leads centralized and assigned clearly,
+so that no opportunity is lost.
+
+Acceptance Criteria
+
+Lead له مصدر وحالة
+
+تعيين تلقائي أو يدوي
+
+سجل تواصل كامل
+
+Priority: High
+Modules: CRM, Sales
+
+US-SALES-02: Pipeline واضح
+
+As a Sales Manager,
+I want a visual sales pipeline,
+so that I can forecast revenue accurately.
+
+Acceptance Criteria
+
+مراحل قابلة للتخصيص
+
+سحب وإفلات
+
+توقع الإيرادات تلقائيًا
+
+Priority: High
+Modules: Sales, Analytics
+
+US-SALES-03: حساب العمولات تلقائيًا
+
+As a Sales Manager,
+I want commissions calculated automatically,
+so that disputes are eliminated.
+
+Acceptance Criteria
+
+قواعد عمولة مرنة
+
+حساب تلقائي عند إغلاق الصفقة
+
+تقرير عمولات لكل مندوب
+
+Priority: High
+Modules: Sales, Finance
+
+3️⃣ User Stories — Marketing Manager
+US-MKT-01: تخطيط الحملات
+
+As a Marketing Manager,
+I want to create and document marketing campaigns,
+so that execution is aligned and measurable.
+
+Acceptance Criteria
+
+إنشاء حملة مع أهداف
+
+ربطها بالـ Leads
+
+تحديد الميزانية
+
+Priority: High
+Modules: Marketing, CRM
+
+US-MKT-02: قياس ROI
+
+As a Marketing Manager,
+I want to track ROI per campaign,
+so that I can justify marketing spend.
+
+Acceptance Criteria
+
+ربط Leads بالمبيعات
+
+حساب تكلفة الاكتساب
+
+تقارير مقارنة
+
+Priority: High
+Modules: Marketing, Sales, Analytics
+
+US-MKT-03: متابعة التنفيذ
+
+As a Marketing Manager,
+I want to see which campaign tasks are completed or delayed,
+so that execution gaps are clear.
+
+Acceptance Criteria
+
+مهام مرتبطة بالحملة
+
+حالات تنفيذ
+
+تنبيهات التأخير
+
+Priority: Medium
+Modules: Operations, Marketing
+
+4️⃣ User Stories — Operations / Service Manager
+US-OPS-01: توزيع المهام
+
+As an Operations Manager,
+I want to assign tasks with deadlines and owners,
+so that execution is accountable.
+
+Acceptance Criteria
+
+تعيين واضح
+
+SLA محدد
+
+إشعار تلقائي
+
+Priority: High
+Modules: Operations, Notifications
+
+US-OPS-02: تتبع التنفيذ
+
+As an Operations Manager,
+I want to track task progress in real time,
+so that delays are handled early.
+
+Acceptance Criteria
+
+حالات تنفيذ
+
+سجل تغييرات
+
+تنبيهات عند التأخير
+
+Priority: High
+Modules: Operations, Analytics
+
+US-OPS-03: إدارة الاستثناءات
+
+As an Operations Manager,
+I want to log and analyze exceptions,
+so that systemic issues are fixed.
+
+Acceptance Criteria
+
+تسجيل سبب الاستثناء
+
+ربطه بالمهمة
+
+تقارير تحليلية
+
+Priority: Medium
+Modules: Operations, Analytics
+
+5️⃣ User Stories — Internal Employee
+US-EMP-01: رؤية المهام
+
+As an Employee,
+I want to see my assigned tasks clearly,
+so that I know exactly what is expected.
+
+Acceptance Criteria
+
+قائمة مهام شخصية
+
+مواعيد واضحة
+
+أولويات
+
+Priority: High
+Modules: Operations
+
+US-EMP-02: إثبات الإنجاز
+
+As an Employee,
+I want to submit work evidence,
+so that my effort is documented.
+
+Acceptance Criteria
+
+رفع ملفات / ملاحظات
+
+ختم زمني
+
+موافقة المدير
+
+Priority: Medium
+Modules: Operations
+
+6️⃣ User Stories — Customer Support Agent
+US-SUP-01: إدارة التذاكر
+
+As a Support Agent,
+I want a ticketing system,
+so that client issues are tracked properly.
+
+Acceptance Criteria
+
+إنشاء تذكرة
+
+حالة واضحة
+
+ربط بالعميل
+
+Priority: High
+Modules: Support, CRM
+
+US-SUP-02: تصعيد تلقائي
+
+As a Support Agent,
+I want tickets to auto-escalate if delayed,
+so that SLAs are respected.
+
+Acceptance Criteria
+
+SLA لكل نوع
+
+تصعيد تلقائي
+
+إشعار الإدارة
+
+Priority: High
+Modules: Support, Notifications
+
+7️⃣ User Stories — Finance / Accountant
+US-FIN-01: تقارير مالية
+
+As an Accountant,
+I want real-time financial reports,
+so that month-end stress is reduced.
+
+Acceptance Criteria
+
+تقارير تلقائية
+
+تصنيف حسب القسم
+
+تصدير
+
+Priority: High
+Modules: Finance, Analytics
+
+US-FIN-02: متابعة المدفوعات
+
+As an Accountant,
+I want to track paid and unpaid clients,
+so that cash flow is controlled.
+
+Acceptance Criteria
+
+حالة الدفع
+
+تنبيهات التأخير
+
+ربط بالفواتير
+
+Priority: High
+Modules: Finance, CRM
+
+8️⃣ User Stories — Client
+US-CLIENT-01: بوابة العميل
+
+As a Client,
+I want a portal to track my service,
+so that I trust the company.
+
+Acceptance Criteria
+
+حالة الخدمة
+
+سجل تواصل
+
+إشعارات
+
+Priority: High
+Modules: Client Portal, Notifications
+
+US-CLIENT-02: التواصل السريع
+
+As a Client,
+I want to receive updates via WhatsApp or Email,
+so that I’m never in the dark.
+
+Acceptance Criteria
+
+اختيار قناة التواصل
+
+إشعارات تلقائية
+
+سجل إشعارات
+
+Priority: High
+Modules: Notifications, Integrations
+
+
+---------------------
+
+
+🟦 TEMPLATE 1: مركز طبي / عيادة / مركز علاج طبيعي
+الأقسام الأساسية
+
+Reception / Front Desk
+
+Medical Staff (Doctors / Therapists)
+
+Operations
+
+Customer Support
+
+Finance
+
+Management
+
+👤 Persona: Receptionist (الاستقبال)
+US-MED-REC-01
+
+As a Receptionist,
+I want to register a new patient quickly,
+so that no patient waits unnecessarily.
+
+Acceptance Criteria
+
+إضافة مريض (اسم، موبايل، سبب الزيارة)
+
+تحديد جديد / قديم
+
+ربط بموعد أو جلسة
+
+بدون صلاحيات مالية
+
+Priority: High
+Modules: CRM, Operations
+
+US-MED-REC-02
+
+As a Receptionist,
+I want to schedule appointments,
+so that doctors’ time is organized.
+
+Acceptance Criteria
+
+عرض جدول الأطباء
+
+منع التعارض
+
+إشعار تلقائي للمريض
+
+Modules: Operations, Notifications
+
+👤 Persona: Therapist / Doctor
+US-MED-DOC-01
+
+As a Therapist,
+I want to see my daily sessions,
+so that I prepare for each patient.
+
+Acceptance Criteria
+
+قائمة جلسات اليوم
+
+بيانات مختصرة للمريض
+
+ملاحظات سابقة
+
+Modules: Operations, CRM
+
+US-MED-DOC-02
+
+As a Therapist,
+I want to record session notes,
+so that treatment progress is tracked.
+
+Acceptance Criteria
+
+إضافة ملاحظات
+
+لا صلاحيات مالية
+
+محفوظة في ملف المريض
+
+Modules: Operations
+
+👤 Persona: Operations Manager
+US-MED-OPS-01
+
+As an Operations Manager,
+I want to track session completion,
+so that billing and follow-ups are accurate.
+
+Acceptance Criteria
+
+جلسة مكتملة / لم تتم
+
+سبب عدم التنفيذ
+
+تقارير يومية
+
+Modules: Operations, Analytics
+
+👤 Persona: Accountant
+US-MED-FIN-01
+
+As an Accountant,
+I want to see paid vs unpaid sessions,
+so that revenue is controlled.
+
+Acceptance Criteria
+
+حالة دفع لكل جلسة
+
+تقارير شهرية
+
+بدون تعديل طبي
+
+Modules: Finance
+
+🟦 TEMPLATE 2: شركة تسويق (Marketing Agency)
+الأقسام الأساسية
+
+Sales
+
+Marketing Execution
+
+Account Management
+
+Operations
+
+Finance
+
+Management
+
+👤 Persona: Sales Executive
+US-MKT-SALES-01
+
+As a Sales Executive,
+I want to track leads and deals,
+so that I know what to follow up.
+
+Acceptance Criteria
+
+Lead source
+
+Stage
+
+Responsible person
+
+Modules: CRM, Sales
+
+US-MKT-SALES-02
+
+As a Sales Executive,
+I want commissions calculated automatically,
+so that I trust my earnings.
+
+Modules: Sales, Finance
+
+👤 Persona: Marketing Specialist
+US-MKT-EXEC-01
+
+As a Marketing Specialist,
+I want to see assigned campaign tasks,
+so that execution is clear.
+
+Acceptance Criteria
+
+مهام مرتبطة بحملة
+
+Deadlines
+
+Deliverables
+
+Modules: Operations, Marketing
+
+US-MKT-EXEC-02
+
+As a Marketing Specialist,
+I want to submit proof of work,
+so that results are verifiable.
+
+Modules: Operations
+
+👤 Persona: Account Manager
+US-MKT-AM-01
+
+As an Account Manager,
+I want to see client campaign status,
+so that I can communicate confidently.
+
+Modules: CRM, Marketing
+
+🟦 TEMPLATE 3: متجر منتجات (ملابس / تجارة)
+الأقسام الأساسية
+
+Sales
+
+Inventory / Operations
+
+Customer Support
+
+Finance
+
+Management
+
+👤 Persona: Store Manager
+US-STORE-01
+
+As a Store Manager,
+I want to see orders and fulfillment status,
+so that customers are satisfied.
+
+Modules: Operations, CRM
+
+👤 Persona: Customer Support Agent
+US-STORE-SUP-01
+
+As a Support Agent,
+I want to track customer complaints,
+so that issues are resolved fast.
+
+Modules: Support, CRM
+
+🟦 TEMPLATE 4: مركز تعليمي / تدريبي
+الأقسام الأساسية
+
+Admissions
+
+Instructors
+
+Operations
+
+Support
+
+Finance
+
+Management
+
+👤 Persona: Admissions Officer
+US-EDU-ADM-01
+
+As an Admissions Officer,
+I want to manage student applications,
+so that enrollment is organized.
+
+Modules: CRM, Operations
+
+👤 Persona: Instructor
+US-EDU-INST-01
+
+As an Instructor,
+I want to see assigned classes and students,
+so that teaching is smooth.
+
+Modules: Operations

@@ -1,0 +1,815 @@
+📡 مواصفات واجهات برمجة التطبيقات والبيانات (API & Data Specs)
+🎯 فلسفة التصميم: "API-First Architecture"
+المبدأ الأساسي:
+كل شيء في النظام يمكن الوصول إليه عبر API - حتى الواجهة الأمامية تستخدم نفس API الذي توفره للشركاء
+
+text
+💡 "بني النظام كمجموعة من الخدمات المستقلة التي تتواصل عبر API واضح ومُوثق"
+🏗️ البنية التحتية للـ API
+1. نمط API المختار: RESTful + GraphQL
+REST API للعمليات الأساسية:
+http
+# هيكل REST التقليدي
+GET    /api/v1/employees      # جلب قائمة الموظفين
+POST   /api/v1/employees      # إنشاء موظف جديد
+GET    /api/v1/employees/{id} # جلب موظف محدد
+PUT    /api/v1/employees/{id} # تحديث موظف
+DELETE /api/v1/employees/{id} # حذف موظف
+GraphQL للاستعلامات المعقدة:
+graphql
+# مثال لاستعلام GraphQL
+query {
+  employee(id: "EMP001") {
+    id
+    name
+    department {
+      name
+      kpis {
+        name
+        currentValue
+        targetValue
+      }
+    }
+    commissions(month: "2024-05") {
+      amount
+      status
+      sale {
+        product
+        amount
+      }
+    }
+  }
+}
+2. إصدارات API:
+yaml
+📌 إستراتيجية الإصدارات:
+• /api/v1/    - الإصدار الحالي المستقر
+• /api/v2/    - قيد التطوير (تجريبي)
+• /api/beta/  - للميزات التجريبية
+
+🎯 سياسة التحديث:
+• دعم كل إصدار لمدة 24 شهراً
+• إشعار قبل 6 أشهر من إيقاف الدعم
+• أداة ترقية تلقائية
+🔐 نظام المصادقة والصلاحيات (Authentication & Authorization)
+1. نظام المصادقة: OAuth 2.0 + JWT
+yaml
+🔑 التدفق:
+1. المستخدم يسجل الدخول ← يحصل على Access Token + Refresh Token
+2. Access Token صالح لـ 1 ساعة
+3. Refresh Token صالح لـ 30 يوم
+4. يمكن تجديد Access Token باستخدام Refresh Token
+
+📝 مثال Request:
+POST /api/v1/auth/login
+{
+  "email": "user@company.com",
+  "password": "******",
+  "company_id": "COMP001"
+}
+
+✅ Response:
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "user": {
+    "id": "USR001",
+    "name": "أحمد محمد",
+    "role": "sales_manager",
+    "permissions": ["read:commissions", "write:sales", "manage:team"]
+  }
+}
+2. نظام الصلاحيات (RBAC - Role-Based Access Control):
+yaml
+👑 الأدوار الأساسية:
+• owner:        صاحب الشركة - كل الصلاحيات
+• admin:        مدير النظام - كل الصلاحيات داخل الشركة
+• department_manager: مدير قسم - صلاحيات داخل القسم
+• employee:     موظف عادي - صلاحيات محدودة
+• finance:      قسم المالية - صلاحيات مالية
+• hr:           الموارد البشرية - صلاحيات الموظفين
+
+🔐 نموذج الصلاحيات:
+{
+  "role": "sales_manager",
+  "permissions": [
+    "commissions:read",
+    "commissions:write",
+    "sales:read",
+    "sales:write",
+    "team:read",
+    "team:manage",
+    "reports:generate"
+  ],
+  "scope": {
+    "department": "sales",
+    "company": "COMP001"
+  }
+}
+3. التحقق من الصلاحيات في كل طلب:
+typescript
+// مثال للتحقق في Middleware
+function authorize(requiredPermission: string, requiredScope?: string) {
+  return (req, res, next) => {
+    const user = req.user;
+    
+    // 1. التحقق من الصلاحية
+    if (!user.permissions.includes(requiredPermission)) {
+      return res.status(403).json({ error: 'غير مصرح' });
+    }
+    
+    // 2. التحقق من النطاق
+    if (requiredScope && user.scope !== requiredScope) {
+      return res.status(403).json({ error: 'خارج النطاق المسموح' });
+    }
+    
+    next();
+  };
+}
+
+// استخدام في Route
+app.get('/api/v1/commissions', 
+  authorize('commissions:read', 'sales'),
+  getCommissions
+);
+📊 نماذج البيانات الأساسية (Core Data Models)
+1. نموذج الشركة (Company):
+json
+{
+  "company": {
+    "id": "COMP001",
+    "name": "شركة التقنية المتقدمة",
+    "legal_name": "شركة التقنية المتقدمة للتجارة",
+    "tax_id": "1234567890",
+    "country": "SA",
+    "currency": "SAR",
+    "timezone": "Asia/Riyadh",
+    "plan": "premium",
+    "settings": {
+      "commission_calculation_method": "hybrid",
+      "default_currency": "SAR",
+      "auto_approve_commissions": true,
+      "minimum_commission": 50,
+      "maximum_commission_percentage": 0.3
+    },
+    "status": "active",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-05-20T10:30:00Z"
+  }
+}
+2. نموذج الموظف (Employee):
+json
+{
+  "employee": {
+    "id": "EMP001",
+    "company_id": "COMP001",
+    "user_id": "USR001",
+    "employee_code": "SA-001",
+    "full_name": "أحمد محمد عبدالله",
+    "email": "ahmed@company.com",
+    "phone": "+966501234567",
+    "national_id": "1234567890",
+    "department": "sales",
+    "position": "sales_executive",
+    "employment_type": "full_time", // full_time, part_time, commission_only
+    "contract": {
+      "base_salary": 5000,
+      "salary_currency": "SAR",
+      "commission_rate": 0.15,
+      "start_date": "2024-01-01",
+      "end_date": "2024-12-31",
+      "payment_method": "bank_transfer",
+      "bank_account": {
+        "bank_name": "الراجحي",
+        "account_number": "SA1234567890123456789012",
+        "iban": "SA1234567890123456789012"
+      }
+    },
+    "status": "active",
+    "permissions": ["commissions:read", "sales:write"],
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+}
+3. نموذج العمولة (Commission):
+json
+{
+  "commission": {
+    "id": "COM20240520001",
+    "employee_id": "EMP001",
+    "company_id": "COMP001",
+    "sale_id": "SALE20240520001",
+    "amount": {
+      "value": 1500.00,
+      "currency": "SAR",
+      "original_value": 1500.00,
+      "original_currency": "SAR",
+      "exchange_rate": 1.0
+    },
+    "calculation_details": {
+      "sale_amount": 10000.00,
+      "commission_rate": 0.15,
+      "adjusted_rate": 0.15,
+      "adjustments": [
+        {
+          "type": "bonus",
+          "reason": "achieved_monthly_target",
+          "amount": 500.00
+        }
+      ],
+      "formula_used": "(sale_amount * commission_rate) + bonuses"
+    },
+    "status": "approved", // pending, approved, paid, cancelled
+    "payment_status": "pending", // pending, processing, paid, failed
+    "approval_flow": {
+      "auto_approved": true,
+      "approved_by": "system",
+      "approved_at": "2024-05-20T10:30:00Z",
+      "requires_manual_approval": false
+    },
+    "metadata": {
+      "product_category": "premium_courses",
+      "customer_type": "corporate",
+      "sale_channel": "website"
+    },
+    "created_at": "2024-05-20T10:00:00Z",
+    "paid_at": null
+  }
+}
+4. نموذج المهمة (Task):
+json
+{
+  "task": {
+    "id": "TASK20240520001",
+    "title": "متابعة مع عميل شركة التقنية",
+    "description": "العميل يحتاج عرض سعر لمنتج X",
+    "assigned_to": ["EMP001", "EMP002"],
+    "department": "sales",
+    "priority": "high", // low, medium, high, urgent
+    "status": "in_progress", // pending, in_progress, completed, cancelled
+    "due_date": "2024-05-25T23:59:59Z",
+    "estimated_hours": 5,
+    "actual_hours": 3,
+    "tags": ["customer_followup", "quotation"],
+    "dependencies": ["TASK20240519001"],
+    "attachments": [
+      {
+        "name": "quotation.pdf",
+        "url": "https://storage.bassan.com/quotation.pdf",
+        "size": 1024000
+      }
+    ],
+    "comments": [
+      {
+        "user_id": "EMP003",
+        "comment": "تم التواصل مع العميل، ينتظر الرد",
+        "created_at": "2024-05-20T11:00:00Z"
+      }
+    ],
+    "created_by": "EMP003",
+    "created_at": "2024-05-20T09:00:00Z",
+    "completed_at": null
+  }
+}
+📡 واجهات API الرئيسية
+1. واجهة العمولات (Commissions API):
+yaml
+📊 Commission API Endpoints:
+
+# حساب عمولة جديدة
+POST /api/v1/commissions/calculate
+Body: {
+  "employee_id": "EMP001",
+  "sale_amount": 10000,
+  "sale_currency": "SAR",
+  "product_type": "premium_course",
+  "customer_type": "new"
+}
+Response: {
+  "commission_amount": 1500,
+  "breakdown": {...},
+  "status": "calculated"
+}
+
+# جلب عمولات موظف
+GET /api/v1/employees/{id}/commissions
+Query Params: ?month=2024-05&status=approved
+Response: {
+  "commissions": [...],
+  "total_amount": 25000,
+  "summary": {...}
+}
+
+# الموافقة على عمولات
+POST /api/v1/commissions/batch-approve
+Body: {
+  "commission_ids": ["COM001", "COM002"],
+  "approved_by": "manager_id"
+}
+
+# تصدير تقرير العمولات
+GET /api/v1/commissions/export
+Query Params: ?format=csv&start_date=2024-05-01&end_date=2024-05-31
+Response: CSV file or JSON
+2. واجهة المهام (Tasks API):
+yaml
+📋 Tasks API Endpoints:
+
+# إنشاء مهمة جديدة
+POST /api/v1/tasks
+Body: {
+  "title": "متابعة عميل",
+  "description": "...",
+  "assigned_to": ["EMP001"],
+  "priority": "high",
+  "due_date": "2024-05-25"
+}
+
+# توزيع المهام تلقائياً
+POST /api/v1/tasks/auto-assign
+Body: {
+  "department": "sales",
+  "task_type": "customer_followup",
+  "count": 10
+}
+
+# تحديث حالة المهمة
+PATCH /api/v1/tasks/{id}/status
+Body: {
+  "status": "completed",
+  "completed_at": "2024-05-20T15:00:00Z",
+  "notes": "تم الإنتهاء بنجاح"
+}
+
+# جلب مهام الموظف
+GET /api/v1/employees/{id}/tasks
+Query Params: ?status=pending&priority=high
+3. واجهة التقارير (Reports API):
+yaml
+📈 Reports API Endpoints:
+
+# تقرير أداء الموظفين
+GET /api/v1/reports/employee-performance
+Query Params: ?department=sales&period=monthly
+
+# تقرير العمولات الشامل
+GET /api/v1/reports/commissions-summary
+Query Params: ?group_by=department&include_trends=true
+
+# تقرير توقعات الدخل
+GET /api/v1/reports/income-forecast
+Query Params: ?employee_id=EMP001&months=6
+
+# تقرير كفاءة الفريق
+GET /api/v1/reports/team-efficiency
+Body: {
+  "metrics": ["productivity", "quality", "collaboration"],
+  "timeframe": "last_quarter"
+}
+4. واجهة التكامل (Integration API):
+yaml
+🔗 Integration API Endpoints:
+
+# تكامل مع Shopify
+POST /api/v1/integrations/shopify/webhook
+Headers: {
+  "X-Shopify-Hmac-SHA256": "..."
+}
+Body: Shopify order webhook data
+
+# تكامل مع Telegram
+POST /api/v1/integrations/telegram/webhook
+Body: {
+  "update_id": 123,
+  "message": {
+    "chat": {"id": 123456},
+    "text": "/start"
+  }
+}
+
+# استيراد بيانات من CSV
+POST /api/v1/integrations/import/csv
+Headers: {
+  "Content-Type": "multipart/form-data"
+}
+Body: FormData with CSV file
+
+# تصدير بيانات
+GET /api/v1/integrations/export
+Query Params: ?format=json&data_type=commissions
+🔔 نظام Webhooks للتفاعل في الوقت الحقيقي
+1. الأحداث المتاحة للاشتراك:
+yaml
+🎯 Events Catalog:
+
+# أحداث العمولات
+commission.created
+commission.approved
+commission.paid
+commission.cancelled
+
+# أحداث المهام
+task.created
+task.assigned
+task.completed
+task.overdue
+
+# أحداث الموظفين
+employee.joined
+employee.promoted
+employee.left
+
+# أحداث المبيعات
+sale.created
+sale.completed
+sale.cancelled
+
+# أحداث النظام
+system.alert
+system.maintenance
+system.update
+2. مثال لطلب Webhook:
+json
+POST /api/v1/webhooks/subscribe
+{
+  "url": "https://your-company.com/webhooks/bassan",
+  "events": [
+    "commission.created",
+    "commission.paid",
+    "task.overdue"
+  ],
+  "secret": "your_webhook_secret",
+  "active": true
+}
+3. مثال لبيانات Webhook المرسلة:
+json
+POST https://your-company.com/webhooks/bassan
+Headers: {
+  "X-Bassan-Event": "commission.paid",
+  "X-Bassan-Signature": "sha256=...",
+  "X-Bassan-Delivery-ID": "wh_123456"
+}
+Body: {
+  "event": "commission.paid",
+  "data": {
+    "commission_id": "COM20240520001",
+    "employee_id": "EMP001",
+    "amount": 1500.00,
+    "currency": "SAR",
+    "paid_at": "2024-05-20T14:30:00Z",
+    "payment_method": "bank_transfer"
+  },
+  "company_id": "COMP001",
+  "created_at": "2024-05-20T14:30:00Z"
+}
+🗄️ تصميم قاعدة البيانات (Database Design)
+1. مخطط العلاقات الأساسية:
+sql
+-- جدول الشركات
+CREATE TABLE companies (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    country_code CHAR(2) NOT NULL,
+    currency CHAR(3) NOT NULL,
+    plan VARCHAR(50) NOT NULL,
+    settings JSONB DEFAULT '{}',
+    status VARCHAR(20) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- جدول الموظفين
+CREATE TABLE employees (
+    id VARCHAR(50) PRIMARY KEY,
+    company_id VARCHAR(50) REFERENCES companies(id),
+    user_id VARCHAR(50) UNIQUE,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    department VARCHAR(50) NOT NULL,
+    employment_type VARCHAR(20) NOT NULL,
+    contract JSONB NOT NULL,
+    status VARCHAR(20) DEFAULT 'active',
+    permissions JSONB DEFAULT '[]',
+    created_at TIMESTAMP DEFAULT NOW(),
+    INDEX idx_company_department (company_id, department)
+);
+
+-- جدول العمولات
+CREATE TABLE commissions (
+    id VARCHAR(50) PRIMARY KEY,
+    employee_id VARCHAR(50) REFERENCES employees(id),
+    company_id VARCHAR(50) REFERENCES companies(id),
+    amount DECIMAL(15,2) NOT NULL,
+    currency CHAR(3) NOT NULL,
+    calculation_details JSONB NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    payment_status VARCHAR(20) NOT NULL,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT NOW(),
+    paid_at TIMESTAMP,
+    INDEX idx_employee_status (employee_id, status),
+    INDEX idx_company_created (company_id, created_at)
+);
+
+-- جدول المهام
+CREATE TABLE tasks (
+    id VARCHAR(50) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    assigned_to JSONB NOT NULL, -- Array of employee IDs
+    department VARCHAR(50) NOT NULL,
+    priority VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    due_date TIMESTAMP NOT NULL,
+    dependencies JSONB DEFAULT '[]',
+    attachments JSONB DEFAULT '[]',
+    created_by VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    completed_at TIMESTAMP,
+    INDEX idx_department_status (department, status),
+    INDEX idx_assigned_due (assigned_to, due_date)
+);
+2. استراتيجية التجزئة (Partitioning Strategy):
+sql
+-- تجزئة جدول العمولات حسب الشركة والشهر
+CREATE TABLE commissions_2024_05 (
+    CHECK (company_id = 'COMP001' AND created_at >= '2024-05-01' AND created_at < '2024-06-01')
+) INHERITS (commissions);
+
+-- إنشاء الفهرس على الجدول المجزأ
+CREATE INDEX idx_commissions_2024_05_employee 
+ON commissions_2024_05 (employee_id, created_at);
+
+-- توجيه البيانات تلقائياً
+CREATE OR REPLACE FUNCTION commissions_insert_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (NEW.company_id = 'COMP001' AND NEW.created_at >= '2024-05-01' AND NEW.created_at < '2024-06-01') THEN
+        INSERT INTO commissions_2024_05 VALUES (NEW.*);
+    ELSE
+        -- Handle other partitions
+    END IF;
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
+3. سياسات الاستعلام الأمثل:
+sql
+-- استعلام فعال لجلب عمولات موظف لشهر معين
+SELECT 
+    c.*,
+    e.full_name,
+    e.department
+FROM commissions c
+JOIN employees e ON c.employee_id = e.id
+WHERE c.company_id = 'COMP001'
+    AND c.employee_id = 'EMP001'
+    AND c.created_at >= '2024-05-01'
+    AND c.created_at < '2024-06-01'
+    AND c.status = 'approved'
+ORDER BY c.created_at DESC
+LIMIT 100;
+
+-- استعلام تجميعي لأداء الأقسام
+SELECT 
+    e.department,
+    COUNT(c.id) as commission_count,
+    SUM(c.amount) as total_commissions,
+    AVG(c.amount) as average_commission
+FROM commissions c
+JOIN employees e ON c.employee_id = e.id
+WHERE c.company_id = 'COMP001'
+    AND c.created_at >= '2024-05-01'
+    AND c.created_at < '2024-06-01'
+    AND c.status = 'paid'
+GROUP BY e.department
+ORDER BY total_commissions DESC;
+🔒 أمن البيانات والامتثال
+1. تشفير البيانات الحساسة:
+yaml
+🔐 استراتيجية التشفير:
+
+# البيانات المشفرة في المستودع
+- معلومات البنك: AES-256-GCM
+- الأرقام القومية: AES-256-GCM
+- الرواتب الأساسية: AES-256-GCM
+
+# التوكنات والمفاتيح
+- JWT Tokens: HS256 مع مفتاح 512-bit
+- API Keys: مشفرة باستخدام bcrypt
+- Webhook Secrets: مشفرة في المستودع
+
+# إدارة المفاتيح
+- استخدام AWS KMS أو HashiCorp Vault
+- تدوير المفاتيح كل 90 يوم
+- نسخ احتياطية للمفاتيح في مواقع متعددة
+2. الامتثال للقوانين المحلية:
+yaml
+🌍 متطلبات كل دولة:
+
+# السعودية
+- تخزين البيانات داخل السعودية
+- الامتثال لنظام حماية البيانات الشخصية
+- إتاحة تصدير البيانات للمستخدمين
+
+# مصر
+- الامتثال لقانون حماية البيانات الشخصية
+- إخطار الهيئة في حالة الاختراق
+- تعيين مسؤول حماية البيانات
+
+# الإمارات
+- الامتثال لقانون البيانات الإماراتي
+- شهادات أمن المعلومات
+- تدابير حماية إضافية
+3. سياسات احتفاظ البيانات:
+sql
+-- جدول سياسات الاحتفاظ
+CREATE TABLE data_retention_policies (
+    id SERIAL PRIMARY KEY,
+    data_type VARCHAR(50) NOT NULL, -- 'commissions', 'tasks', 'logs'
+    retention_period INTEGER NOT NULL, -- بالأشهر
+    archive_before_delete BOOLEAN DEFAULT true,
+    compression_enabled BOOLEAN DEFAULT true,
+    company_id VARCHAR(50) REFERENCES companies(id),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- سياسات افتراضية
+INSERT INTO data_retention_policies 
+(data_type, retention_period, company_id) VALUES
+('commissions', 84, NULL),   -- 7 سنوات لبيانات العمولات
+('tasks', 36, NULL),         -- 3 سنوات للمهام
+('audit_logs', 60, NULL),    -- 5 سنوات لسجلات التدقيق
+('user_logs', 12, NULL);     -- سنة لسجلات المستخدمين
+📦 تنسيقات البيانات والدعم اللغوي
+1. تنسيقات API المدعومة:
+yaml
+📊 Response Formats:
+- JSON: التنسيق الافتراضي
+- JSONP: لدعم CORS
+- MessagePack: للكفاءة
+- XML: للأنظمة القديمة
+
+🔤 الترميز:
+- UTF-8: المدعوم بالكامل
+- دعم النصوص من اليمين لليسار
+- التواريخ بالأرقام الهجرية والميلادية
+
+💱 العملات:
+- SAR, EGP, AED, KWD, USD, EUR
+- تحويل تلقائي حسب سعر الصرف
+- تخزين بالقيمة الأصلية والمحولة
+2. نماذج الاستجابة القياسية:
+json
+{
+  "success": true,
+  "data": {
+    // البيانات الفعلية هنا
+  },
+  "meta": {
+    "page": 1,
+    "total_pages": 5,
+    "total_items": 125,
+    "items_per_page": 25
+  },
+  "links": {
+    "self": "/api/v1/commissions?page=1",
+    "next": "/api/v1/commissions?page=2",
+    "prev": null,
+    "first": "/api/v1/commissions?page=1",
+    "last": "/api/v1/commissions?page=5"
+  },
+  "errors": null
+}
+3. نماذج الأخطاء:
+json
+{
+  "success": false,
+  "data": null,
+  "errors": [
+    {
+      "code": "VALIDATION_ERROR",
+      "message": "قيمة العمولة يجب أن تكون أكبر من الصفر",
+      "field": "commission_amount",
+      "details": {
+        "min_value": 0,
+        "current_value": -100
+      }
+    }
+  ],
+  "meta": {
+    "request_id": "req_123456",
+    "timestamp": "2024-05-20T14:30:00Z"
+  }
+}
+🚀 أدوات المطورين والتوثيق
+1. بوابة المطورين (Developer Portal):
+yaml
+🌐 Developer Portal Features:
+- وثائق API تفاعلية (Swagger/OpenAPI)
+- شريط رمل (Sandbox) للاختبار
+- مكتبات SDK للغات مختلفة
+- أدوات تصحيح واستكشاف الأخطاء
+- منتدى للمطورين
+- نظام تذاكر الدعم الفني
+
+📚 SDKs المتوفرة:
+- JavaScript/Node.js
+- Python
+- PHP
+- Java
+- .NET
+2. وثائق OpenAPI/Swagger:
+yaml
+openapi: 3.0.0
+info:
+  title: Bassan API
+  description: واجهة برمجة تطبيقات نظام إدارة العمولات والموظفين
+  version: 1.0.0
+  contact:
+    name: فريق Bassan
+    email: api@bassan.com
+    url: https://developers.bassan.com
+
+servers:
+  - url: https://api.bassan.com/v1
+    description: بيئة الإنتاج
+  - url: https://sandbox-api.bassan.com/v1
+    description: بيئة الاختبار
+
+paths:
+  /commissions:
+    get:
+      summary: جلب قائمة العمولات
+      description: |
+        جلب العمولات مع إمكانية التصفية والترتيب.
+        يتطلب صلاحية `commissions:read`
+      parameters:
+        - name: employee_id
+          in: query
+          description: تصفية حسب الموظف
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: تصفية حسب الحالة
+          schema:
+            type: string
+            enum: [pending, approved, paid, cancelled]
+      responses:
+        '200':
+          description: نجاح
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionsList'
+        '403':
+          description: غير مصرح
+3. حدود الاستخدام (Rate Limiting):
+yaml
+🚦 Rate Limits:
+
+# حسب خطة الاشتراك
+Free Plan:
+  - 1000 طلب/ساعة
+  - 10000 طلب/يوم
+  - لا دعم Webhooks
+
+Business Plan:
+  - 10000 طلب/ساعة
+  - 100000 طلب/يوم
+  - 10 Webhooks
+
+Enterprise Plan:
+  - 100000 طلب/ساعة
+  - 1M طلب/يوم
+  - Webhooks غير محدود
+
+📊 Headers المرسلة:
+X-RateLimit-Limit: 10000
+X-RateLimit-Remaining: 9850
+X-RateLimit-Reset: 1621526400
+Retry-After: 60  # في حالة تجاوز الحد
+🎯 الخلاصة: لماذا هذه المواصفات مثالية؟
+1. للمطورين:
+text
+✅ **سهولة الاستخدام:** وثائق واضحة، أمثلة عملية
+✅ **الاتساق:** نفس نمط API لجميع الخدمات
+✅ **المرونة:** REST + GraphQL حسب الاحتياج
+✅ **الأمان:** مصادقة قوية، صلاحيات دقيقة
+✅ **الدعم:** SDKs جاهزة، بوابة مطورين شاملة
+2. للشركات:
+text
+✅ **الموثوقية:** نظام API مستقر وقابل للتوسع
+✅ **التكامل:** سهولة التكامل مع أنظمة الشركة
+✅ **المراقبة:** تقارير استخدام مفصلة
+✅ **الامتثال:** متوافق مع القوانين المحلية
+✅ **الكفاءة:** استعلامات سريعة، استجابات فورية
+3. للمشروع (باسان):
+text
+✅ **القابلية للتوسع:** بنية معيارية، خدمات مستقلة
+✅ **الإدارة السهلة:** مراقبة وصيانة مركزية
+✅ **الدخل الإضافي:** API كمنتج مستقل
+✅ **التميز:** نظام API أفضل من المنافسين
+✅ **المستقبل:** قابل للتطوير باستمرار

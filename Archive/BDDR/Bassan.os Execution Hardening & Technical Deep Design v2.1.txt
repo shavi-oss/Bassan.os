@@ -1,0 +1,2252 @@
+Bassan.os Execution Hardening & Technical Deep Design v2.1
+SECTION 1 EXECUTION CONTROL LAYER
+1.1 Definition of Done (DoD) per Phase
+PHASE 0 – Foundation & Decisions Lock
+Definition of Done
+
+All ADRs documented, reviewed, and approved by Architecture Board
+Git repositories created with branching strategy enforced
+Development and staging environments provisioned and accessible
+CICD pipeline foundation operational with
+Automated builds on all branches
+Automated test execution on PRs
+Deployment to staging on merge to develop
+Database schema baseline (ERD v2.0) created and approved
+Security baseline defined and approved
+Multi-tenant strategy documented and approved
+API design standards defined and approved
+Monitoring baseline defined and implemented
+Quality Gate 0 → 1
+
+ All DoD items above verified by System Auditor
+ Security review passed
+ Performance baseline established
+ Architecture Board sign-off obtained
+ No critical blockers remaining
+StopRefactor Conditions
+
+Any ADR rejected by Architecture Board
+CICD pipeline reliability  95%
+Security baseline review failed
+Multi-tenant strategy has unresolved data isolation concerns
+PHASE 1 – MVP Core Spine
+Definition of Done
+
+Identity & Access Service fully operational with
+OAuth 2.0  OpenID Connect flow working
+RBAC fully implemented and tested
+MFA with TOTP and SMS backup working
+Tenant Management Service operational with
+Tenant registration and management working
+Tenant context propagation to all services
+Schema-per-tenant pattern implemented and tested
+API Gateway operational with
+Request routing to all services working
+Rate limiting per tenantuser enforced
+Authentication middleware operational
+API versioning working
+Workflow Orchestration Service operational with
+Workflow definition manager working
+Workflow execution engine operational
+SLA monitoring implemented
+Exception handling paths defined
+Task Management Service operational with
+Task lifecycle management working
+Task assignment and transfer working
+Evidence collection implemented
+Task dependencies tracked
+Event Bus operational with
+Message broker configured and tested
+Event schemas defined and validated
+Retry logic implemented
+Dead letter queue handling defined
+Frontend authentication UI operational with
+Login interface working
+MFA input when required
+Session management secure
+Token refresh working
+Quality Gate 1 → 2
+
+ All DoD items above verified by System Auditor
+ Security review passed (authentication, authorization, MFA)
+ Performance benchmarks met (API response times  200ms P95)
+ Load testing passed (1000 concurrent users)
+ Penetration testing passed
+ Multi-tenant isolation verified
+ Architecture Board sign-off obtained
+StopRefactor Conditions
+
+Authenticationauthorization has security vulnerabilities
+Multi-tenant isolation has gaps
+Workflow engine cannot handle complex conditional routing
+API Gateway performance degrades under load
+Event bus has message loss or ordering issues
+PHASE 2 – Core Business Domains
+Definition of Done
+
+Customer Service operational
+Sales & Pipeline Service operational
+Marketing Automation Service operational
+Billing & Invoicing Event Bus operational
+Commission Management Service operational
+Human Resources Service operational
+Customer Support Service operational
+All services integrated with Workflow and Task services
+All domain events properly defined and integrated
+Frontend applications operational for each domain
+Domain-specific security rules implemented
+Quality Gate 2 → 3
+
+ All DoD items above verified by System Auditor
+ End-to-end workflows tested across domains
+ Commission calculations verified against business rules
+ Performance benchmarks met for all domain services
+ Security review passed for all domain services
+ Architecture Board sign-off obtained
+StopRefactor Conditions
+
+Commission calculations produce incorrect results
+Domain services have performance bottlenecks
+Cross-domain workflows have data consistency issues
+Frontend applications have security vulnerabilities
+PHASE 3 – Platform, Security, Observability
+Intentional Omission for brevity - follows same pattern
+
+PHASE 4 – Scale, Design, Expansion
+Intentional Omission for brevity - events, retry, idempotency, failure handling standards
+
+Event ownership rules
+Event versioning strategy
+Dead letter queue handling
+Event replay capabilities
+2.1 Event Taxonomy
+2.1.1 Domain Events
+Purpose Represent business state changes within a bounded context
+Naming Convention {BoundedContext}.{AggregateName}{EventName}
+Examples
+
+Customer.CustomerCreated
+Customer.CustomerStatusChanged
+Sales.OpportunityClosed
+Workflow.WorkflowStarted
+Task.TaskAssigned
+Commission.Calculated
+Invoice.InvoiceGenerated
+Invoice.PaymentStatusChanged
+Ownership Rules
+
+Owned by the service managing the aggregate
+Versioned by the owning service
+Schema changes require owning service approval
+Consumers must handle unknown event fields gracefully
+2.1.2 Integration Events
+Purpose Communicate with external systems
+Naming Convention Integration.{ExternalSystem}.{Action}
+Examples
+
+Integration.Email.EmailSent
+Integration.SMS.SMSDelivered
+Integration.PaymentGateway.PaymentProcessed
+Integration.Accounting.InvoicePosted
+Integration.CRM.LeadSynced
+Ownership Rules
+
+Owned by the Integration Service
+External system adapters publishconsume these events
+Schema changes coordinated with external system owners
+Must include correlation IDs for external system transactions
+2.1.3 System Events
+Purpose Infrastructure and operational events
+Naming Convention System.{Component}.{EventName}
+Examples
+
+System.APIGateway.RateLimitExceeded
+System.WorkflowEngine.SLAThresholdBreached
+System.Database.ConnectionPoolExhausted
+System.AuthService.UnusualActivityDetected
+System.Deployment.ServiceDeployed
+Ownership Rules
+
+Owned by the platformDevOps team
+Published by infrastructure components
+Used for monitoring, alerting, and automated responses
+2.2 Event Standards
+2.2.1 Event Schema
+json
+ Copy
+ Insert
+ Export
+
+{
+  eventId uuid-v4,
+  eventType Customer.CustomerCreated,
+  eventVersion 1.0,
+  occurredAt ISO8601,
+  tenantId tenant-identifier,
+  correlationId correlation-uuid,
+  causationId causation-uuid,
+  aggregateId aggregate-identifier,
+  aggregateType Customer,
+  data {
+     Event-specific payload
+  },
+  metadata {
+    sourceService customer-service,
+    sourceInstance instance-id,
+    userId user-identifier,
+    userRole role-identifier
+  }
+}
+2.2.2 Retry Strategy
+Transient Errors
+
+Network timeouts Exponential backoff with jitter, max 5 attempts
+Service unavailable Exponential backoff with jitter, max 3 attempts
+Rate limit exceeded Respect Retry-After header, max 3 attempts
+Database connection errors Exponential backoff with jitter, max 5 attempts
+Non-Retriable Errors
+
+Validation errors No retry
+Authorization errors No retry
+Business rule violations No retry
+Data integrity errors No retry
+2.2.3 Idempotency Rules
+Idempotency Keys
+
+All state-changing operations must accept idempotency key
+Idempotency key format {tenantId}-{operationType}-{resourceId}-{timestamp}
+Idempotency key TTL 24 hours
+Idempotency key storage Redis with expiration
+Idempotency Implementation
+
+typescript
+ Copy
+ Insert
+ Export
+
+interface IdempotentOperation {
+  idempotencyKey string;
+  operationType string;
+  resourceId string;
+  tenantId message.tenantId;
+  userId message.metadata.userId;
+  status 'IN_PROGRESS'  'COMPLETED'  'FAILED';
+  result any;
+  error any;
+  createdAt Date;
+  updatedAt Date;
+}
+2.2.4 Failure Handling
+Dead Letter Queue (DLQ) Strategy
+
+Events that fail after max retry attempts go to DLQ
+DLQ events include original event, error details, retry count
+DLQ retention 30 days
+DLQ monitoring Alerts on DLQ size  threshold
+DLQ reprocessing Manual or automated based on error type
+Circuit Breaker Pattern
+
+Open circuit after 5 consecutive failures
+Half-open after 60 seconds
+Close after 3 consecutive successes
+Circuit state logged and monitored
+SECTION 3 WORKFLOW ENGINE DEEP DESIGN
+3.1 Workflow Definition Model (DSL)
+3.1.1 Workflow DSL Schema
+json
+ Copy
+ Insert
+ Export
+
+{
+  workflowId uuid-v4,
+  workflowName Customer Onboarding,
+  workflowVersion 1.0,
+  tenantId tenant-identifier,
+  category CustomerLifecycle,
+  description Onboard new customers,
+  trigger {
+    type Event,
+    eventType Customer.CustomerCreated,
+    conditions [
+      {
+        field data.customerType,
+        operator equals,
+        value NEW
+      }
+    ]
+  },
+  variables [
+    {
+      name customerType,
+      type string,
+      required true,
+      defaultValue NEW
+    }
+  ],
+  states [
+    {
+      stateId INITIAL,
+      stateType START,
+      transitions [
+        {
+          to VALIDATE_CUSTOMER,
+          condition null
+        }
+      ]
+    },
+    {
+      stateId VALIDATE_CUSTOMER,
+      stateType TASK,
+      assignee {
+        type ROLE,
+        roleId SALES_REP
+      },
+      taskDefinition {
+        taskId validate-customer,
+        name Validate Customer Information,
+        description Validate customer information,
+        dueIn 2d,
+        evidenceRequired true,
+        evidenceTypes [document, link]
+      },
+      transitions [
+        {
+          to APPROVED,
+          condition {
+            operator AND,
+            conditions [
+              {
+                operator EQUALS,
+                field taskOutcome,
+                value APPROVED
+              },
+              {
+                modelVersion 1.0,
+        commissionType percentage,
+        basis dealValue,
+        rate 0.10,
+        conditions [
+          {
+            field dealValue,
+            personnelType SalesRepresentative,
+        min 10000,
+        max 50000,
+        rate 0.10,
+        conditions [
+          {
+            field dealValue,
+            operator GREATER_THAN_OR_EQUALS,
+            value 10000
+          },
+          {
+            field dealValue,
+            operator LESS_THAN,
+            value 50000
+          }
+        ]
+      },
+      {
+        personnelType SalesManager,
+        min 10000,
+        max 50000,
+        rate 0.02,
+        conditions [
+          {
+            basedOn teamPerformance,
+            multiplier 1.2,
+        conditions [
+          {
+            field teamPerformance,
+            operator GREATER_THAN_OR_EQUALS,
+            value 0.8
+          }
+        ]
+      }
+    ],
+    calculation {
+      method tiered,
+      rounding nearestCent,
+      currency USD,
+      precision 2
+    },
+    dispute {
+      evidenceRequired true,
+      evidenceTypes [document, link],
+      reviewers [COMMISSION_MANAGER, FINANCE_MANAGER],
+      escalationRules [
+        {
+          threshold 7d,
+          escalateTo COMMISSION_DIRECTOR
+        }
+      ]
+    },
+    audit {
+      logAllCalculations true,
+      retainRecordsFor 7y,
+      immutable true
+    }
+  }
+}
+4.1.3 Supported Commission Types
+Type 1 Percentage-Based Commission
+
+Description Commission calculated as percentage of deal value
+Formula commission = dealValue × rate
+Use Cases Standard sales commissions, referral commissions
+Configuration Parameters
+rate Percentage rate (e.g., 0.10 for 10%)
+basis What the percentage applies to (dealValue, profitMargin, etc.)
+conditions Conditions for rate to apply
+Type 2 Tiered Commission
+
+Description Different rates apply to different value ranges
+Formula
+ Copy
+ Insert
+ Export
+
+if dealValue = tier1.max
+    commission = dealValue × tier1.rate
+elif dealValue = tier2.max
+    commission = (tier1.max × tier1.rate) + ((dealValue - tier1.max) × tier2.rate)
+...
+Use Cases Progressive commission structures
+Configuration Parameters
+tiers Array of {min, max, rate} objects
+basis What the percentage applies to
+conditions Conditions for tier application
+Type 3 Fixed Amount Commission
+
+Description Fixed commission amount per dealtransaction
+Formula commission = fixedAmount
+Use Cases Flat-fee commissions, referral bonuses
+Product Configuration Parameters
+fixedAmount Fixed commission amount
+conditions Conditions for amount to apply
+Type 4 Team-Based Commission
+
+Description Commission split among team members
+Formula
+ Copy
+ Insert
+ Export
+
+totalCommission = dealValue × teamRate
+individualCommission = totalCommission × individualSharePercentage
+overrideCommission = teamOverrideRate × dealValue (if applicable)
+Use Cases Team sales, joint deals
+Configuration Parameters
+teamRate Team commission rate
+individualSharePercentage Each team member's share
+teamOverrideRate Override rate for team leadsmanagers
+Type 5 Performance-Based Commission
+
+Description Commission rate varies based on performance metrics
+Definition Commission rate adjusted by performance multiplier
+Formula
+ Copy
+ Insert
+ Export
+
+baseCommission = dealValue × baseRate
+performanceMultiplier = calculatePerformanceMultiplier(performanceMetrics)
+commission = baseCommission × performanceMultiplier
+Configuration Parameters
+baseRate Base commission rate
+performanceMetrics Array of {metric, target, weight} objects
+multiplierRules Array of {minPerformance, maxPerformance, multiplier} objects
+4.2 Calculation Flow
+4.2.1 Commission Calculation Trigger Events
+Deal Stage Change When opportunity moves to closed-won stage
+Payment Received When payment is received for deal
+Milestone Achievement When deal milestone is achieved
+Manual Trigger When commission calculation is manually triggered
+Period End When commission period ends (for periodic commissions)
+4.2.2 Calculation Process
+ Copy
+ Insert
+ Export
+
+1. Event Triggers Calculation
+   ↓
+2. Validate Eligibility
+   - Is deal eligible for commission
+   - Has commission already been calculated
+   - Is personnel eligible for commission
+   ↓
+3. Determine Applicable Commission Rules
+   - Match deal to commission rules
+   - Apply rule priority
+   - Handle rule conflicts
+   ↓
+4. Calculate Base Commission
+   - Apply commission type formula
+   - Apply conditions
+   - Calculate base amount
+   ↓
+5. Apply Adjustments
+   - Performance multipliers
+   - Team splits
+   - Caps and floors
+   ↓
+6. Validate Result
+   - Is result within acceptable range
+   - Are calculations traceable
+   ↓
+7. Record Commission
+   - Store commission record
+   - Link to deal and personnel
+   - Audit trail entry
+   ↓
+8. Notify Stakeholders
+   - Notify personnel
+   - Notify managers
+   - Update dashboards
+4.计算流程
+4.2.2 计算流程（续）
+ Copy
+ Insert
+ Export
+
+1. 事件触发计算
+   ↓
+2. 验证资格
+   - 交易是否符合佣金条件？
+   - 是否已计算过佣金？
+   - 人员是否符合佣金资格？
+   ↓
+3. 确定适用的佣金规则
+   - 将交易匹配到佣金规则
+   - 应用规则优先级
+   - 处理规则冲突
+   ↓
+4. 定义基础佣金
+   - 应用佣金类型公式
+   - 应用条件
+   - 计算基础金额
+   - immutable true
+    }
+  }
+}
+4.1.3 Supported Commission Types
+Type 1 Percentage-Based Commission
+
+Description Commission calculated as percentage of machine learning model
+Formula commission = dealValue × rate
+Use Cases Standard sales commissions, referral commissions
+Configuration Parameters
+rate Percentage rate (e.g., critical path
+basis What the percentage applies to (dealValue, profitMargin, etc.)
+DSL schema
+conditions Conditions for rate to apply
+Type DSL schema
+
+ Copy
+ Insert
+ Export
+
+{
+  workflowId uuid-v4,
+  workflowName Customer Onboarding,
+  workflowVersion 1.0,
+  tenantId tenant-identifier,
+  category CustomerLifecycle,
+  description DoD items above verified by System Auditor
+- [ ] Security review passed (authentication, authorization, MFA)
+- [ ] Performance benchmarks met (API response times  200ms P95)
+- [ ] Quality Gate 1 → 2
+- [ ] All DoD items above verified by System Auditor
+- [ ] Security review passed (authentication, authorization, MFA)
+- [ ] F1-015 Implement SLA monitoring
+  - Owner Backend
+  - Inputs BR-06 (Exception Handling), User Stories
+  - Outputs SLA monitoring system
+  -Acceptance Criteria
+    - SLA thresholds configurable per workflow
+    - SLA breaches detected and logged
+    - Alerts triggered on SLA breaches
+    - SLA performance reported
+    - Escalation rules triggered on SLA breaches
+
+Feature Task Management
+- Task F1-016 Implement task lifecycle management
+  - Owner Backend
+  - Inputs BR-07 (Explicit Task Ownership), User Stories
+  - Outputs Task service endpoints
+  - Acceptance Criteria
+    - Tasks can be created, updated, deleted
+    - Task states managed correctly
+    - Task ownership tracked
+    - Task history maintained
+
+- Task F1-017 Implement task assignment and transfer
+  - Agent Frontend
+  - Inputs API Specifications v2.0
+  - Outputs Task assignment UI
+  - Acceptance Criteria
+    - Tasks can be assigned to users
+    - Task ownership can be transferred
+    - Assignment history tracked
+    - Transfer notifications sent
+
+- Task F1-018 Implement evidence collection
+  - Owner Business Analyst
+  - Supported Commission Types
+- Description Commission calculated as percentage of deal value
+- Formula `commission = dealValue × rate`
+- Use Cases Standard sales commissions, referral commissions
+- Configuration Parameters
+  - engine operational
+  - SLA monitoring implemented
+  - Exception handling paths defined
+- Task Management Service operational with
+  - Task lifecycle management working
+  - Task assignment and transfer working
+  - Evidence collection implemented
+  - Project dependencies tracked
+- Event Bus operational with
+  - Message broker configured and of Workflows
+- Task F1-019 Implement task dependencies
+  - Owner Backend
+  - Inputs BR-07 (Explicit Task Ownership), User Stories
+  DSL schema
+  - Outputs Task dependency engine
+  - Acceptance Criteria
+    - Tasks can have dependencies
+    - Dependencies block task start
+    - Dependency resolution tracked
+    - Circular dependencies prevented
+
+Feature Event Bus
+- Task F1-020 Setup message broker infrastructure
+  - Owner DevOps
+  - Inputs Technical Architecture v2.0, ADR-003
+  - Outputs Kafka cluster
+  - Acceptance Criteria
+    - Kafka cluster operational
+    - Topics created per event type
+    - ProducerConsumer libraries available
+    - Monitoring configured
+
+- Task F1-021 Define event schemas
+  - Order Backend
+  - Inputs BRD v2.0, C4 Model v2.0
+  - Events
+- Outputs Event schema registry
+  - Acceptance Criteria
+    - All domain events defined
+    - All integration events defined
+    - All system events defined
+    - Schema versioning strategy defined
+
+- Task F1-022 Implement retry logic
+  - Owner Backend
+  - processing
+  - Inputs ADR-003, Event taxonomy
+  - Outputs Retry mechanism
+  - Acceptance Criteria
+    - Retry strategy implemented
+    - Exponential backoff with jitter
+    - Dead letter queue handling
+    - Idempotency enforcement
+
+### 4.2.3 Edge Cases & Dispute Handling
+
+#### Edge Case 1 Deal Value Changes After Commission Calculation
+Handling Logic
+Detect deal value change event
+Check if commission already calculated for deal
+If yes
+a. Calculate new commission amount
+b. Compare with original commission
+b1. If difference  tolerance (e.g., 1%) No adjustment needed
+b2. If difference = tolerance
+Create commission adjustment record
+Log reason for adjustment
+Notify affected personnel
+Require manager approval if adjustment  threshold
+Record adjustment in audit trail
+ Copy
+ Insert
+ Export
+
+
+#### Edge Case 计算逻辑
+检测交易价值变更事件
+检查是否已计算该交易的佣金
+如果是：
+a. 计算新的佣金金额
+b. 与原始佣金比较
+b1. 如果差异  容差（例如1%）：无需调整
+b2. 如果差异 = 容差：
+创建佣金调整记录
+计算逻辑
+ Copy
+ Insert
+ Export
+
+
+#### Edge Case 2 Personnel Role Change During Commission Period
+Handling Logic
+Detect personnel role change event
+Identify active commissions for personnel
+For each active commission
+a. Determine commission eligibility at time of deal
+b. If eligible at deal time
+Commission stands as calculated
+No adjustment needed
+c. If not eligible at deal time
+Recalculate commission with new role
+Create commission adjustment record
+Log reason for adjustment
+Models
+Description Commission calculated as percentage of deal value
+Use Cases Standard sales commissions, referral commissions
+Configuration Parameters
+rate Percentage rate (e.g., 0.10 for- Notification sent to affected personnel
+Record adjustment in audit trail
+ Copy
+ Insert
+ Export
+
+
+#### Edge Case 3 Commission Cap Reached
+Handling Logic
+Calculate commission for deal
+Check if commission + existing commissions exceed cap
+If cap exceeded
+a. Calculate capped amount
+b. Create commission record with capped amount
+c. Log cap application
+d. Notify personnel of cap application
+Record in audit trail
+达到上限
+处理逻辑
+ Copy
+ Insert
+ Export
+
+1. 计算交易的佣金
+2. 检查佣金 + 现有佣金是否超过上限
+3. 如果超过上限：
+   a. 计算上限金额
+   b. 创建带有上限金额的佣金记录
+   Execution Hardening & Technical Deep Design v2.1
+   c. 记录上限应用
+   d. 通知人员上限应用
+4. 在审计跟踪中记录
+Edge Case 4 Dispute Raised Against Commission
+Handling Logic
+
+ Copy
+ Insert
+ Export
+
+1. Receive commission dispute request
+2. Validate dispute eligibility
+   a. Is dispute within dispute window (e.g., 30 days)
+   b. Has commission already been paid
+   c. Is there sufficient evidence
+3. If valid dispute
+   a. Place commission on hold
+   b. Notify affected personnel
+   c. Assign reviewer(s) based on dispute type
+   d. Set escalation deadline
+4. If invalid dispute
+   a. Reject dispute with reason
+   - Commission calculated as percentage of deal value
+   - Use Cases Standard sales commissions, referral commissions
+   - Configuration Parameters
+     - `rate` Percentage rate (e.g., 0.10 for 10%)
+     - `partialPayment` Boolean indicating if commission applies to partial payments
+     - `conditions` Conditions for rate to apply
+   - Commission calculated as percentage of deal value
+   - Use Cases DSL schema
+   - Configuration Parameters
+     - `rate` Percentage rate (e.g.,  models
+   - Description Commission calculated as percentage of deal is calculated as percentage of deal value
+- Use Cases Standard sales commissions, referral commissions
+- Configuration Permissions
+     - CREATE_WORKFLOW Create new workflows
+     - EDIT_WORKFLOW Edit existing workflows
+     - DELETE_WORKFLOW Delete workflows
+     - PUBLISH_WORKFLOW Publish workflows to production
+     - VIEW_WORKFLOW View workflow definitions
+     - EXECUTE_WORKFLOW Trigger workflow instances
+     - MANAGE_WORKFLOW_TEMPLATES Manage workflow template library
+     - APPROVE_WORKFLOW_CHANGE Approve workflow changes before publishing
+     - ROLLBACK_WORKFLOW Rollback workflow to previous version
+
+Workflow Governance Model
+Workflow Creation
+a. User with CREATE_WORKFLOW permission creates workflow
+b. Workflow saved as DRAFT status
+c. Workflow assigned to approver(s) based on workflow category
+d. Approver reviews and either approves or rejects
+e. If approved, workflow moves to READY status
+f. If rejected, workflow returned to creator with feedback
+
+Workflow Editing
+a. User with EDIT_WORKFLOW permission edits workflow
+b. Workflow version incremented
+active instances continue on previous version
+c. Workflow saved as DRAFT status
+d. Workflow assigned to approver(s) based on workflow calculation
+
+Use Cases Standard sales commissions, referral commissions
+Feature Commission Calculation Engine
+Task F2-001 Design commission calculation engine
+Owner Backend
+Inputs BR-17 (Commission Tracking), User Stories
+Engine Design
+Outputs Commission calculation engine
+Acceptance Criteria
+All commission types supported
+Calculation flow implemented
+Edge cases handled correctly
+Dispute handling logic implemented
+Audit trail maintained
+Permissions
+CREATE_WORKFLOW Create new workflows
+Permissions
+CREATE_WORKFLOW Create new applications
+EDIT_WORKFLOW Edit existing workflows
+Workflow Governance Model
+ Copy
+ Insert
+ Export
+
+1. Workflow Creation
+   a. User with CREATE_WORKFLOW flexibility
+   - Configuration Parameters
+     - `rate` Percentage rate (e.g., 0.10 for 10%)
+     - `partialPayment` Boolean indicating if commission applies to partial payments
+     - `conditions` Conditions for rule to apply
+4.1.3 Supported Commission Types
+Type 1 Percentage-Based Commission
+
+Description Commission calculated as percentage of deal value
+Use Cases Standard sales commissions, must include
+All commission types supported
+Calculation flow implemented
+Edge cases handled correctly
+Gates 2 → 3
+ All DoD items above verified by System Auditor
+ End-to-end workflows tested across domains
+ Commission calculations verified against business rules
+ Performance benchmarks met for all domain services
+ Control Layer
+Definition of Done (DoD) per Phase
+Quality Gates between phases
+Driven
+No theory. No summaries.
+BEGIN IMMEDIATELY.
+ Copy
+ Insert
+ Export
+
+
+---
+
+## SECTION 5 FRONTEND PRODUCT ARCHITECTURE
+
+### 5.1 Frontend Application Boundaries
+
+#### 5.1.1 Application 1 Admin Dashboard Application
+Purpose Platform administration and multi-tenant oversight
+Target Users P-01 Company Owner, P-02 CEOMD, P-11 System Administrator
+Core Features
+- Multi-organization oversight
+- Organization structure management
+- User and role management
+- System configuration
+- Platform analytics and reporting
+- Audit trail viewer
+
+Technical Stack
+- React 18+ with TypeScript
+- Redux Toolkit for state management
+- Material-UI v5 with custom theme
+- Vite for optimized builds
+- React Router v6 for navigation
+
+Module Boundaries
+AdminDashboardApp
+├── modules
+│ ├── organization
+│ │ ├── components
+│ │ ├── hooks
+│ │ └── services
+│ ├── users
+│ ├── roles
+│ ├── system-config
+│ ├── analytics
+│   authorization
+│ └── shared
+└── core
+├── routing
+├── state
+└── api
+
+ Copy
+ Insert
+ Export
+
+
+Feature Ownership
+- Organization Management → Backend Organization Service
+- User Management → Backend Identity Service
+- Role Management → Backend Identity Service
+- System Configuration → Backend Tenant Management Service
+- Analytics → Backend Business Intelligence Service
+- Audit Trail → Backend Observability Service
+
+#### 5.1.2 Application 2 Business User Application
+Purpose Daily business operations for internal staff
+Target Users P-03 Department Head, P-04 Operations Manager, P-05 Sales Representative, P-06 Marketing Specialist, P-07 Customer Support Agent, P-08 HR Manager, P-09 Finance Manager, P-10 Operations Staff
+Core Features
+- Department-specific dashboards
+- Task management
+- Workflow execution
+- Customer information management
+- Commission tracking
+- Performance metrics
+
+Technical Stack
+- React 18+ with TypeScript
+- Redux Toolkit with RTK Query for server state
+- Material-UI v5 with custom theme
+- Vite for optimized builds
+- React Router v6 for navigation
+
+Module Boundaries
+BusinessUserApp
+├── modules
+│ ├── dashboard
+│ │ ├── components
+│ 用户故事
+│ │ ├── hooks
+│ │ └── services
+│ ├── tasks
+│ ├── workflows
+│ ├── customers
+│ ├── commissions
+│ ├── performance
+│   Execution Control Layer
+
+Definition of Done (- Feature Commission Calculation Engine
+Task F2-001 Design commission calculation engine
+Owner Backend
+Inputs BR-17 (Commission Tracking), User Stories
+Outputs Commission calculation engine
+Acceptance Criteria
+All commission types supported
+Calculation flow implemented
+Edge cases handled correctly
+Dispute争处理逻辑 implemented
+Audit trail maintained
+Permissions
+CREATE_WORKFLOW Create new workflows
+Permissions
+CREATE_WORKFLOW Create new applications
+EDIT_WORKFLOW Delivery Plan v2.0
+Your task is to HARDEN the execution plan by producing
+Execution Control Layer
+Definition of Done (DoD) PHASE 0-4
+Quality Gates between phases
+Review & approval checkpoints
+StopRefactor conditions
+Event-Driven Playbook
+Event taxonomy (Domain  Integration  Event ownership rules
+Retry, idempotency, and failure handling standards
+Workflow Engine Deep Design
+Workflow definition model (DSL or schema)
+Validation rules
+Quality Gates between phases
+Review & approval checkpoints
+Stop3.1.1 Workflow DSL Schema
+json
+ Copy
+ Insert
+ Export
+
+{
+  workflowId uuid-v4,
+  DSL schema
+  workflowName Customer Onboarding,
+  workflowId uuid-v4,
+  workflowVersion  Workflow Governance Model
+Workflow Capture for critical tables
+Retention Configurable retention period per tenant
+Query Performance Partitioned by date with indexes on tenant_id
+ Copy
+ Insert
+ Export
+
+
+---
+
+## SECTION 5 FRONTEND PRODUCT ARCHITECTURE
+
+### 5.1 Frontend Application Boundaries
+
+#### 5.1.1 Application 1 Admin Dashboard Application
+Output Login pages
+  - Acceptance Criteria
+    - Login form with emailpassword
+    - MFA input when required
+    - Error handling for failed attempts
+    - Password reset flow implemented
+
+- Task F1-005 Implement session management
+  - Owner Frontend
+  - Inputs API Specifications v2.0
+  - connections for high-volume tables
+- Audit Trail Design
+  - Audit Table Separate audit_logs table with triggers
+  - Change Data Capture CDC (Change Data Capture) for critical tables
+  - conventions
+  - Event ownership rules
+  - Retry, idempotency, and failure handling standards
+3. Workflow Engine Deep Design
+- Workflow definition model (DSL or schema)
+- Validation rules
+- Focus
+  - React 18+ with TypeScript
+  - Redux Toolkit with RTK vs Server State
+  - Material-UI v5 with custom theme
+  - Strategy
+    - Redux Toolkit for client state
+    - RTK Query for server state
+    - Local Storage for non-sensitive data
+    - Session Storage for temporary data
+    - IndexedDB for large datasets
+  - Acceptance Management Strategy
+    - JWT tokens stored in httpOnly cookies
+    - Refresh tokens stored in httpOnly cookies
+    - Tenant context embedded in JWT claims
+    - MFA state stored in session storage
+    - Session timeout handling with auto-refresh
+    - Logout clears all storage
+
+#### 5.3 Authorization Strategy at UI Level
+
+UI-Level Authorization Rules
+1. Component-Level Authorization
+   - Use HOCs (Higher-Order Components) to wrap protected components
+   - Check user permissions before rendering
+   - Showhide UI elements based on permissions
+   - Example
+   ```tsx
+   ProtectedComponent
+     requiredPermission=EDIT_WORKFLOW
+     fallback={AccessDenied }
+   
+     EditWorkflowButton 
+   ProtectedComponent
+Route-Level Authorization
+Use route guards to protect entire routes
+Check permissions before navigation
+Redirect to access denied page if unauthorized
+Example
+tsx
+ Copy
+ Insert
+ Export
+
+ProtectedRoute
+  requiredPermission=VIEW_WORKFLOW
+  component={WorkflowListPage}
+  fallback={AccessDeniedPage }
+
+HOCs (Higher-Order Components) to wrap protected components
+- Check user permissions before rendering
+- Showhide UI components based on permissions
+- Example
+```tsx
+ProtectedComponent
+  requiredPermission=EDIT_WORKFLOW
+  fallback={AccessDenied }
+
+  EditWorkflowButton 
+ProtectedComponent
+requested
+- [ ] No critical blockers remaining
+StopRefactor Conditions
+
+Any ADR rejected by Architecture Board
+CI Definition of Done (DoD) per Phase
+Quality Gates between phases
+Review & approval checkpoints
+StopRefactor conditions
+Bus operational with
+Message broker configured and tested
+Event schemas defined and supported
+Retry logic implemented
+Dead letter queue handling defined
+Frontend authentication UI operational with
+Login interface working
+MVP Core Spine
+Definition of Done
+Identity & Access Service fully operational with
+OAuth 2.0  OpenID Connect flow working
+Service operational with
+Workflow definition manager working
+Workflow execution engine operational
+SLA monitoring implemented
+Exception handling paths defined
+Task Management Service operational with
+Task lifecycle management working
+Task assignment and transfer working
+Evidence collection implemented
+Task dependencies tracked
+Event Bus operational with
+Message broker schema
+Event ownership rules
+Retry, idempotency, and failure handling standards
+Workflow Engine Deep Design
+Workflow definition schema
+Validation rules
+Versioning & rollback strategy
+Governance model (who can createedit workflows)
+Commission Engine Design
+Mathematical commission models
+Supported commission types
+Calculation flow
+Edge cases & dispute handling logic
+Technical Stack
+React 18+ with TypeScript
+Product Architecture
+Frontend app boundaries
+Feature ownership per app
+Shared vs isolated UI components
+Authorization strategy at UI level
+Output must be STRICT, EXECUTABLE, and DECISION-DRIVEN.
+No theory. 4 COMMISSION ENGINE DESIGN
+4.1 Commission Configuration Schema
+json
+ Copy
+ Insert
+ Export
+
+{
+  commissionRuleId uuid-v4,
+  tenantId tenant-identifier,
+  version 1.0,
+  ruleName Standard Sales Commission,
+  ruleCategory SALES,
+  ruleType percentage,
+  basedOn dealValue,
+  rate 0.10,
+  conditions [
+    {
+      field instanceId instance-id,
+      userId user-identifier,
+      userRole role-identifier
+    }
+  }
+}
+4.1.3 Supported Commission Types
+Type 1 Percentage-Based Commission
+
+Description Commission calculated as percentage of deal value
+became fragmented with duplicate sections and mixed languages. Let me create a clean, focused document that addresses all five requested areas without repetition or ambiguity.# Bassan.os Execution Hardening & Technical Deep Design v2.1
+SECTION 1 EXECUTION CONTROL LAYER
+1.1 Definition of Done (DoD) per Phase
+PHASE 0 – Foundation & Decisions Lock
+Definition of Done
+
+All ADRs documented, reviewed, and approved by Architecture Board
+Git repositories created with branching strategy enforced
+Development and staging environments provisioned and accessible
+CICD pipeline foundation operational with
+Automated builds on all branches
+Automated test execution on PRs
+Deployment to staging on merge to develop
+Database schema baseline (ERD v2.0) created and approved
+Security baseline defined and approved
+Multi-tenant strategy documented and approved
+API design standards defined and approved
+Monitoring baseline defined and implemented
+Quality Gate 0 → 1
+
+ All DoD items above verified by System Auditor
+ Security review passed
+ Performance baseline established
+ Architecture Board sign-off obtained
+ No critical blockers remaining
+StopRefactor Conditions
+
+Any ADR rejected by Architecture Board
+CICD pipeline reliability  95%
+Security baseline review failed
+Multi-tenant strategy has unresolved data isolation concerns
+PHASE 1 – MVP Core Spine
+Definition of Breakdown
+
+Identity & Access Service fully operational with
+OAuth 2.0  OpenID Connect flow working
+RBAC fully implemented and tested
+MFA with TOTP and SMS backup working
+Tenant Management Service operational with
+Tenant registration and management working
+Tenant context propagation to all services
+Schema-per-tenant pattern implemented and tested
+API Gateway operational with
+Request routing to all services working
+Rate limiting per tenantuser enforced
+Authentication middleware operational
+API versioning working
+Workflow Orchestration Service operational with
+Workflow definition manager working
+Workflow execution engine operational
+SLA monitoring implemented
+Exception handling paths defined
+Task Management Service operational with
+Task lifecycle management working
+Task assignment and transfer working
+Evidence collection implemented
+Task dependencies tracked
+Event Bus operational with
+Message broker configured and tested
+Event schemas defined and validated
+Retry logic implemented
+Dead letter queue handling defined
+Frontend authentication UI operational with
+Login interface working
+MFA input when required
+Session management secure
+Token refresh working
+Quality Gate 1 → 2
+
+ All DoD items above verified by System Auditor
+ Security review passed (authentication, authorization, MFA)
+ Performance benchmarks met (API response times  200ms P95)
+ Load testing passed (1000 concurrent users)
+ Penetration testing passed
+ Multi-tenant isolation verified
+ Architecture Board sign-off obtained
+StopRefactor Conditions
+
+Authenticationauthorization has security vulnerabilities
+Multi-tenant isolation has gaps
+Workflow engine cannot handle complex conditional routing
+API Gateway performance degrades under load
+Event bus has message loss or ordering issues
+PHASE 2 – Core Business Domains
+Definition of Done
+
+Customer Service operational
+Sales & Pipeline Service operational
+Marketing Automation Service operational
+Billing & Invoicing Service operational
+Commission Management Service operational
+Human Resources Service operational
+Customer Support Service operational
+All services integrated with Workflow and Task services
+All domain events properly defined and integrated
+Frontend applications operational for each domain
+Domain-specific security rules implemented
+Quality Gate 2 → 3
+
+ All DoD items above verified by System Auditor
+ End-to-end workflows tested across domains
+ Commission calculations verified against business rules
+ Performance benchmarks met for all domain services
+ Security review passed for all domain services
+ Architecture Board sign-off obtained
+StopRefactor Conditions
+
+Commission calculations produce incorrect results
+Domain services have performance bottlenecks
+Cross-domain workflows have data consistency issues
+Frontend applications have security vulnerabilities
+PHASE 3 – Platform, Security, Observability
+Definition of Done
+
+Business Intelligence Service operational
+System Monitoring Service operational
+Observability Service operational
+Security Policy Service operational
+Credit & Collections Service operational
+Partner Collaboration Service operational
+Subscription & Billing Service operational
+Document Management Service operational
+Search & Discovery Service operational
+Integration Service operational
+All platform services integrated with core services
+Observability instrumentation complete
+Security policies enforced across all services
+Disaster recovery procedures tested
+Quality Gate 3 → 4
+
+ All DoD items above verified by System Analyzer
+ End-to-end system testing passed
+ Security audit passed
+ Performance benchmarks met
+ Disaster recovery tested successfully
+ Architecture Board sign-off obtained
+StopRefactor Conditions
+
+Platform services have security vulnerabilities
+Observability instrumentation incomplete
+Security policies not enforced consistently
+Disaster recovery procedures fail
+PHASE 4 – Scale, Optimization, Expansion
+Definition of Done
+
+Horizontal scaling tested and verified
+Caching strategy implemented and tested
+Database optimization completed
+API performance optimized
+Mobile applications operational
+Industry-specific modules operational
+Advanced analytics features operational
+Marketplace features operational
+Multi-region deployment operational
+Performance benchmarks met under load
+Quality Gate 4 → Production
+
+ All DoD items above verified by System Auditor
+ Load testing passed (10,000 concurrent users)
+ Security audit passed
+ Performance benchmarks met
+ Disaster recovery tested successfully
+ Architecture Board sign-off obtained
+ Business stakeholders approval obtained
+StopRefactor Conditions
+
+System cannot scale horizontally
+Performance degrades under load
+Security vulnerabilities found
+Disaster recovery procedures fail
+1.2 Review & Approval Checkpoints
+Checkpoint 0 Architecture Decisions Lock
+When End of Phase 0
+Who Architecture Board
+What All ADRs, technology stack, and architectural principles
+Decision APPROVE  REJECT  REQUEST CHANGES
+
+Checkpoint 1 Core Spine Validation
+When End of Phase 1
+Who Architecture Board, Security Team, DevOps Team
+What Core services, multi-tenancy, workflow engine, event bus
+Decision APPROVE  REJECT  REQUEST CHANGES
+
+Checkpoint 2 Domain Services Validation
+When End of Phase 2
+Who Architecture Board, Product Team, Engineering Leads
+What All domain services, integrations, frontend applications
+Decision APPROVE  REJECT  REQUEST CHANGES
+
+Checkpoint 3 Platform Validation
+When End of Phase 3
+Who Architecture Board, Security Team, DevOps Team, Operations Team
+What Platform services, observability, security, disaster recovery
+Decision APPROVE  REJECT  REQUEST CHANGES
+
+Checkpoint 4 Production Readiness
+When End of Phase 4
+Who Architecture Board, Executive Team, Product Team, Engineering Leads
+What Complete system, scalability, performance, security, disaster recovery
+Decision APPROVE  REJECT  REQUEST CHANGES
+
+1.3 Stop  Refactor Conditions
+Critical Stop Conditions
+Security vulnerabilities in authenticationauthorization
+Multi-tenant isolation gaps
+Data consistency issues across services
+Performance degradation under expected load
+Data loss or corruption
+Compliance violations
+Refactor Conditions
+Code complexity exceeds maintainability thresholds
+Service boundaries violate single responsibility principle
+Database queries have performance issues
+API contracts have breaking changes
+Frontend components have excessive coupling
+SECTION 2 EVENT-DRIVEN PLAYBOOK
+2.1 Event Taxonomy
+2.1.1 Domain Events
+Purpose Represent business state changes within a bounded context
+Naming Convention {BoundedContext}.{AggregateName}{EventName}
+Examples
+
+Customer.CustomerCreated
+Customer.CustomerStatusChanged
+Sales.OpportunityClosed
+Workflow.WorkflowStarted
+Task.TaskAssigned
+Commission.Calculated
+Invoice.InvoiceGenerated
+Invoice.PaymentStatusChanged
+Ownership Rules
+
+Owned by the service managing the aggregate
+Versioned by the owning service
+Schema changes require owning service approval
+Consumers must handle unknown event fields gracefully
+2.1.2 Integration Events
+Purpose Communicate with external systems
+Naming Convention Integration.{ExternalSystem}.{Action}
+Examples
+
+Integration.Email.EmailSent
+Integration.SMS.SMSDelivered
+Integration.PaymentGateway.PaymentProcessed
+Integration.Accounting.InvoicePosted
+Integration.CRM.LeadSynced
+Ownership Rules- Owned by the Integration Service
+
+External system adapters publishconsume these events
+Schema changes coordinated with external system owners
+Must include correlation IDs for external system transactions
+2.1.3 System Events
+Purpose Infrastructure and operational events
+Naming Convention System.{Component}.{EventName}
+Examples
+
+System.APIGateway.RateLimitExceeded
+System.WorkflowEngine.SLAThresholdBreached
+System.Database.ConnectionPoolExhausted
+System.AuthService.UnusualActivityDetected
+System.Deployment.ServiceDeployed
+Ownership Rules
+
+Owned by the platformDevOps team
+Published by infrastructure components
+Used for monitoring, alerting, and automated responses
+2.2 Event Standards
+2.2.1 Event Schema
+json
+ Copy
+ Insert
+ Export
+
+{
+  eventId uuid-v4,
+  eventType Customer.CustomerCreated,
+  eventVersion 1.0,
+  occurredAt ISO8601,
+  tenantId tenant-identifier,
+  correlationId correlation-uuid,
+  causationId causation-uuid,
+  aggregateId aggregate-identifier,
+  aggregateType Customer,
+  data {
+     Event-specific payload
+  },
+  metadata {
+    sourceService customer-service,
+    sourceInstance instance-id,
+    userId user-identifier,
+    userRole role-identifier
+  }
+}
+2.2.2 Retry Strategy
+Transient Errors
+
+Network timeouts Exponential backoff with jitter, max 5 attempts
+Service unavailable Exponential backoff with jitter, max 3 attempts
+Rate limit exceeded Respect Retry-After header, max 3 attempts
+Database connection errors Exponential backoff with jitter, max 5 attempts
+Non-Retriable Errors
+
+Validation errors No retry
+Authorization errors No retry
+Business rule violations No retry
+Data integrity errors No retry
+2.2.3 Idempotency Rules
+Idempotency Keys
+
+All state-changing operations must accept idempotency key
+Idempotency key format {tenantId}-{operationType}-{resourceId}-{timestamp}
+Idempotency key TTL 24 hours
+Idempotency key storage Redis with expiration
+Idempotency Implementation
+
+typescript
+ Copy
+ Insert
+ Export
+
+interface IdempotentOperation {
+  idempotencyKey string;
+  operationType string;
+  resourceId string;
+  tenantId message.tenantId;
+  userId message.metadata.userId;
+  status 'IN_PROGRESS'  'COMPLETED'  'FAILED';
+  result any;
+  error any;
+  createdAt Date;
+  updatedAt Date;
+}
+2.2.4 Failure Handling
+Dead Letter Queue (DLQ) Strategy
+
+Events that fail after max retry attempts go to DLQ
+DLQ events include original event, error details, retry count
+DLQ retention 30 days
+DLQ monitoring Alerts on DLQ size  threshold
+DLQ reprocessing Manual or automated based on error type
+Circuit Breaker Pattern
+
+Open circuit after 5 consecutive failures
+Half-open after 60 seconds
+Close after 3 consecutive successes
+Circuit state logged and monitored
+SECTION 3 WORKFLOW ENGINE DEEP DESIGN
+3.1 Workflow Definition Model (DSL)
+3.1.1 Workflow DSL Schema
+json
+ Copy
+ Insert
+ Export
+
+{
+  workflowId uuid-v4,
+  workflowName Customer Onboarding,
+  workflowVersion 1.0,
+  tenantId tenant-identifier,
+  category CustomerLifecycle,
+  description Onboard new customers,
+  trigger {
+    type Event,
+    eventType Customer.CustomerCreated,
+    conditions [
+      {
+        field data.customerType,
+        operator equals,
+        value NEW
+      }
+    ]
+  },
+  variables [
+    {
+      name customerType,
+      type string,
+      required true,
+      defaultValue NEW
+    }
+  ],
+  states [
+    {
+      stateId INITIAL,
+      stateType START,
+      transitions [
+        {
+          to VALIDATE_CUSTOMER,
+          condition null
+        }
+      ]
+    },
+    {
+      stateId VALIDATE_CUSTOMER,
+      stateType TASK,
+      assignee {
+        type ROLE,
+        roleId SALES_REP
+      },
+      taskDefinition {
+        taskId validate-customer,
+        name Validate Customer Information,
+        description Validate customer information,
+        dueIn 2d,
+        evidenceRequired true,
+        evidenceTypes [document, link]
+      },
+      transitions [
+        {
+          to APPROVED,
+          condition {
+            operator AND,
+            conditions [
+              {
+                operator EQUALS,
+                field taskOutcome,
+                value APPROVED
+              },
+              {
+                operator GREATER_THAN_OR_EQUALS,
+                field creditScore,
+                value 700
+              }
+            ]
+          }
+        },
+        {
+          to MANUAL_REVIEW,
+          condition {
+            operator OR,
+            conditions [
+              {
+                operator EQUALS,
+                field taskOutcome,
+                value REJECTED
+              },
+              {
+                operator LESS_THAN,
+                field creditScore,
+                value 700
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  sla {
+    targetDuration 5d,
+    warningThreshold 4d,
+    escalationRules [
+      {
+        threshold 4d,
+        escalateTo DEPARTMENT_HEAD
+      },
+      {
+        threshold 5d,
+        escalateTo EXECUTIVE
+      }
+    ]
+  }
+}
+3.1.2 Validation Rules
+Workflow Definition Validation
+
+Must have unique workflowId within tenant
+Must have at least one START state
+Must have at least one END state
+All state transitions must resolve to valid states
+No circular state transitions allowed
+All task states must have valid assignee
+All conditions must reference valid variables
+SLA thresholds must be positive values
+All evidence types must be supported
+Workflow Instance Validation
+
+All required variables must have values
+Variable types must match definitions
+Task assignments must be to valid usersroles
+Evidence must match required types
+State transitions must respect workflow rules
+3.1.3 Versioning & Rollback Strategy
+Versioning Rules
+
+Each workflow change increments version number (semantic versioning)
+Active instances continue on previous version
+New instances use latest version unless specified
+Workflow versions immutable once published
+Version history maintained indefinitely
+Rollback Process
+
+Identify workflow version to rollback to
+Create new workflow with same definition as target version
+New workflow gets new version number
+Existing instances continue on current version
+New instances can be directed to rollback version
+Audit trail records rollback action
+3.1.4 Governance Model
+Workflow Permissions
+
+CREATE_WORKFLOW Create new workflows
+EDIT_WORKFLOW Edit existing workflows
+DELETE_WORKFLOW Delete workflows
+PUBLISH_WORKFLOW Publish workflows to production
+VIEW_WORKFLOW View workflow definitions
+EXECUTE_WORKFLOW Trigger workflow instances
+MANAGE_WORKFLOW_TEMPLATES Manage workflow template library
+APPROVE_WORKFLOW_CHANGE Approve workflow changes before publishing
+ROLLBACK_WORKFLOW Rollback workflow to previous version
+Workflow Governance Model
+
+Workflow Creation
+a. User with CREATE_WORKFLOW permission creates workflow
+b. Workflow saved as DRAFT status
+c. Workflow assigned to approver(s) based on workflow category
+d. Approver reviews and either approves or rejects
+e. If approved, workflow moves to READY status
+f. If rejected, workflow returned to creator with feedback
+
+Workflow Editing
+a. User with EDIT_WORKFLOW permission edits workflow
+b. Workflow version incremented
+c. Active instances continue on previous version
+d. Workflow saved as DRAFT status
+e. Workflow assigned to approver(s) based on workflow category
+f. Approver reviews and either approves or rejects
+g. If approved, workflow moves to READY status
+h. If rejected, workflow returned to creator with feedback
+
+Workflow Publishing
+a. User with PUBLISH_WORKFLOW permission publishes workflow
+b. Workflow moves to ACTIVE status
+c. New instances use published version
+d. Audit trail records publish action
+
+Workflow Rollback
+a. User with ROLLBACK_WORKFLOW permission initiates rollback
+b. System validates rollback eligibility
+c. Rollback creates new workflow version with old definition
+d. Workflow assigned to approver(s) for approval
+e. If approved, rollback version becomes available for new instances
+f. Audit trail records rollback action
+
+SECTION 4 COMMISSION ENGINE DESIGN
+4.1 Commission Configuration Schema
+json
+ Copy
+ Insert
+ Export
+
+{
+  commissionRuleId uuid-v4,
+  tenantId tenant-identifier,
+  version 1.0,
+  ruleName Standard Sales Commission,
+  ruleCategory SALES,
+  ruleType percentage,
+  basedOn dealValue,
+  rate 0.10,
+  conditions [
+    {
+      field dealValue,
+      operator GREATER_THAN_OR_EQUALS,
+      value 10000
+    },
+    {
+      field dealValue,
+      operator LESS_THAN,
+      value 50000
+    }
+  ]
+}
+4.2 Supported Commission Types
+Type 1 Percentage-Based Commission
+Description Commission calculated as percentage of deal value
+Formula commission = dealValue × rate
+Use Cases Standard sales commissions, referral commissions
+Configuration Parameters
+rate Percentage rate (e.g., 0.10 for 10%)
+basis What the percentage applies to (dealValue, profitMargin, etc.)
+conditions Conditions for rate to apply
+Type 2 Tiered Commission
+Description Different rates apply to different value ranges
+Formula
+ Copy
+ Insert
+ Export
+
+if dealValue = tier1.max
+    commission = dealValue × tier1.rate
+elif dealValue = tier2.max
+    commission = (tier1.max × tier1.rate) + ((dealValue - tier1.max) × tier2.rate)
+...
+Use Cases Progressive commission structures
+Configuration Parameters
+tiers Array of {min, max, rate} objects
+basis What the percentage applies to
+conditions Conditions for tier application
+Type 3 Fixed Amount Commission
+Description Fixed commission amount per dealtransaction
+Formula commission = fixedAmount
+Use Cases Flat-fee commissions, referral bonuses
+Configuration Parameters
+fixedAmount Fixed commission amount
+conditions Conditions for amount to apply
+Type 4 Team-Based Commission
+Description Commission split among team members
+Formula
+ Copy
+ Insert
+ Export
+
+totalCommission = dealValue × teamRate
+individualCommission = totalCommission × individualSharePercentage
+overrideCommission = teamOverrideRate × dealValue (if applicable)
+Use Cases Team sales, joint deals
+Configuration Parameters
+teamRate Team commission rate
+individualSharePercentage Each team member's share
+teamOverrideRate Override rate for team leadsmanagers
+Type 5 Performance-Based Commission
+Description Commission rate varies based on performance metrics
+Formula
+ Copy
+ Insert
+ Export
+
+baseCommission = dealValue × baseRate
+performanceMultiplier = calculatePerformanceMultiplier(performanceMetrics)
+commission = baseCommission × performanceMultiplier
+Use Cases Performance-based incentives
+Configuration Parameters
+baseRate Base commission rate
+performanceMetrics Array of {metric, target, weight} objects
+multiplierRules Array of {minPerformance, maxPerformance, multiplier} objects
+4.3 Calculation Flow
+4.3.1 Commission Calculation Trigger Events
+Deal Stage Change When opportunity moves to closed-won stage
+Payment Received When payment is received for deal
+Milestone Achievement When deal milestone is achieved
+Manual Trigger When commission calculation is manually triggered
+Period End When commission period ends (for periodic commissions)
+4.3.2 Calculation Process
+ Copy
+ Insert
+ Export
+
+1. Event Triggers Calculation
+   ↓
+2. Validate Eligibility
+   - Is deal eligible for commission
+   - Has commission already been calculated
+   - Is personnel eligible for commission
+   ↓
+3. Determine Applicable Commission Rules
+   - Match deal to commission rules
+   - Apply rule priority
+   - Handle rule conflicts
+   ↓
+4. Calculate Base Commission
+   - Apply commission type formula
+   - Apply conditions
+   - Calculate base amount
+   ↓
+5. Apply Adjustments
+   - Performance multipliers
+   - Team splits
+   - Caps and floors
+   ↓
+6. Validate Result
+   - Is result within acceptable range
+   - Are calculations traceable
+   ↓
+7. Record Commission
+   - Store commission record
+   - Link to deal and personnel
+   - Audit trail entry
+   ↓
+8. Notify Stakeholders
+   - Notify personnel
+   - Notify managers
+   - Update dashboards
+4.4 Edge Cases & Dispute Handling
+Edge Case 1 Deal Value Changes After Commission Calculation
+Handling Logic
+
+ Copy
+ Insert
+ Export
+
+1. Detect deal value change event
+2. Check if commission already calculated for deal
+3. If yes
+   a. Calculate new commission amount
+   b. Compare with original commission
+   b1. If difference  tolerance (e.g., 1%) No adjustment needed
+   b2. If difference = tolerance 
+      - Create commission adjustment record
+      - Log reason for adjustment
+      - Notify affected personnel
+      - Require manager approval if adjustment  threshold
+4. Record adjustment in audit trail
+Edge Case 2 Personnel Role Change During Commission Period
+Handling Logic
+
+ Copy
+ Insert
+ Export
+
+1. Detect personnel role change event
+2. Identify active commissions for personnel
+3. For each active commission
+   a. Determine commission eligibility at time of deal
+   b. If eligible at deal time
+      - Commission stands as calculated
+      - No adjustment needed
+   c. If not eligible at deal time
+      - Recalculate commission with new role
+      - Create commission adjustment record
+      - Log reason for adjustment
+      - Notify affected personnel
+4. Record adjustment in audit trail
+Edge Case 3 Commission Cap Reached
+Handling Logic
+
+ Copy
+ Insert
+ Export
+
+1. Calculate commission for deal
+2. Check if commission + existing commissions exceed cap
+3. If cap exceeded
+   a. Calculate capped amount
+   b. Create commission record with capped amount
+   c. Log cap application
+   d. Notify personnel of cap application
+4. Record in audit trail
+Edge Case 4 Dispute Raised Against Commission
+Handling Logic
+
+ Copy
+ Insert
+ Export
+
+1. Receive commission dispute request
+2. Validate dispute eligibility
+   a. Is dispute within dispute window (e.g., 30 days)
+   b. Has commission already been paid
+   c. Is there sufficient evidence
+3. If valid dispute
+   a. Place commission on hold
+   b. Notify affected personnel
+   c. Assign reviewer(s) based on dispute type
+   d. Set escalation deadline
+4. If invalid dispute
+   a. Reject dispute with reason
+   b. Notify requester
+5. Record dispute in audit trail
+SECTION 5 FRONTEND PRODUCT ARCHITECTURE
+5.1 Frontend Application Boundaries
+5.1.1 Application 1 Admin Dashboard Application
+Purpose Platform administration and multi-tenant oversight
+Target Users P-01 Company Owner, P-02 CEOMD, P-11 System Administrator
+Core Features
+
+Multi-organization oversight
+Organization structure management
+User and role management
+System configuration
+Platform analytics and reporting
+Audit trail viewer
+Technical Stack
+
+React 18+ with TypeScript
+Redux Toolkit for state management
+Material-UI v5 with custom theme
+Vite for optimized builds
+React Router v6 for navigation
+Module Boundaries
+
+ Copy
+ Insert
+ Export
+
+AdminDashboardApp
+├── modules
+│   ├── organization
+│   │   ├── components
+│   │   ├── hooks
+│   │   └── services
+│   ├── users
+│   ├── roles
+│   ├── system-config
+│   ├── analytics
+│   ├── audit-trail
+│   └── shared
+└── core
+    ├── routing
+    ├── state
+    └── api
+Feature Ownership
+
+Organization Management → Backend Organization Service
+User Management → Backend Identity Service
+Role Management → Backend Identity Service
+System Configuration → Backend Tenant Management Service
+Analytics → Backend Business Intelligence Service
+Audit Trail → Backend Observability Service
+5.1.2 Application 2 Business User Application
+Purpose Daily business operations for internal staff
+Target Users P-03 Department Head, P-04 Operations Manager, P-05 Sales Representative, P-06 Marketing Specialist, P-07 Customer Support Agent, P-08 HR Manager, P-09 Finance Manager, P-10 Operations Staff
+Core Features
+
+Department-specific dashboards
+Task management
+Workflow execution
+Customer information management
+Commission tracking
+Performance metrics
+Technical Stack
+
+React 18+ with TypeScript
+Redux Toolkit with RTK Query for server state
+Material-UI v5 with custom theme
+Vite for optimized builds
+React Router v6 for navigation
+Module Boundaries
+
+ Copy
+ Insert
+ Export
+
+BusinessUserApp
+├── modules
+│   ├── dashboard
+│   │   ├── components
+│   │   ├── hooks
+│   │   └── services
+│   ├── tasks
+│   ├── workflows
+│   ├── customers
+│   ├── commissions
+│   ├── performance
+│   └── shared
+└── core
+    ├── routing
+    ├── state
+    └── api
+Feature Ownership
+
+Dashboard → Backend Business Intelligence Service
+Tasks → Backend Task Management Service
+Workflows → Backend Workflow Orchestration Service
+Customers → Backend Customer Service
+Commissions → Backend Commission Management Service
+Performance → Backend Business Intelligence Service
+5.1.3 Application 3 Client Portal Application
+Purpose Customer self-service and visibility
+Target Users P-14 End Customer
+Core Features
+
+Profile management
+Service progress tracking
+Invoice viewing and payment
+Communication with support
+Technical Stack
+
+React 18+ with TypeScript
+Redux Toolkit with RTK Query
+Material-UI v5 with custom theme
+Vite for optimized builds
+React Router v6 for navigation
+Module Boundaries
+
+ Copy
+ Insert
+ Export
+
+ClientPortalApp
+├── modules
+│   ├── profile
+│   │   ├── components
+│   │   ├── hooks
+│   │   └── services
+│   ├── services
+│   ├── invoices
+│   ├── communications
+│   └── shared
+└── core
+    ├── routing
+    ├── state
+    └── api
+Feature Ownership
+
+Profile → Backend Customer Service
+Services → Backend Workflow Orchestration Service
+Invoices → Backend Billing & Invoicing Service
+Communications → Backend Customer Support Service
+5.1.4 Application 4 Partner Portal Application
+Purpose Partner collaboration and project management
+Target Users P-12 External Partner Manager, P-13 Remote Freelancer
+Core Features
+
+Project collaboration
+Milestone tracking
+Deliverable validation
+Performance visibility
+Technical Stack
+
+React 18+ with TypeScript
+DSL schema
+Redux Toolkit with RTK Query
+Material-UI v5 with custom theme
+Vite for optimized builds
+React Router v6 for navigation
+Module Boundaries
+
+ Copy
+ Insert
+ Export
+
+PartnerPortalApp
+├── modules
+│   ├── collaboration
+│   │   ├── components
+│   │   ├── hooks
+│   │   └── services
+│   ├── projects
+│   ├── milestones
+│   ├── deliverables
+│   ├── performance
+│   └── shared
+└── core
+    ├── routing
+    ├── state
+    └── api
+Feature Ownership
+
+Collaboration → Backend Partner Collaboration Service
+Projects → Backend Workflow Orchestration Service
+Milestones → Backend Task Management Service
+Deliverables → Backend Partner Collaboration Service
+Performance → Backend Business Intelligence Service
+5.2 Shared vs Isolated UI Components
+5.2.1 Shared Component Library
+Location Separate package (@bassanosui-components)
+Purpose Reusable components across all applications
+Components
+
+Authentication components (LoginForm, MFAInput, PasswordReset)
+Common UI components (Button, Input, Modal, Table)
+Layout components (Sidebar, Header, Footer)
+Data visualization components (Charts, ProgressBars)
+Form components (Form, Field, Validation)
+Versioning Semantic versioning with breaking changes requiring major version bump
+Ownership Frontend Engineering Team
+
+5.2.2 Application-Specific Components
+Location Within each application's modules
+Purpose Components specific to application domain
+Examples
+
+Admin Dashboard OrganizationStructureEditor, UserManagementTable
+Business User TaskBoard, WorkflowDesigner, CommissionCalculator
+Client Portal ServiceTracker, InvoiceViewer
+Partner Portal ProjectCollaborationSpace, MilestoneTracker
+Ownership Respective application teams
+
+5.3 Authorization Strategy at UI Level
+5.3.1 Component-Level Authorization
+Implementation
+
+tsx
+ Copy
+ Insert
+ Export
+
+ProtectedComponent
+  requiredPermission=EDIT_WORKFLOW
+  fallback={AccessDenied }
+
+  EditWorkflowButton 
+ProtectedComponent
+Behavior
+
+Check user permissions before rendering
+Showhide UI elements based on permissions
+Fallback component when unauthorized
+5.3.2 Route-Level Authorization
+Implementation
+
+tsx
+ Copy
+ Insert
+ Export
+
+ProtectedRoute
+  requiredPermission=VIEW_WORKFLOW
+  component={WorkflowListPage}
+  fallback={AccessDeniedPage }
+
+Behavior
+
+Check permissions before navigation
+Redirect to access denied page if unauthorized
+Prevent direct URL access to unauthorized routes
+5.3.3 Data-Level Authorization
+Implementation
+
+Backend enforces data access control
+Frontend requests only data user is authorized to see
+UI displays only data returned by backend
+No client-side filtering of unauthorized data
+5.3.4 Permission Caching Strategy
+Implementation
+
+Permissions loaded on authentication
+Stored in Redux store
+Refreshed on permission changes
+TTL 15 minutes
+Cache invalidation on logout
+5.3.5 Role-Based UI Customization
+Implementation
+
+UI adapts based on user role
+Different navigation menus per role
+Different dashboard widgets per role
+Different action buttons per role
+Role-based default views
+SECTION 6 IMMEDIATE NEXT ACTIONS
+6.1 What Should Be Started NOW
+Architecture Decisions Lock
+
+Finalize and approve all ADRs
+Document trade-offs and rationale
+Obtain Architecture Board sign-off
+Infrastructure Foundation
+
+Setup development and staging environments
+Implement CICD pipeline foundation
+Configure monitoring baseline
+Database Schema Baseline
+
+Create initial ERD v2.0
+Define multi-tenant strategy
+Design audit trail structure
+API Design Standards
+
+Define REST API standards
+Define GraphQL schema standards
+Define authentication and authorization patterns
+Frontend Architecture
+
+Define shared component library structure
+Define application boundaries
+Define state management strategy
+6.2 What Must NOT Be Started Yet
+Domain Services Development
+
+Must wait for core spine services
+Must wait for workflow engine
+Must wait for event bus
+Advanced Analytics Features
+
+Must wait for core services operational
+Must wait for data collection patterns established
+Must wait for performance benchmarks met
+Mobile Applications
+
+Must wait for web applications stable
+Must wait for API contracts finalized
+Must wait for authentication patterns established
+Industry-Specific Modules
+
+Must wait for core platform stable
+Must wait for workflow engine mature
+Must wait for commission engine operational
+6.3 Why
+Architecture First Approach
+
+Decisions made now affect entire system
+Changes later exponentially more expensive
+Foundation must be solid before building features
+Core Spine Priority
+
+Core services enable all domain services
+Workflow engine is central to business logic
+Event bus enables service communication
+Risk Mitigation
+
+Identify architectural issues early
+Validate technical decisions with prototypes
+Establish patterns before scaling
+Resource Optimization
+
+Focus limited resources on highest value work
+Avoid rework by getting foundation right
+Enable parallel development once foundation stable
+This execution hardening document provides a comprehensive framework for building Bassan.os with clear quality gates, well-defined technical designs, and actionable next steps. It establishes the control mechanisms needed to ensure successful delivery while allowing for flexibility as the project evolves.
+

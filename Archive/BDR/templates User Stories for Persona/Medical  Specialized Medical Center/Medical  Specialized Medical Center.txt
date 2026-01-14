@@ -1,0 +1,364 @@
+Medical / Specialized Medical Center – Ultra-Detailed Personas & User Stories
+Personas / User Roles – تفصيل كامل
+1️⃣ CEO / Medical Director – Dr. Hossam Fathy
+
+Age: 50
+
+Background: طبيب متخصص، مؤسس المركز الطبي، خبرة 25 سنة في الإدارة الطبية والإشراف على فرق متعددة
+
+Goals / Objectives:
+
+ضمان تقديم خدمات طبية دقيقة وآمنة
+
+متابعة أداء جميع الأطباء والموظفين
+
+مراقبة الإيرادات، التكاليف، والفواتير
+
+تحسين تجربة المرضى وزيادة رضاهم
+
+Pain Points / Challenges:
+
+صعوبة متابعة جميع الأقسام الطبية والإدارية بشكل متزامن
+
+مشاكل في تقارير الأداء والفوترة الطبية
+
+الحاجة إلى التوافق مع اللوائح الطبية والقوانين الصحية
+
+Tools / Modules Used:
+
+Patient Management (CRM): بيانات المرضى، سجل الزيارات، التشخيصات
+
+Medical Scheduling: مواعيد الأطباء، الحجوزات، العمليات
+
+Operations / Workflow: متابعة سير العمل الطبي والإداري
+
+Finance / Billing: الفواتير، التأمين، المدفوعات
+
+Notifications Module: تنبيهات المواعيد، التحاليل، التذكيرات
+
+Inputs / Outputs:
+
+Inputs: بيانات المرضى، المواعيد، التقارير الطبية
+
+Outputs: تقارير الأداء، مؤشرات رضا المرضى، إشعارات للموظفين
+
+Interactions / Integrations:
+
+مع Department Heads لمتابعة كل القسم
+
+مع Finance / Insurance لمتابعة المدفوعات والفواتير
+
+مع Patients Portal لتأكيد المواعيد وتذكير المرضى
+
+Success Criteria:
+
+رضا المرضى ≥ 95%
+
+تقليل الأخطاء الطبية والإدارية ≥ 99%
+
+متابعة دقيقة لكل الأقسام والمواعيد
+
+2️⃣ Department Head – Dr. Sara Adel (Radiology / Laboratory / Specialized Clinics)
+
+Age: 40
+
+Background: طبيبة رئيسة قسم، خبرة 15 سنة في الإدارة الطبية
+
+Goals / Objectives:
+
+إدارة الفريق الطبي ومتابعة أداء الموظفين
+
+جدولة المواعيد والفحوصات الطبية
+
+متابعة نتائج التحاليل والتقارير الطبية
+
+Pain Points / Challenges:
+
+صعوبة معرفة كل مواعيد المرضى والأطباء اللحظية
+
+مشاكل في تتبع نتائج التحاليل بسرعة ودقة
+
+الحاجة لتنسيق الفرق بين الأقسام المختلفة
+
+Tools / Modules Used:
+
+Scheduling Module: إدارة مواعيد المرضى والأطباء
+
+Medical Records Module: الوصول لسجل المرضى، التحاليل، التشخيصات
+
+Operations / Workflow Module: توزيع المهام للموظفين والفريق الطبي
+
+Notifications Module: تنبيهات بالتحاليل، المواعيد، العمليات
+
+Inputs / Outputs:
+
+Inputs: بيانات المرضى، نتائج التحاليل، مواعيد الأطباء
+
+Outputs: جدول مواعيد دقيق، إشعارات، تقارير الأداء
+
+Interactions / Integrations:
+
+مع Medical Staff / Nurses لتنفيذ العمليات والفحوصات
+
+مع Finance / Billing لمتابعة المدفوعات والتأمين
+
+مع Patients Portal لتأكيد المواعيد
+
+Success Criteria:
+
+دقة المواعيد ≥ 99%
+
+سرعة معالجة التحاليل والتقارير ≥ 95%
+
+تحسين تجربة المرضى وتقليل الانتظار
+
+3️⃣ Medical Staff / Nurses – Omar El-Masry
+
+Age: 28–35
+
+Background: ممرض/ة في المركز الطبي، خبرة 3–7 سنوات
+
+Goals / Objectives:
+
+تقديم رعاية صحية دقيقة للمرضى
+
+تسجيل الإجراءات الطبية في النظام
+
+متابعة مواعيد المرضى والتحاليل
+
+Pain Points / Challenges:
+
+صعوبة متابعة عدة مرضى في نفس الوقت
+
+أخطاء تسجيل البيانات الطبية يدويًا
+
+التأكد من تنفيذ المواعيد الطبية بشكل صحيح
+
+Tools / Modules Used:
+
+Patient Management Module: سجل المرضى، بيانات الفحوصات
+
+Scheduling Module: متابعة المواعيد والعمليات
+
+Operations / Workflow Module: مهام الرعاية اليومية
+
+Notifications Module: تنبيهات بالمواعيد والتحاليل
+
+Inputs / Outputs:
+
+Inputs: بيانات المرضى، أوامر الأطباء، التحاليل
+
+Outputs: تحديث سجلات المرضى، إشعارات للمرضى والفريق الطبي
+
+Interactions / Integrations:
+
+مع Doctors لتنفيذ التعليمات الطبية
+
+مع Department Head لتقارير الأداء
+
+مع Patients Portal لتأكيد الإجراءات
+
+Success Criteria:
+
+دقة تسجيل الإجراءات الطبية ≥ 99%
+
+تقليل الأخطاء في المواعيد ≥ 98%
+
+رضا المرضى ≥ 95%
+
+4️⃣ Admin / Reception – Salma Hany
+
+Age: 26–35
+
+Background: موظفة استقبال وخدمة عملاء، خبرة 3–5 سنوات
+
+Goals / Objectives:
+
+تسجيل المرضى الجدد
+
+جدولة المواعيد وإدارة التذكيرات
+
+التواصل مع المرضى بشأن التحاليل والدفع
+
+Pain Points / Challenges:
+
+صعوبة إدارة حجوزات الأطباء ومرضى متعددين
+
+مشاكل في متابعة المدفوعات والتأمين
+
+التأكد من توصيل التنبيهات للمرضى بدقة
+
+Tools / Modules Used:
+
+CRM / Patient Management Module
+
+Scheduling Module
+
+Finance / Billing Module
+
+Notifications Module
+
+Inputs / Outputs:
+
+Inputs: بيانات المرضى، الحجز، التحاليل، المدفوعات
+
+Outputs: تأكيد المواعيد، إشعارات، تقارير للمدير
+
+Interactions / Integrations:
+
+مع Patients Portal لتأكيد المواعيد
+
+مع Finance Module لتتبع المدفوعات
+
+مع Medical Staff / Doctors لتأكيد مواعيد الفحوصات
+
+Success Criteria:
+
+دقة إدارة الحجوزات ≥ 98%
+
+رضا المرضى ≥ 95%
+
+تسهيل التواصل بين الأقسام المختلفة
+
+5️⃣ Patient / Client – Ahmed Mostafa
+
+Age: 18–70
+
+Background: مراجع خدمات المركز الطبي
+
+Goals / Objectives:
+
+حجز المواعيد بسهولة عبر المنصة
+
+متابعة نتائج التحاليل الطبية
+
+التواصل مع الأطباء وطلب الاستشارات
+
+Pain Points / Challenges:
+
+صعوبة الوصول للمواعيد المتاحة بسرعة
+
+مشاكل في دفع الفواتير أو التأمين
+
+التأخير في الحصول على نتائج التحاليل
+
+Tools / Modules Used:
+
+Patient Portal / Client App
+
+Notifications Module
+
+CRM / Patient Management Module
+
+Customer Support Module
+
+Inputs / Outputs:
+
+Inputs: بيانات المرضى، الحجز، الدفع، التحاليل
+
+Outputs: تأكيد المواعيد، تحديث النتائج، إشعارات
+
+Interactions / Integrations:
+
+مع Reception لتأكيد الحجز
+
+مع Medical Staff / Doctors لمتابعة الفحوصات
+
+مع Finance / Insurance لتأكيد المدفوعات
+
+Success Criteria:
+
+رضا المرضى ≥ 95%
+
+سرعة الوصول للخدمات ≥ 95%
+
+تجربة سلسة من الحجز للنتيجة النهائية
+
+--------
+Medical / Specialized Medical Center – User Stories
+1️⃣ CEO / Medical Director – Dr. Hossam Fathy
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a CEO, I want to view a real-time dashboard of all departments, so that I can monitor operations and make informed decisions quickly.	- Dashboard shows all department KPIs
+- Updates in real-time (≤ 1 min delay)
+- Alerts for anomalies (delayed tasks, billing issues)	High	Analytics & Reporting
+2	As a CEO, I want to receive automatic alerts when key metrics drop below thresholds, so that I can take immediate action.	- Alerts configurable per KPI
+- Delivered via Email, WhatsApp, Telegram, or in-app
+- Alerts must include actionable details	High	Notifications & Analytics
+3	As a CEO, I want to approve high-value transactions or invoices, so that I can ensure financial compliance.	- Can approve/reject invoices > threshold
+- Audit trail of approvals
+- Notifications to Finance module	High	Finance / Billing
+4	As a CEO, I want to assign tasks or strategic initiatives to department heads, so that execution aligns with organizational goals.	- Assign tasks to departments
+- Track completion status
+- Dependencies visible
+- Notification sent to assigned heads	High	Operations / Workflow
+5	As a CEO, I want to generate historical performance reports, so that I can evaluate trends over months or years.	- Reports exportable (PDF, Excel)
+- Filter by department, KPI, date range
+- Can schedule automated reports	Medium	Analytics & Reporting
+2️⃣ Department Head – Dr. Sara Adel
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Department Head, I want to see all appointments and tasks for my department, so that I can manage team workload efficiently.	- Calendar view of appointments
+- Tasks linked to staff
+- Drag-and-drop rescheduling
+- Conflict alerts	High	Scheduling & Operations
+2	As a Department Head, I want to review lab or imaging results as soon as they are ready, so that I can inform patients and doctors promptly.	- Automatic notification when results available
+- Secure access to patient records
+- Status tracking of each result	High	Medical Records & Notifications
+3	As a Department Head, I want to track staff performance, so that I can identify bottlenecks or training needs.	- Visual dashboards of completed tasks
+- Alerts on delayed assignments
+- KPI scoring for each staff member	Medium	Analytics & Reporting
+4	As a Department Head, I want to delegate urgent tasks automatically to available staff, so that operations are not delayed.	- System can reassign uncompleted tasks
+- Notifications sent to reassigned staff
+- Audit trail maintained	High	Operations / Workflow
+5	As a Department Head, I want to access patient histories quickly, so that I can provide informed medical advice.	- Searchable patient records
+- Filter by visit date, diagnosis, tests
+- Fast retrieval (<2 sec)	High	Medical Records / CRM
+3️⃣ Medical Staff / Nurses – Omar El-Masry
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Nurse, I want to view my daily schedule and patient list, so that I can plan my day efficiently.	- Calendar view with appointments
+- Patient details visible
+- Updates in real-time	High	Scheduling & Patient Management
+2	As a Nurse, I want to update patient vitals and procedures directly in the system, so that records are accurate and up-to-date.	- Data saved in patient record
+- Audit log for each update
+- Alerts if values are abnormal	High	Medical Records / Operations
+3	As a Nurse, I want to receive notifications for urgent tasks, so that critical care is delivered promptly.	- Notifications pop up on desktop/mobile
+- Configurable urgency levels
+- Read receipt captured	High	Notifications / Operations
+4	As a Nurse, I want to request assistance or escalate patient issues, so that I can maintain patient safety.	- Escalation button available per task
+- Automatic routing to supervisor or doctor
+- Track response time	High	Operations / Customer Support
+5	As a Nurse, I want to access lab or imaging orders, so that I can prepare the patient or perform the procedure.	- Orders visible by patient
+- Status tracking (pending, done)
+- Integration with department workflow	Medium	Medical Records & Operations
+4️⃣ Admin / Reception – Salma Hany
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Receptionist, I want to register new patients, so that the patient record is ready before the first visit.	- Capture personal details, insurance info, contact info
+- Generate unique patient ID
+- Notify relevant department	High	CRM / Patient Management
+2	As a Receptionist, I want to schedule appointments, so that patients are seen at the right time without conflicts.	- Conflict detection
+- Automatic reminders to patients and staff
+- Rescheduling option	High	Scheduling
+3	As a Receptionist, I want to track payments and insurance claims, so that billing is accurate.	- Payment status updated
+- Integration with insurance system
+- Audit logs for financial transparency	High	Finance / Billing
+4	As a Receptionist, I want to send reminders and notifications, so that patients don’t miss appointments.	- Supports email, WhatsApp, Telegram, in-app
+- Configurable reminder times
+- Delivery tracking	High	Notifications
+5	As a Receptionist, I want to generate daily activity reports, so that management can review operations.	- Report includes appointments, cancellations, payments
+- Exportable in Excel/PDF
+- Scheduled automated reports	Medium	Analytics & Reporting
+5️⃣ Patient / Client – Ahmed Mostafa
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Patient, I want to book appointments online, so that I can choose convenient times without calling.	- Available slots visible
+- Confirmation via email/WhatsApp/Telegram
+- Option to reschedule or cancel	High	Patient Portal / Scheduling
+2	As a Patient, I want to view my medical records, so that I can track my history and lab results.	- Secure login
+- Filter by date, doctor, or test
+- Download PDF option	High	Patient Portal / CRM
+3	As a Patient, I want to receive automated reminders, so that I don’t forget my appointments or medication.	- Supports multiple channels (email, WhatsApp, Telegram, in-app)
+- Configurable reminders	High	Notifications
+4	As a Patient, I want to communicate with doctors or support, so that I can clarify doubts quickly.	- Secure messaging within portal
+- Escalation for urgent queries
+- Response time <24h	Medium	Customer Support / Patient Portal
+5	As a Patient, I want to access invoices and payment history, so that I can manage my finances.	- Shows completed and pending invoices
+- Downloadable receipts
+- Integration with insurance claims	Medium	Finance / Patient Portal

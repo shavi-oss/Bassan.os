@@ -1,0 +1,850 @@
+🏗️ نظام "باسان" - التصميم المعماري الشامل
+🎯 PHASE 1 — اكتشاف النطاقات (DDD)
+خريطة النطاقات الاستراتيجية:
+text
+┌─────────────────────────────────────────────────────────┐
+│                     CORE DOMAIN                          │
+│        (القلب النابض للنظام، ما يجعلنا مختلفين)          │
+├─────────────────────────────────────────────────────────┤
+│  نطاق العدالة (Justice Domain)                          │
+│  • حساب وتوثيق الحقوق المستحقة                          │
+│  • بناء نظام سمعة عادل                                   │
+│  • إدارة نزاعات وتحكيم                                  │
+│  ⚠️ حساسية مالية وقانونية عالية                         │
+│  ❌ فشله = فشل النظام كاملاً                             │
+└─────────────────────────────────────────────────────────┘
+                            │
+       ┌────────────────────┼────────────────────┐
+       │                    │                    │
+       ▼                    ▼                    ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│ SUPPORTING  │    │ SUPPORTING  │    │ SUPPORTING  │
+│   DOMAINS   │    │   DOMAINS   │    │   DOMAINS   │
+├─────────────┤    ├─────────────┤    ├─────────────┤
+│نطاق الإنجاز │    │نطاق التحقق  │    │نطاق التواصل │
+│Achievement  │    │Verification │    │Notification │
+│             │    │             │    │             │
+│• توثيق المهام│    │• تحقق المدفوعات││• إشعارات ذكية │
+│• إدارة الأدلة│    │• مطابقة المعاملات││• تفضيلات المستخدم│
+│🟠 حساسية متوسطة│   │🔴 حساسية عالية│ │🟢 حساسية منخفضة│
+└─────────────┘    └─────────────┘    └─────────────┘
+                            │
+       ┌────────────────────┼────────────────────┐
+       │                    │                    │
+       ▼                    ▼                    ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  GENERIC    │    │  GENERIC    │    │  GENERIC    │
+│  DOMAINS    │    │  DOMAINS    │    │  DOMAINS    │
+├─────────────┤    ├─────────────┤    ├─────────────┤
+│نطاق الهوية  │    │نطاق التكامل │    │نطاق التحليلات│
+│Identity     │    │Integration  │    │Analytics    │
+│             │    │             │    │             │
+│• المصادقة   │    │• Shopify API│    │• تقارير أداء │
+│• الصلاحيات  │    │• Telegram   │    │• بيانات استخدام│
+│🟠 حساسية عالية│   │🟠 حساسية متوسطة│  │🟢 حساسية منخفضة│
+└─────────────┘    └─────────────┘    └─────────────┘
+تفاصيل النطاقات:
+1. نطاق العدالة (Core Domain)
+yaml
+الهدف التجاري: ضمان العدالة في توزيع الحقوق
+الأهمية الاستراتيجية: عالية (هو ما يبيع النظام)
+الحساسية: مالية عالية + قانونية عالية
+تأثير الفشل: فشل النظام كاملاً
+
+المسؤوليات:
+• حساب العمولات بدقة رياضية
+• بناء خوارزميات السمعة
+• إدارة قواعد التحكيم الآلي
+• حفظ إثباتات غير قابلة للتغيير
+
+الكيانات الأساسية:
+• CommissionRule (قاعدة العمولة)
+• Right (حق)
+• ReputationScore (درجة سمعة)
+• Dispute (نزاع)
+2. نطاق الإنجاز (Supporting Domain)
+yaml
+الهدف التجاري: توثيق الإنجازات والأدلة
+الأهمية الاستراتيجية: متوسطة
+الحساسية: تشغيلية متوسطة
+تأثير الفشل: عدم القدرة على إثبات الحقوق
+
+المسؤوليات:
+• إدارة دورة حياة المهمة
+• ربط الأدلة بالإنجازات
+• تقييم جودة الإنجاز
+• تخزين وتنظيم المستندات
+3. نطاق التحقق (Supporting Domain)
+yaml
+الهدف التجاري: التحقق من تنفيذ الالتزامات
+الأهمية الاستراتيجية: عالية
+الحساسية: مالية عالية
+تأثر الفشل: احتيال، خسائر مالية
+
+المسؤوليات:
+• التحقق من المدفوعات الخارجية
+• مطابقة الحقوق بالمدفوعات
+• اكتشاف التناقضات
+• بناء سلسلة الإثباتات
+4. نطاق التواصل (Supporting Domain)
+yaml
+الهدف التجاري: إدارة الاتصال بين الأطراف
+الأهمية الاستراتيجية: منخفضة
+الحساسية: خصوصية متوسطة
+تأثير الفشل: تأخر في الاتصال
+
+المسؤوليات:
+• إرسال الإشعارات
+• إدارة التفضيلات
+• تسجيل التفاعل
+• دعم قنوات متعددة
+5. نطاق الهوية (Generic Domain)
+yaml
+الهدف التجاري: إدارة الوصول والصلاحيات
+الأهمية الاستراتيجية: عالية
+الحساسية: أمنية عالية
+تأثير الفشل: اختراق النظام
+
+المسؤوليات:
+• المصادقة والتخويل
+• إدارة الجلسات
+• تطبيق سياسات الوصول
+• تسجيل أنشطة الوصول
+6. نطاق التكامل (Generic Domain)
+yaml
+الهدف التجاري: التواصل مع الأنظمة الخارجية
+الأهمية الاستراتيجية: متوسطة
+الحساسية: أمنية متوسطة
+تأثير الفشل: فقدان البيانات من المصادر الخارجية
+
+المسؤوليات:
+• إدارة APIs الخارجية
+• معالجة Webhooks
+• تحويل تنسيقات البيانات
+• إدارة مفاتيح API
+7. نطاق التحليلات (Generic Domain)
+yaml
+الهدف التجاري: تحويل البيانات إلى رؤى
+الأهمية الاستراتيجية: منخفضة
+الحساسية: خصوصية متوسطة
+تأثير الفشل: فقدان الرؤى التحليلية
+
+المسؤوليات:
+• معالجة البيانات
+• توليد التقارير
+• اكتشاف الأنماط
+• تقديم التوصيات
+🔄 PHASE 2 — السياقات المحددة (Bounded Contexts)
+خريطة السياقات المحددة:
+text
+┌─────────────────────────────────────────────────────────┐
+│                Justice Context                          │
+│                (سياق العدالة)                           │
+├─────────────────────────────────────────────────────────┤
+│ المسؤولية: حساب الحقوق وإدارة السمعة                    │
+│ الحدود: لا يلمس الأموال، لا يتحقق من الأدلة مباشرة      │
+│                                                         │
+│ الكيانات الداخلية:                                      │
+│ • CommissionRule                                        │
+│ • Right                                                 │
+│ • ReputationScore                                       │
+│ • Dispute                                               │
+│                                                         │
+│ الأحداث المنشورة:                                      │
+│ • RightCalculated (حُسب حق)                            │
+│ • ReputationUpdated (تحديث السمعة)                     │
+│ • DisputeRaised (رفع نزاع)                             │
+│                                                         │
+│ التبعيات:                                              │
+│ ↑ من AchievementContext (للاستعلام عن الإنجازات)        │
+│ ↑ من VerificationContext (للاستعلام عن التحقق)          │
+└─────────────────────────┬───────────────────────────────┘
+                          │
+                          │
+┌─────────────────────────▼───────────────────────────────┐
+│              Achievement Context                        │
+│              (سياق الإنجاز)                             │
+├─────────────────────────────────────────────────────────┤
+│ المسؤولية: توثيق المهام والإنجازات                      │
+│ الحدود: لا يحسب الحقوق، لا يتحقق من الدفع               │
+│                                                         │
+│ الكيانات الداخلية:                                      │
+│ • Task                                                  │
+│ • Deliverable                                           │
+│ • Evidence                                              │
+│ • QualityReview                                         │
+│                                                         │
+│ الأحداث المنشورة:                                      │
+│ • TaskCreated (تم إنشاء مهمة)                          │
+│ • TaskCompleted (تم إكمال المهمة)                       │
+│ • EvidenceAttached (تم إرفاق دليل)                      │
+│                                                         │
+│ التبعيات:                                              │
+│ ↑ من IntegrationContext (لجمع الأدلة الخارجية)          │
+│ ↓ لـ JusticeContext (لإعلامه بالإنجازات)                │
+└─────────────────────────┬───────────────────────────────┘
+                          │
+                          │
+┌─────────────────────────▼───────────────────────────────┐
+│             Verification Context                        │
+│             (سياق التحقق)                               │
+├─────────────────────────────────────────────────────────┤
+│ المسؤولية: التحقق من المدفوعات والمطابقة               │
+│ الحدود: لا يحسب الحقوق، لا يوثق الإنجازات               │
+│                                                         │
+│ الكيانات الداخلية:                                      │
+│ • PaymentVerification                                   │
+│ • ExternalTransaction                                   │
+│ • DiscrepancyReport                                     │
+│ • VerificationChain                                     │
+│                                                         │
+│ الأحداث المنشورة:                                      │
+│ • PaymentVerified (تم التحقق من الدفع)                  │
+│ • DiscrepancyFound (تم اكتشاف تناقض)                    │
+│ • VerificationFailed (فشل التحقق)                       │
+│                                                         │
+│ التبعيات:                                              │
+│ ↑ من IntegrationContext (للوصول لبيانات الدفع)          │
+│ ↓ لـ JusticeContext (لإعلامه بنتائج التحقق)             │
+└─────────────────────────┬───────────────────────────────┘
+                          │
+                          │
+           ┌──────────────┴──────────────┐
+           ▼                             ▼
+┌─────────────────────┐      ┌─────────────────────┐
+│  Identity Context   │      │ Integration Context │
+│  (سياق الهوية)       │      │  (سياق التكامل)      │
+├─────────────────────┤      ├─────────────────────┤
+│ • User              │      │ • ExternalSystem    │
+│ • Role              │      │ • APIConfiguration  │
+│ • Permission        │      │ • WebhookHandler    │
+│ • Session           │      │ • DataTransformer   │
+│                     │      │                     │
+│ الأحداث:            │      │ الأحداث:            │
+│ • UserAuthenticated │      │ • ExternalDataReceived│
+│ • PermissionChanged │      │ • IntegrationFailed │
+└─────────────────────┘      └─────────────────────┘
+قواعد الاتصال بين السياقات:
+1. نمط الاتصال:
+yaml
+النمط: Event-Driven مع REST APIs للاستعلامات
+المبدأ: "كل سياق يملك بياناته، ويتواصل عبر أحداث"
+
+الاتصال المسموح:
+• JusticeContext ← AchievementContext (استعلام عن الإنجازات)
+• JusticeContext ← VerificationContext (استعلام عن التحقق)
+• جميع السياقات → IdentityContext (للتحقق من الصلاحيات)
+• جميع السياقات → NotificationContext (لإرسال الإشعارات)
+
+الاتصال الممنوع:
+• أي سياق يصل مباشرة لقاعدة بيانات سياق آخر
+• أي سياق يعدل بيانات سياق آخر مباشرة
+2. نماذج البيانات المستقلة:
+yaml
+مثال: مفهوم "الموظف" يختلف بين السياقات:
+• في JusticeContext: Employee {id, commission_rules, rights_history}
+• في AchievementContext: Employee {id, skills, current_tasks}
+• في VerificationContext: Employee {id, payment_accounts, verification_history}
+
+كل سياق يحتفظ بالتمثيل المناسب لاحتياجاته
+3. حدود السياقات بوضوح:
+سياق العدالة (JusticeContext) يفعل:
+
+yaml
+✅ يحسب الحقوق بناءً على قواعد
+✅ يبني درجات السمعة
+✅ يدير النزاعات والتحكيم
+✅ ينشر أحداث عن تغيرات الحقوق
+
+❌ لا يتحقق من المدفوعات
+❌ لا يوثق المهام
+❌ لا يخزن ملفات المستندات
+❌ لا يدير التكاملات الخارجية
+سياق التحقق (VerificationContext) يفعل:
+
+yaml
+✅ يتصل بمنصات الدفع للتحقق
+✅ يطابق المعاملات مع الحقوق
+✅ يكتشف التناقضات
+✅ يبني سلاسل إثبات
+
+❌ لا يحسب الحقوق
+❌ لا يبني السمعة
+❌ لا يدير المهام
+❌ لا يتخذ قرارات تحكيم
+سياق الهوية (IdentityContext) يفعل:
+
+yaml
+✅ يتحقق من هوية المستخدمين
+✅ يطبق سياسات الصلاحيات
+✅ يدير الجلسات
+✅ يسجل أنشطة الوصول
+
+❌ لا يعرف أي شيء عن الأعمال
+❌ لا يصل لبيانات الأعمال المباشرة
+❌ لا يشارك في عمليات الأعمال
+🎯 PHASE 3 — C4 LEVEL 1: السياق النظامي
+النظام كصندوق أسود:
+text
+اسم: "نظام باسان"
+وصف: منصة عدالة رقمية للشركات العربية تربط بين الشركات والموظفين
+بطريقة عادلة وشفافة بدون وساطة مالية.
+
+مبدأ التشغيل: "نحن نحسب الحقوق، نتحقق من التنفيذ، نبني السمعة
+لكن الأموال تتدفق مباشرة بين الأطراف."
+الممثلون الأساسيون:
+مستخدمون بشريون:
+yaml
+1. صاحب الشركة (Company Owner):
+   • الصلاحية: المالك الكامل لبيانات شركته
+   • الثقة: عالية (يدفع اشتراكاً)
+   • التوقعات: عدالة وشفافية
+
+2. المدير (Manager):
+   • الصلاحية: قسمه فقط
+   • الثقة: متوسطة
+   • التوقعات: أدوات إدارة عادلة
+
+3. الموظف (Employee):
+   • الصلاحية: بياناته فقط
+   • الثقة: متوسطة (يستخدم النظام مجاناً)
+   • التوقعات: حماية حقوقه
+
+4. مدير النظام (System Admin):
+   • الصلاحية: تقنية فقط
+   • الثقة: عالية جداً
+   • التوقعات: استقرار وأمان
+أنظمة خارجية:
+yaml
+1. Shopify:
+   • الثقة: متوسطة (مصدر بيانات)
+   • البيانات: معلومات المبيعات
+   • الحماية: HMAC verification
+
+2. Telegram:
+   • الثقة: متوسطة (قناة تواصل)
+   • البيانات: إشعارات وأوامر
+   • الحماية: API Tokens
+
+3. منصات الدفع (PayMob/Stripe):
+   • الثقة: متوسطة (للتحقق فقط)
+   • البيانات: حالة المعاملات
+   • الحماية: API Keys + IP Whitelisting
+
+4. Google Drive:
+   • الثقة: منخفضة (تخزين ملفات)
+   • البيانات: ملفات العمل
+   • الحماية: OAuth 2.0 + محدودية الصلاحيات
+حدود الثقة الخارجية:
+text
+┌─────────────────────────────────────────────────┐
+│             حدود الثقة الخارجية                   │
+│   (بين النظام والعالم الخارجي)                    │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  ┌─────────────┐        بيانات مبيعات         ┌─────────────┐
+│  │   Shopify   │────(HTTPS + HMAC)──────────▶│  نظام باسان  │
+│  │             │                              │             │
+│  └─────────────┘                              └──────┬──────┘
+│                                                       │
+│  ┌─────────────┐        إشعارات وأوامر          │
+│  │  Telegram   │◀──(HTTPS + API Token)───────────│
+│  │             │                                  │
+│  └─────────────┘                                  │
+│                                                   │
+│  ┌─────────────┐        تحقق معاملات             │
+│  │   PayMob    │◀──▶(HTTPS + API Key)────────────│
+│  │             │                                  │
+│  └─────────────┘                                  │
+│                                                   │
+│  ┌─────────────┐        ملفات عمل                │
+│  │ Google Drive│◀──▶(HTTPS + OAuth 2.0)─────────│
+│  └─────────────┘                                  │
+│                                                   │
+│  🔐 جميع الاتصالات: TLS 1.3+                     │
+│  🔐 جميع API Keys: في Vault                      │
+│  🔐 جميع Webhooks: HMAC Verification             │
+└─────────────────────────────────────────────────┘
+افتراضات الأمان:
+yaml
+1. الأنظمة الخارجية ليست خبيثة ولكن قد تتعطل
+2. المستخدمون قد يكونون غير مخلصين (تحتاج تحقق)
+3. الشبكات غير موثوقة (كل شيء مشفر)
+4. الخوادم قد تُخترق (Defense in Depth)
+📦 PHASE 4 — C4 LEVEL 2: مخطط الحاويات
+نظرة عامة على الحاويات:
+text
+┌─────────────────────────────────────────────────────────┐
+│                    نظام "باسان"                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  [طبقة التقديم]           [طبقة البوابة]                │
+│  • Web Application       • API Gateway                 │
+│  • Mobile App            • WebSocket Gateway           │
+│  • Telegram Bot          • Event Ingestor              │
+│                                                         │
+│  [طبقة السياقات]          [طبقة الدعم]                  │
+│  • Justice Service       • Identity Service            │
+│  • Achievement Service   • Notification Service        │
+│  • Verification Service  • Integration Service         │
+│  • Audit Service         • Analytics Service           │
+│                                                         │
+│  [طبقة البيانات]          [طبقة الأمان]                │
+│  • Justice DB           • Key Management Service       │
+│  • Achievement DB       • Certificate Authority        │
+│  • Verification DB      • Security Monitoring          │
+│  • Event Store          • Blockchain Ledger            │
+│  • File Storage         • Intrusion Detection          │
+│                                                         │
+│  [البنية التحتية]                                       │
+│  • Message Bus (Kafka)                                 │
+│  • Cache (Redis Cluster)                               │
+│  • Service Mesh (Istio)                                │
+│  • Load Balancers                                       │
+└─────────────────────────────────────────────────────────┘
+تفاصيل الحاويات:
+1. 🌐 تطبيق الويب (Web Application)
+yaml
+المسؤولية: واجهة المستخدم الرئيسية
+التقنية: React + Next.js (SSR)
+البيانات: لا يخزن بيانات حساسة
+الأمان:
+  • JWT في HttpOnly Cookies
+  • CSP Headers
+  • XSS/CSRF Protection
+  • لا بيانات حساسة في LocalStorage
+2. 📱 تطبيق الموبايل (Mobile App)
+yaml
+المسؤولية: واجهة الموظفين الميدانية
+التقنية: React Native
+البيانات: تخزين محلي مشفر
+الأمان:
+  • Biometric Authentication
+  • Encrypted Storage
+  • Certificate Pinning
+  • Remote Wipe Capability
+3. 🤖 بوت Telegram (Telegram Bot)
+yaml
+المسؤولية: قناة سريعة للموظفين
+التقنية: Node.js + Telegram Bot API
+البيانات: معرفات المستخدمين فقط
+الأمان:
+  • Telegram User ID Authentication
+  • Rate Limiting per User
+  • Command Validation
+  • No Sensitive Data in Chats
+4. 🚪 بوابة API (API Gateway)
+yaml
+المسؤولية: نقطة الدخول الوحيدة
+التقنية: Kong/Envoy
+البيانات: Headers + Request/Response
+الأمان:
+  • JWT Validation
+  • Rate Limiting (per tenant/user)
+  • IP Whitelisting (for external systems)
+  • DDoS Protection
+  • Request/Response Logging (sanitized)
+5. ⚖️ خدمة العدالة (Justice Service)
+yaml
+المسؤولية: قلب النظام - حساب الحقوق والسمعة
+التقنية: Node.js/Go
+البيانات: حقوق، قواعد، سمعة، نزاعات
+الأمان:
+  • Tenant Isolation (database level)
+  • Input Validation (commission rules)
+  • Audit Logging (all calculations)
+  • Digital Signing (all outputs)
+6. 🏆 خدمة الإنجاز (Achievement Service)
+yaml
+المسؤولية: إدارة المهام والأدلة
+التقنية: Node.js/Java
+البيانات: مهام، تسليمات، أدلة، مراجعات
+الأمان:
+  • File Upload Validation
+  • Malware Scanning
+  • Access Control (who can view evidence)
+  • Evidence Chain Preservation
+7. 🔍 خدمة التحقق (Verification Service)
+yaml
+المسؤولية: التحقق من المدفوعات الخارجية
+التقنية: Python/Node.js
+البيانات: معاملات، كشوفات، نتائج تحقق
+الأمان:
+  • API Key Management (for external systems)
+  • PII Masking (in logs)
+  • Idempotency Keys (for payment verification)
+  • Fraud Detection Rules
+8. 🔑 خدمة الهوية (Identity Service)
+yaml
+المسؤولية: إدارة الوصول والمصادقة
+التقنية: Node.js + Redis
+البيانات: مستخدمين، أدوار، صلاحيات، جلسات
+الأمان:
+  • Multi-Factor Authentication
+  • Password Hashing (argon2id)
+  • Session Management
+  • Login Attempt Monitoring
+9. 📢 خدمة الإشعارات (Notification Service)
+yaml
+المسؤولية: إرسال إشعارات عبر القنوات
+التقنية: Node.js + Queue Workers
+البيانات: قوالب، تفضيلات، سجلات تسليم
+الأمان:
+  • PII in Notifications
+  • Channel-specific encryption
+  • Delivery Confirmation
+  • Unsubscribe Management
+10. 🔗 خدمة التكامل (Integration Service)
+yaml
+المسؤولية: التواصل مع الأنظمة الخارجية
+التقنية: Node.js + Circuit Breakers
+البيانات: تكوينات APIs، webhooks، سجلات تكامل
+الأمان:
+  • API Key Encryption at rest
+  • Webhook Signature Verification
+  • Rate Limiting for external calls
+  • Fallback Mechanisms
+11. 📜 خدمة التدقيق (Audit Service)
+yaml
+المسؤولية: تسجيل كل شيء بشكل غير قابل للتغيير
+التقنية: Go + Blockchain
+البيانات: سجلات أحداث، إثباتات رقمية
+الأمان:
+  • Write-Once Storage
+  • Cryptographic Hashing
+  • Timestamping (RFC3161)
+  • Immutable Logs
+12. 🗄️ قواعد البيانات:
+قاعدة بيانات العدالة (Justice DB):
+
+yaml
+التقنية: PostgreSQL 15+
+البيانات: حقوق، قواعد، سمعة، نزاعات
+الأمان:
+  • Row-Level Security
+  • Column Encryption (for sensitive amounts)
+  • Backup Encryption
+  • Connection Pooling with SSL
+قاعدة بيانات الإنجاز (Achievement DB):
+
+yaml
+التقنية: PostgreSQL 15+ + TimescaleDB
+البيانات: مهام، أدلة، مراجعات
+الأمان:
+  • File Reference Only (not actual files)
+  • Access Control Lists
+  • Time-series partitioning
+قاعدة بيانات التحقق (Verification DB):
+
+yaml
+التقنية: PostgreSQL 15+
+البيانات: معاملات، تحقيقات، كشوفات
+الأمان:
+  • PII Redaction
+  • Transaction Isolation
+  • Audit Triggers
+مخزن الملفات (File Storage):
+
+yaml
+التقنية: S3-Compatible + CDN
+البيانات: مستندات، صور، ملفات أدلة
+الأمان:
+  • Server-Side Encryption
+  • Signed URLs (time-limited)
+  • Access Control Policies
+  • Versioning + Legal Hold
+13. ⚡ البنية التحتية:
+ناقل الرسائل (Message Bus):
+
+yaml
+التقنية: Apache Kafka
+البيانات: أحداث النطاق
+الأمان:
+  • TLS between brokers
+  • SASL Authentication
+  • Topic-level Authorization
+  • Message Encryption (for sensitive topics)
+التخزين المؤقت (Cache):
+
+yaml
+التقنية: Redis Cluster
+البيانات: جلسات، نتائج حساب متكررة
+الأمان:
+  • Redis AUTH
+  • TLS connections
+  • Data Eviction Policies
+  • No sensitive data in cache
+شبكة الخدمات (Service Mesh):
+
+yaml
+التقنية: Istio
+المسؤولية: الاتصالات الداخلية
+الأمان:
+  • Mutual TLS (mTLS)
+  • Service-to-service Auth
+  • Traffic Policies
+  • Observability
+🔧 PHASE 5 — C4 LEVEL 3: المكونات
+داخل خدمة العدالة (Justice Service):
+1. 🧮 محرك القواعد (Rule Engine)
+yaml
+المسؤولية: تطبيق قواعد العمولات
+المدخلات: بيانات الإنجاز، القواعد، السياق
+المخرجات: حقوق محسوبة
+الأمان:
+  • Rule Validation (prevent infinite loops)
+  • Input Sanitization
+  • Calculation Audit Trail
+  • Digital Signature on Output
+
+التواصل:
+  • ← Achievement Service (للحصول على الإنجازات)
+  • → Audit Service (لتسجيل الحسابات)
+  • → Notification Service (لإشعار الموظفين)
+2. ⭐ محرك السمعة (Reputation Engine)
+yaml
+المسؤولية: حساب وتحديث درجات السمعة
+المدخلات: سلوكيات، أحداث، تاريخ
+المخرجات: درجات سمعة، تحليلات
+الأمان:
+  • Fairness Algorithms (anti-bias)
+  • Transparency in Scoring
+  • Anomaly Detection
+  • Immutable Reputation History
+
+التواصل:
+  • ← Verification Service (للحصول على نتائج التحقق)
+  • → All Services (لتوفير سمعة للمصادقة)
+3. ⚖️ محرك النزاعات (Dispute Engine)
+yaml
+المسؤولية: إدارة وحل النزاعات
+المدخلات: ادعاءات، أدلة، قواعد تحكيم
+المخرجات: قرارات، عقوبات، تسويات
+الأمان:
+  • Neutral Algorithm (no favoritism)
+  • Evidence Chain Verification
+  • Decision Transparency
+  • Appeal Process
+
+التواصل:
+  • ← Verification Service (للتحقق من الأدلة)
+  • → Audit Service (لتسجيل القرارات)
+  • → Notification Service (لإشعار الأطراف)
+داخل خدمة الهوية (Identity Service):
+1. 🔐 مدير المصادقة (Auth Manager)
+yaml
+المسؤولية: التحقق من هوية المستخدمين
+المدخلات: أوراق اعتماد، عوامل متعددة
+المخرجات: tokens، جلسات
+الأمان:
+  • Password Policy Enforcement
+  • MFA Management
+  • Brute Force Protection
+  • Session Security
+
+التواصل:
+  • ← API Gateway (للتحقق من الطلبات)
+  • → Audit Service (لتسجيل عمليات الدخول)
+2. 🎭 مدير الصلاحيات (Permission Manager)
+yaml
+المسؤولية: تطبيق سياسات الوصول
+المدخلات: أدوار، صلاحيات، سياق
+المخرجات: قرارات تفويض
+الأمان:
+  • Least Privilege Principle
+  • Role-Based Access Control
+  • Permission Inheritance
+  • Access Review Logs
+
+التواصل:
+  • → All Services (للتحقق من الصلاحيات)
+3. 📝 مدير السجلات (Audit Logger)
+yaml
+المسؤولية: تسجيل أنشطة الوصول
+المدخلات: أحداث وصول، محاولات، تغييرات
+المخرجات: سجلات تدقيق
+الأمان:
+  • Tamper-Evident Logs
+  • Real-time Alerting
+  • Log Retention Policies
+  • Privacy Compliance
+
+التواصل:
+  • → Audit Service (لإرسال السجلات)
+داخل خدمة التحقق (Verification Service):
+1. 💳 محقق المدفوعات (Payment Investigator)
+yaml
+المسؤولية: التحقق من المدفوعات الخارجية
+المدخلات: معاملات متوقعة، بيانات خارجية
+المخرجات: نتائج تحقق، ثقة
+الأمان:
+  • API Key Rotation
+  • Response Validation
+  • Fraud Pattern Detection
+  • Idempotency Enforcement
+
+التواصل:
+  • ← Integration Service (للوصول لـ APIs الخارجية)
+  • → Justice Service (لإعلام بنتائج التحقق)
+2. 📄 محلل الكشوفات (Statement Analyzer)
+yaml
+المسؤولية: تحليل كشوف الحسابات
+المدخلات: صور/PDF، تنسيقات مختلفة
+المخرجات: معاملات مستخرجة، مطابقات
+الأمان:
+  • File Type Validation
+  • Malware Scanning
+  • PII Extraction & Masking
+  • OCR Accuracy Verification
+
+التواصل:
+  • ← File Storage (لجلب الكشوفات)
+  • → Audit Service (لتسجيل عملية التحليل)
+3. 🔗 منشئ سلاسل الإثبات (Proof Chain Builder)
+yaml
+المسؤولية: بناء سلاسل إثبات غير قابلة للتغيير
+المدخلات: أدلة، تواقيع، طوابع زمنية
+المخرجات: سلاسل إثبات، إثباتات مدمجة
+الأمان:
+  • Cryptographic Hashing
+  • Timestamp Authority Integration
+  • Chain Integrity Verification
+  • Proof Storage Optimization
+
+التواصل:
+  • → Audit Service (للتخزين الدائم)
+  • → Justice Service (لتوفير الإثباتات)
+🛡️ PHASE 6 — خريطة الأمان
+خريطة الأمان حسب الطبقات:
+الطبقة 1: حدود النظام (System Boundaries)
+yaml
+🔴 مخاطر عالية:
+• API Gateway Exposure
+• Authentication Endpoints
+• Webhook Receivers
+
+🛡️ عناصر التحكم:
+• WAF (Web Application Firewall)
+• DDoS Protection
+• Rate Limiting (per IP, per user, per tenant)
+• IP Whitelisting (for external systems)
+
+🔍 المراقبة:
+• Intrusion Detection System
+• Anomaly Detection
+• Real-time Alerting
+الطبقة 2: طبقة البوابة (Gateway Layer)
+yaml
+🔴 مخاطر عالية:
+• JWT Validation
+• API Routing
+• Request/Response Transformation
+
+🛡️ عناصر التحكم:
+• Mutual TLS (for service-to-service)
+• API Key Validation
+• Request Validation (schema + content)
+• Response Sanitization
+
+🔍 المراقبة:
+• API Call Logging (sanitized)
+• Performance Metrics
+• Error Rate Monitoring
+الطبقة 3: طبقة الخدمات (Service Layer)
+yaml
+🟠 مخاطر متوسطة:
+• Business Logic Flaws
+• Data Validation
+• Internal API Calls
+
+🛡️ عناصر التحكم:
+• Input Validation (at service boundaries)
+• Output Encoding
+• Parameterized Queries
+• Service Mesh (mTLS + policies)
+
+🔍 المراقبة:
+• Service Metrics
+• Dependency Health
+• Circuit Breaker Status
+الطبقة 4: طبقة البيانات (Data Layer)
+yaml
+🔴 مخاطر عالية:
+• Data Leakage
+• SQL Injection
+• Unauthorized Access
+
+🛡️ عناصر التحكم:
+• Row-Level Security (per tenant)
+• Column Encryption (for sensitive data)
+• Database Auditing
+• Backup Encryption
+
+🔍 المراقبة:
+• Database Performance
+• Unusual Query Patterns
+• Access Pattern Analysis
+الطبقة 5: طبقة التخزين (Storage Layer)
+yaml
+🟠 مخاطر متوسطة:
+• File Access Control
+• Data Corruption
+• Unauthorized Downloads
+
+🛡️ عناصر التحكن:
+• Signed URLs (time-limited)
+• Server-Side Encryption
+• Access Control Lists
+• Versioning + Immutability
+
+🔍 المراقبة:
+• Storage Access Logs
+• Unusual Download Patterns
+• Storage Capacity
+عزل المستأجرين (Tenant Isolation):
+المستوى 1: عزل قاعدة البيانات (Database Isolation)
+yaml
+للشركات الصغيرة (< 50 موظف):
+• نفس قاعدة البيانات
+• Row-Level Security
+• Schema: public.employees (tenant_id 필수)
+
+للشركات المتوسطة (50-500 موظف):
+• نفس قاعدة البيانات
+• Schema per tenant: tenant_123.employees
+• Connection Pool per tenant
+
+للشركات الكبيرة (> 500 موظف):
+• قاعدة بيانات منفصلة
+• VPC Isolation
+• Dedicated Resources
+المستوى 2: عزل التخزين (Storage Isolation)
+yaml
+• Bucket per tenant: bassan-tenant-123
+• IAM Policies per tenant
+• Cross-tenant access: ممنوع تماماً
+• Backup Isolation: per tenant
+المستوى 3: عزل الشبكة (Network Isolation)
+yaml
+• VPC per tenant (للشركات الكبيرة)
+• Security Groups per tenant
+• No cross-tenant communication
+• Egress filtering per tenant
+المستوى 4: عزل التشفير (Crypto Isolation)
+yaml
+• Encryption Keys per tenant
+• Key Management per tenant
+• No key sharing between tenants
+• Key Rotation per tenant schedule
+نموذج الصلاحيات (Authorization Model):
+RBAC (Role-Based Access Control):
+yaml
+الأدوار المحددة:
+1. owner:
+   • tenant:*
+   • employee:*
+   • commission:*
+   • report:*
+
+2. department_manager:
+   • employee

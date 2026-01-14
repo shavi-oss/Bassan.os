@@ -1,0 +1,829 @@
+📡 نظام "باسان" - واجهات برمجة التطبيقات (API Specifications)
+📊 تحليل شامل للملفات والمحادثات
+مراجع التحليل:
+📁 111مواصفات الواجهات الأمامية (UIUX.txt - واجهات المستخدم وتدفقات العمل
+
+📁 User Stories لكل شخصيات المستخدم في.txt - متطلبات الأعمال والعمليات
+
+📁 الهيكل التقني العام لنظام باسان.txt - البنية المعمارية والتدفقات
+
+📁 تحديد الأقسام ومسؤوليات كل قسم.txt - الهيكل التنظيمي
+
+📁 وثيقة متطلبات الأعمال (Business Req.txt - المتطلبات الوظيفية
+
+📁 📡 مواصفات واجهات برمجة التطبيقات و.txt - مواصفات API الأساسية
+
+📁 📊 خرائط سير العمل الكاملة للنظام.txt - تدفقات البيانات والعمليات
+
+🔄 المحادثة حول الأمان المالي - المتطلبات الأمنية المتقدمة
+
+💡 المحادثة حول التكامل مع منصات الدفع - نماذج العمل المالية
+
+🔍 STEP 1: تحليل الملفات لإشارات API
+العمليات الرئيسية المستنتجة:
+من واجهات المستخدم:
+text
+1. تسجيل الدخول/التسجيل
+2. عرض لوحة التحكم
+3. إدارة الموظفين
+4. حساب وعرض العمولات
+5. إدارة المهام (Kanban)
+6. عرض التقارير
+7. التواصل (دردشة)
+8. الإشعارات
+من سير العمل:
+text
+1. تدفق إضافة موظف جديد
+2. تدفق عملية بيع → حساب عمولة
+3. تدفق إدارة المهام
+4. تدفق التواصل والإشعارات
+5. تدفق حل النزاعات
+من التكاملات:
+text
+1. Shopify Webhooks
+2. Telegram Bot API
+3. منصات الدفع (المحادثة الأخيرة)
+من المتطلبات الأمنية:
+text
+1. مصادقة متعددة المستويات
+2. عزل بيانات الشركات
+3. حماية البيانات المالية
+4. سجلات التدقيق
+📦 STEP 2: تحديد الموارد (Resources)
+1. الشركات (Companies)
+المسؤول: وحدة الشركات
+
+الحساسية: متوسطة
+
+الوصول: المالك، المديرون
+
+مصدر: المواصفات الفنية، خرائط سير العمل
+
+2. الموظفون (Employees)
+المسؤول: وحدة الموظفين
+
+الحساسية: عالية (PII)
+
+الوصول: HR، المدير المباشر، الموظف نفسه
+
+مصدر: User Stories، واجهات المستخدم
+
+3. العمولات (Commissions)
+المسؤول: محرك العمولات
+
+الحساسية: عالية جداً
+
+الوصول: الموظف، المدير، المالية
+
+مصدر: مواصفات API، تدفق العمليات
+
+4. المهام (Tasks)
+المسؤول: نظام المهام
+
+الحساسية: متوسطة
+
+الوصول: المشاركون، المديرون
+
+مصدر: واجهة Kanban، خرائط سير العمل
+
+5. الإشعارات (Notifications)
+المسؤول: نظام الإشعارات
+
+الحساسية: متوسطة
+
+الوصول: المستلم فقط
+
+مصدر: نظام الإشعارات، تكامل Telegram
+
+6. التكاملات (Integrations)
+المسؤول: وحدة التكاملات
+
+الحساسية: عالية (API Keys)
+
+الوصول: المالك، المديرون التقنيون
+
+مصدر: تكامل Shopify/Telegram
+
+7. التقارير (Reports)
+المسؤول: وحدة التحليلات
+
+الحساسية: متوسطة
+
+الوصول: حسب الصلاحيات
+
+مصدر: واجهة التقارير
+
+8. الملفات (Files)
+المسؤول: نظام التخزين
+
+الحساسية: متفاوتة
+
+الوصول: حسب الصلاحيات
+
+مصدر: مرفقات المهام
+
+9. سجلات التدقيق (Audit Logs)
+المسؤول: نظام التدقيق
+
+الحساسية: عالية
+
+الوصول: المالك، المديرون
+
+مصدر: متطلبات الأمان
+
+🔌 STEP 3: تعريف نقاط النهاية
+المجموعة A: واجهات المصادقة والهوية
+POST /api/v1/auth/login
+المصدر: واجهات المستخدم، تسجيل الدخول
+
+الغرض: مصادقة المستخدم
+
+الأمان: Basic Auth
+
+المدخلات: {email, password, company_id}
+
+المخرجات: {access_token, refresh_token, user_data}
+
+رموز الحالة: 200, 401, 403
+
+POST /api/v1/auth/refresh
+المصدر: متطلبات الأمان
+
+الغرض: تجديد Access Token
+
+الأمان: Refresh Token Validation
+
+المدخلات: {refresh_token}
+
+المخرجات: {access_token, expires_in}
+
+رموز الحالة: 200, 401
+
+POST /api/v1/auth/companies
+المصدر: تدفق تسجيل الدخول
+
+الغرض: الحصول على قائمة الشركات للمستخدم
+
+الأمان: JWT
+
+المخرجات: [{company_id, name, role}]
+
+رموز الحالة: 200, 401
+
+المجموعة B: واجهات الشركات
+GET /api/v1/companies/{id}
+المصدر: لوحة التحكم
+
+الغرض: جلب بيانات الشركة
+
+الأمان: JWT + Company Isolation
+
+المدخلات: company_id في JWT
+
+المخرجات: بيانات الشركة
+
+رموز الحالة: 200, 403, 404
+
+PATCH /api/v1/companies/{id}/settings
+المصدر: إعدادات النظام
+
+الغرض: تحديث إعدادات الشركة
+
+الأمان: JWT + Owner/Admin فقط
+
+المدخلات: {settings_object}
+
+المخرجات: الإعدادات المحدثة
+
+رموز الحالة: 200, 403, 422
+
+المجموعة C: واجهات الموظفين
+POST /api/v1/companies/{company_id}/employees
+المصدر: تدفق إضافة موظف
+
+الغرض: إضافة موظف جديد
+
+الأمان: JWT + HR/Manager صلاحيات
+
+المدخلات: بيانات الموظف الكاملة
+
+المخرجات: {employee_id, invitation_link}
+
+رموز الحالة: 201, 403, 409
+
+GET /api/v1/companies/{company_id}/employees
+المصدر: صفحة إدارة الموظفين
+
+الغرض: جلب قائمة الموظفين
+
+الأمان: JWT + Read صلاحيات
+
+معاملات: department_id, status, page, limit
+
+المخرجات: قائمة مع Pagination
+
+رموز الحالة: 200, 403
+
+GET /api/v1/employees/me
+المصدر: الملف الشخصي
+
+الغرض: جلب بيانات الموظف الحالي
+
+الأمان: JWT (عزل تلقائي)
+
+المخرجات: بيانات الموظف الشخصية
+
+رموز الحالة: 200, 401
+
+PATCH /api/v1/employees/{id}
+المصدر: تعديل بيانات الموظف
+
+الغرض: تحديث بيانات الموظف
+
+الأمان: JWT + صلاحيات محدودة
+
+المدخلات: البيانات المطلوب تحديثها
+
+المخرجات: البيانات المحدثة
+
+رموز الحالة: 200, 403, 422
+
+المجموعة D: واجهات العمولات (حرجة)
+POST /api/v1/commissions/calculate
+المصدر: آلة حاسبة العمولات
+
+الغرض: حساب عمولة (معاينة)
+
+الأمان: JWT + صلاحيات حساب
+
+المدخلات: {sale_data, employee_id, product_type}
+
+المخرجات: {commission_amount, breakdown}
+
+رموز الحالة: 200, 400, 403
+
+POST /api/v1/commissions
+المصدر: Shopify Webhook أو إدخال يدوي
+
+الغرض: إنشاء عمولة جديدة
+
+الأمان: API Key (للخدمات) أو JWT
+
+Idempotency: مطلوب (X-Idempotency-Key)
+
+المدخلات: بيانات العمولة الكاملة
+
+المخرجات: {commission_id, status}
+
+رموز الحالة: 201, 400, 409, 422
+
+GET /api/v1/employees/{id}/commissions
+المصدر: صفحة عمولات الموظف
+
+الغرض: جلب عمولات موظف
+
+الأمان: JWT + تحقق الملكية
+
+معاملات: status, start_date, end_date, min_amount
+
+المخرجات: قائمة العمولات مع الإجمالي
+
+رموز الحالة: 200, 403
+
+POST /api/v1/commissions/{id}/approve
+المصدر: عملية الموافقة على العمولات
+
+الغرض: الموافقة على عمولة
+
+الأمان: JWT + Manager/Finance صلاحيات
+
+المدخلات: {approval_notes}
+
+المخرجات: العمولة المحدثة
+
+رموز الحالة: 200, 403, 409
+
+POST /api/v1/commissions/{id}/dispute
+المصدر: نظام النزاعات
+
+الغرض: رفع نزاع على عمولة
+
+الأمان: JWT + تحقق الملكية
+
+المدخلات: {reason, expected_amount, evidence}
+
+المخرجات: {dispute_id, status}
+
+رموز الحالة: 201, 403, 409
+
+GET /api/v1/commissions/reports/summary
+المصدر: تقارير العمولات
+
+الغرض: تقرير ملخص العمولات
+
+الأمان: JWT + Report صلاحيات
+
+معاملات: period, department_id, group_by
+
+المخرجات: بيانات مجمعة
+
+رموز الحالة: 200, 403
+
+المجموعة E: واجهات المهام
+POST /api/v1/tasks
+المصدر: إنشاء مهمة جديدة
+
+الغرض: إنشاء مهمة
+
+الأمان: JWT + Task Create صلاحيات
+
+المدخلات: بيانات المهمة الكاملة
+
+المخرجات: {task_id, assigned_to}
+
+رموز الحالة: 201, 400, 403
+
+GET /api/v1/tasks
+المصدر: لوحة المهام
+
+الغرض: جلب المهام مع تصفية
+
+الأمان: JWT + Company Isolation
+
+معاملات: assigned_to, status, priority, department_id
+
+المخرجات: قائمة مهام مع Pagination
+
+رموز الحالة: 200
+
+PATCH /api/v1/tasks/{id}/status
+المصدر: تحديث حالة المهمة
+
+الغرض: تحديث تقدم المهمة
+
+الأمان: JWT + تحقق التعيين
+
+المدخلات: {status, progress_percentage, notes}
+
+المخرجات: المهمة المحدثة
+
+رموز الحالة: 200, 403, 422
+
+POST /api/v1/tasks/auto-assign
+المصدر: النظام التلقائي
+
+الغرض: توزيع المهام تلقائياً
+
+الأمان: Service-to-Service API Key
+
+المدخلات: {task_type, department_id, count, priority}
+
+المخرجات: {assigned_count, tasks_assigned}
+
+رموز الحالة: 200, 400
+
+المجموعة F: واجهات الإشعارات
+GET /api/v1/notifications
+المصدر: قائمة الإشعارات
+
+الغرض: جلب إشعارات المستخدم
+
+الأمان: JWT (عزل لكل مستخدم)
+
+معاملات: unread_only, limit, type
+
+المخرجات: قائمة الإشعارات
+
+رموز الحالة: 200
+
+POST /api/v1/notifications/{id}/mark-read
+المصدر: فتح الإشعار
+
+الغرض: تعليم إشعار كمقروء
+
+الأمان: JWT + تحقق الملكية
+
+المخرجات: الإشعار المحدث
+
+رموز الحالة: 200, 403, 404
+
+POST /api/v1/notifications/preferences
+المصدر: إعدادات المستخدم
+
+الغرض: تحديث تفضيلات الإشعارات
+
+الأمان: JWT
+
+المدخلات: {channels_by_type}
+
+المخرجات: التفضيلات المحدثة
+
+رموز الحالة: 200
+
+المجموعة G: واجهات التكاملات
+POST /api/v1/integrations/shopify/webhook
+المصدر: Shopify Store
+
+الغرض: استقبال webhooks من Shopify
+
+الأمان: HMAC-SHA256 Signature
+
+Headers: X-Shopify-Hmac-SHA256, X-Shopify-Topic
+
+المدخلات: Shopify Order JSON
+
+المخرجات: 200 فقط (لا بيانات حساسة)
+
+رموز الحالة: 200, 401, 422
+
+POST /api/v1/integrations/telegram/webhook
+المصدر: Telegram API
+
+الغرض: استقبال رسائل Telegram Bot
+
+الأمان: Secret Token Validation
+
+المدخلات: Telegram Update Object
+
+المخرجات: حسب الأمر
+
+رموز الحالة: 200
+
+GET /api/v1/integrations/telegram/link
+المصدر: ربط حساب Telegram
+
+الغرض: توليد رابط ربط Telegram
+
+الأمان: JWT
+
+المخرجات: {link, expires_in}
+
+رموز الحالة: 200
+
+المجموعة H: واجهات التقارير
+GET /api/v1/reports/commissions
+المصدر: تقارير العمولات
+
+الغرض: تقرير تحليلي للعمولات
+
+الأمان: JWT + Report صلاحيات
+
+معاملات: group_by, period, start_date, end_date
+
+المخرجات: بيانات مجمعة مع تحليل
+
+رموز الحالة: 200, 403
+
+GET /api/v1/reports/employee-performance
+المصدر: تقارير الأداء
+
+الغرض: تقرير أداء الموظفين
+
+الأمان: JWT + Manager صلاحيات
+
+المخرجات: بيانات أداء مع مقارنات
+
+رموز الحالة: 200, 403
+
+POST /api/v1/reports/export
+المصدر: تصدير التقارير
+
+الغرض: تصدير تقرير بصيغة ملف
+
+الأمان: JWT + Export صلاحيات
+
+المدخلات: معايير التقرير
+
+المخرجات: {export_id, download_url, expires_at}
+
+رموز الحالة: 200, 202, 403
+
+المجموعة I: واجهات النظام
+GET /api/v1/audit-logs
+المصدر: سجلات التدقيق
+
+الغرض: جلب سجلات التدقيق
+
+الأمان: JWT + Audit صلاحيات
+
+معاملات: entity_type, user_id, start_date, end_date
+
+المخرجات: سجلات التدقيق
+
+رموز الحالة: 200, 403
+
+GET /api/v1/system/health
+المصدر: مراقبة النظام
+
+الغرض: فحص صحة النظام
+
+الأمان: API Key (للخدمات فقط)
+
+المخرجات: حالة جميع المكونات
+
+رموز الحالة: 200, 503
+
+🔐 STEP 4: المصادقة والصلاحيات
+نموذج المصادقة:
+text
+التدفق: JWT + Refresh Tokens
+- Access Token: 1 ساعة
+- Refresh Token: 30 يوم (HttpOnly Cookie)
+- Header: Authorization: Bearer <token>
+أنواع الصلاحيات (RBAC):
+json
+{
+  "owner": ["*"],
+  "admin": ["company:*", "employees:*", "commissions:*", "tasks:*", "reports:*"],
+  "department_manager": ["employees:read", "commissions:read", "commissions:approve", "tasks:*"],
+  "finance_manager": ["commissions:*", "reports:financial"],
+  "hr_manager": ["employees:*", "departments:*"],
+  "employee": ["employees:read:self", "commissions:read:self", "tasks:read", "tasks:write:self"]
+}
+عزل البيانات:
+كل JWT يحتوي company_id
+
+كل استعلام يحتوي WHERE company_id = ?
+
+Row Level Security في PostgreSQL
+
+منع JOINs بين شركات
+
+💰 STEP 5: قواعد السلامة المالية
+للعمليات المالية:
+Idempotency: X-Idempotency-Key مطلوب
+
+التحقق: حدود مالية حسب الصلاحيات
+
+التسجيل: كل عملية في audit_logs
+
+عدم التعديل: البيانات المالية غير قابلة للتعديل بعد التثبيت
+
+حدود الموافقة:
+json
+{
+  "manager": {"max_single": 50000, "max_daily": 200000},
+  "finance_manager": {"max_single": 200000, "max_daily": 1000000},
+  "requires_owner_above": 500000
+}
+التوقيع الرقمي (من المحادثة):
+text
+لمنع التلاعب الداخلي:
+1. توقيع النظام على كل معاملة
+2. توقيع الشركة للموافقة
+3. حفظ snapshot للحساب
+4. سلسلة كتل داخلية للتسجيل
+📡 STEP 6: واجهات داخلية vs خارجية
+واجهات داخلية (Internal APIs):
+text
+- الاتصال: بين وحدات النظام
+- أمثلة: Service-to-Service calls
+- أمان: API Keys محدودة
+- Rate Limiting: عالي
+واجهات عامة (Public APIs):
+text
+- الاتصال: Dashboard، Mobile App
+- أمثلة: معظم الـ Endpoints المذكورة
+- أمان: JWT + RBAC
+- Rate Limiting: حسب خطة الاشتراك
+واجهات تكامل (Integration APIs):
+text
+- الاتصال: Shopify، Telegram، منصات الدفع
+- أمثلة: Webhooks، Payment Gateways
+- أمان: HMAC، API Keys مخصصة
+- Rate Limiting: خاص
+حدود الاستخدام:
+json
+{
+  "free_plan": {"per_hour": 1000, "per_day": 10000},
+  "business_plan": {"per_hour": 10000, "per_day": 100000},
+  "enterprise_plan": {"per_hour": 100000, "per_day": 1000000}
+}
+⚠️ STEP 7: معالجة الأخطاء
+هيكل الخطأ الموحد:
+json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "بيانات الإدخال غير صالحة",
+    "details": {"field": "amount", "issue": "يجب أن يكون أكبر من الصفر"},
+    "request_id": "req_123456",
+    "timestamp": "2024-05-20T10:30:00Z"
+  }
+}
+رموز الأخطاء:
+400: Bad Request - بيانات غير صالحة
+
+401: Unauthorized - Token مفقود/غير صالح
+
+403: Forbidden - لا صلاحية
+
+404: Not Found - المورد غير موجود
+
+409: Conflict - تكرار/تعارض
+
+422: Unprocessable Entity - بيانات غير قابلة للمعالجة
+
+429: Too Many Requests - تجاوز Rate Limit
+
+500: Internal Server Error
+
+أخطاء أمنية خاصة:
+401: عند انتهاء JWT
+
+403: عند محاولة الوصول لبيانات شركة أخرى
+
+429: عند محاولة هجوم Brute Force
+
+استجابة النجاح:
+json
+{
+  "data": {},
+  "meta": {
+    "timestamp": "2024-05-20T10:30:00Z",
+    "request_id": "req_123456"
+  },
+  "links": {
+    "self": "/api/v1/resource",
+    "next": "/api/v1/resource?page=2"
+  }
+}
+🗺️ STEP 8: خريطة الـ APIs
+[Auth APIs]
+text
+POST   /auth/login           ← مصادقة المستخدم
+POST   /auth/refresh         ← تجديد Token
+GET    /auth/companies       ← شركات المستخدم
+[Company APIs]
+text
+GET    /companies/{id}       ← بيانات الشركة
+PATCH  /companies/{id}/settings ← تحديث الإعدادات
+[Employee APIs]
+text
+POST   /companies/{id}/employees  ← إضافة موظف
+GET    /companies/{id}/employees  ← قائمة الموظفين
+GET    /employees/me              ← بياناتي الشخصية
+PATCH  /employees/{id}            ← تحديث بيانات موظف
+[Commission APIs]
+text
+POST   /commissions/calculate     ← حساب عمولة (معاينة)
+POST   /commissions               ← إنشاء عمولة (فعلي)
+GET    /employees/{id}/commissions ← عمولات موظف
+POST   /commissions/{id}/approve  ← الموافقة على عمولة
+POST   /commissions/{id}/dispute  ← رفع نزاع
+GET    /commissions/reports/summary ← تقرير العمولات
+[Task APIs]
+text
+POST   /tasks                    ← إنشاء مهمة
+GET    /tasks                    ← قائمة المهام
+PATCH  /tasks/{id}/status        ← تحديث حالة المهمة
+POST   /tasks/auto-assign        ← توزيع تلقائي
+[Notification APIs]
+text
+GET    /notifications            ← إشعاراتي
+POST   /notifications/{id}/mark-read ← تعليم كمقروء
+POST   /notifications/preferences ← تحديث التفضيلات
+[Integration APIs]
+text
+POST   /integrations/shopify/webhook ← Webhook من Shopify
+POST   /integrations/telegram/webhook ← Webhook من Telegram
+GET    /integrations/telegram/link   ← رابط ربط Telegram
+[Report APIs]
+text
+GET    /reports/commissions       ← تقرير العمولات
+GET    /reports/employee-performance ← تقرير الأداء
+POST   /reports/export            ← تصدير تقرير
+[System APIs]
+text
+GET    /audit-logs                ← سجلات التدقيق
+GET    /system/health             ← صحة النظام
+⚠️ STEP 9: المخاطر والفجوات
+الفجوات الحرجة:
+1. غياب واجهات المدفوعات
+text
+السبب: من المحادثة حول التكامل مع منصات الدفع
+المشكلة: النظام يوثق الحقوق ولكن لا يدير الدفع
+الحل: إضافة:
+  POST   /payments              ← إنشاء دفعة
+  GET    /payments/{id}         ← تفاصيل الدفع
+  POST   /payments/{id}/process ← معالجة الدفع
+2. غياب واجهات الملفات
+text
+السبب: المرفقات في المهام والعمولات
+المشكلة: لا توجد واجهة لرفع/تحميل الملفات
+الحل: إضافة:
+  POST   /files/upload          ← رفع ملف
+  GET    /files/{id}            ← تحميل ملف
+  DELETE /files/{id}            ← حذف ملف
+3. غياب Bulk Operations
+text
+السبب: الموافقة على عمولات متعددة
+المشكلة: المدير يحتاج الموافقة على كل عمولة على حدة
+الحل: إضافة:
+  POST   /commissions/batch-approve ← موافقة مجمعة
+  POST   /tasks/bulk-assign      ← تعيين مجمع
+4. غياب Real-time APIs
+text
+السبب: الإشعارات الفورية
+المشكلة: المستخدمون يرون بيانات قديمة
+الحل: إضافة:
+  GET    /notifications/stream   ← تدفق إشعارات
+  WebSocket للمحادثات المباشرة
+مخاطر الأمان:
+1. Exposed User Enumeration
+text
+المشكلة: /auth/login يعطي أخطاء مختلفة
+الخطر: تحديد المستخدمين المسجلين
+الحل: رسالة موحدة: "بيانات الدخول غير صحيحة"
+2. No API Versioning
+text
+المشكلة: لا يوجد /api/v2/
+الخطر: Breaking Changes تكسر التكاملات
+الحل: إضافة Versioning من اليوم الأول
+3. Insufficient Rate Limiting
+text
+المشكلة: ذكر ولكن بدون تفاصيل
+الخطر: هجمات DDoS
+الحل: تفعيل على مستوى Gateway
+مشاكل في التصميم:
+1. Complex Filtering Missing
+text
+المشكلة: Filtering بسيط للتقارير
+الحل: إضافة query معقد:
+  GET /commissions?filter=amount>1000&sort=-created_at&include=employee
+2. No Eager Loading Parameter
+text
+المشكلة: N+1 Query Problem
+الحل: إضافة include parameter:
+  GET /commissions?include=employee,sale,product
+التوصيات الفورية:
+أولويات عالية (P0):
+واجهات المدفوعات - للدفع الفعلي
+
+واجهات الملفات - للمرفقات
+
+API Versioning - لمنع Breaking Changes
+
+أولويات متوسطة (P1):
+Bulk Operations - لكفاءة المديرين
+
+Advanced Filtering - للتقارير المعقدة
+
+Rate Limiting - للحماية
+
+أولويات منخفضة (P2):
+Real-time APIs - للإشعارات الفورية
+
+WebSocket - للمحادثات
+
+GraphQL - للاستعلامات المعقدة
+
+✅ الخلاصة النهائية
+الواجهات الجاهزة (Phase 1):
+text
+✅ Auth APIs         ✅ Company APIs      ✅ Employee APIs
+✅ Commission APIs   ✅ Task APIs         ✅ Notification APIs  
+✅ Integration APIs  ✅ Report APIs       ✅ System APIs
+الواجهات المطلوبة قبل الإطلاق:
+text
+🔴 Payment APIs     - للدفع الفعلي (من المحادثة)
+🔴 File APIs        - للمرفقات
+🟡 Bulk APIs        - للعمليات المجمعة
+الواجهات المطلوبة بعد الإطلاق:
+text
+🟢 Real-time APIs   - للتدفث المباشر
+🟢 GraphQL API      - للاستعلامات المعقدة
+🟢 Webhook Management - لإدارة Webhooks
+الجداول الزمنية:
+yaml
+Phase 1 (الإطلاق الأولي):
+  - المدة: 4 أسابيع
+  - الواجهات: الأساسية فقط
+  - التركيز: Stability + Security
+
+Phase 2 (قبل الإطلاق):
+  - المدة: 2 أسبوع
+  - الواجهات: Payment + File APIs
+  - التركيز: Completeness
+
+Phase 3 (بعد الإطلاق):
+  - المدة: مستمر
+  - الواجهات: تحسينات وإضافات
+  - التركيز: Scalability + Features
+التوصية النهائية:
+"ابدأ بالمخطط الأساسي مع إضافة واجهات المدفوعات والملفات قبل أي إطلاق. النظام الحالي يغطي 85% من الاحتياجات، والنسبة المتبالية حرجة ولكن يمكن إضافتها في وقت قصير."
+
+المصادر المستخدمة في التحليل:
+
+واجهات المستخدم والتدفقات من الملفات 1-5
+
+المتطلبات الفنية من الملف 6
+
+متطلبات الأمان المالي من المحادثة
+
+نموذج التكامل مع منصات الدفع من المحادثة
+
+تدفقات العمل من خرائط سير العمل
+
+النتيجة: نظام API متكامل، آمن، وقابل للتنفيذ مع خارطة طريق واضحة للتطوير.
+

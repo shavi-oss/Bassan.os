@@ -1,0 +1,348 @@
+ARCHITECTURAL_LAWS.md
+
+Status: ENFORCED · NON-NEGOTIABLE · EXECUTABLE
+Authority Level: OVERRIDE
+Effective From: Stage 0
+Last Updated: 2026-01-15
+
+0. PURPOSE (NON-DISCUSSABLE)
+
+This document defines the Architectural Laws governing the Bassan.os system.
+
+These laws are:
+
+Executable, not descriptive
+
+Enforced automatically, not manually
+
+Higher authority than any BRD, SRS, ADR, or AI output
+
+Gate-blocking when violated
+
+Any violation MUST fail the build and BLOCK progression to the next Stage.
+
+1. ENFORCEMENT AUTHORITY (CRITICAL)
+
+All laws in this document are enforced ONLY by:
+
+Security Linter
+
+tests/security/security-linter.spec.ts
+
+
+CI Pipeline
+
+No human approval, documentation justification, or architectural discussion
+can override a failing enforcement.
+
+If a law exists here but is NOT enforced by the linter or CI,
+it is considered NOT IMPLEMENTED.
+
+2. ABSOLUTE FILE SYSTEM LAWS
+LAW FS-01 — Test Placement (ABSOLUTE)
+
+RULE
+No test file may exist under src/**.
+
+FORBIDDEN
+
+src/**/*.spec.ts
+src/**/*.e2e.ts
+src/**/*test*.ts
+
+
+ALLOWED (ONLY)
+
+tests/**
+
+
+ENFORCEMENT
+
+Security linter scans repository
+
+If any forbidden path is detected → BUILD FAIL
+
+LAW FS-02 — Security Linter Singularity
+
+RULE
+There must be exactly ONE security linter.
+
+REQUIRED LOCATION
+
+tests/security/security-linter.spec.ts
+
+
+FORBIDDEN
+
+src/security/**
+any duplicate linter file
+
+
+ENFORCEMENT
+
+Linter verifies its own singularity
+
+CI verifies execution
+
+Duplicate or misplaced linter → BUILD FAIL
+
+3. STAGE DISCIPLINE LAWS
+LAW SD-00 — Stage Authority
+
+Each Stage is scope-locked.
+Any code outside the allowed scope is illegal.
+
+Stage	Allowed Scope
+Stage 0	Core, Prisma extension, Guards, CLS
+Stage 1	Auth, Organizations, Users, Roles
+Stage 2	Workflow Definition (Design-Time only)
+Stage 3	Workflow Runtime Execution
+
+ENFORCEMENT
+
+Module allowlist enforced by linter
+
+Endpoint allowlist enforced by linter
+
+Violation → BUILD FAIL
+
+LAW SD-01 — Stage 1 Scope Lock
+
+FORBIDDEN IN STAGE 1
+
+workflows
+
+tasks
+
+evidence
+
+runtime execution
+
+integrations
+
+UI
+
+ENFORCEMENT
+
+Module allowlist (auth, organizations, users, roles only)
+
+Linter rule S1-L*
+
+LAW SD-02 — Stage 2 Design-Time ONLY
+
+FORBIDDEN IN STAGE 2
+
+WorkflowInstance
+
+runtime fields (startedAt, executedAt, instanceId, ownerId)
+
+background jobs
+
+schedulers
+
+queues
+
+execution engines
+
+ALLOWED
+
+WorkflowDefinition
+
+WorkflowState
+
+WorkflowTransition
+
+Validation logic (pure domain)
+
+ENFORCEMENT
+
+Model name scan
+
+Field name scan
+
+Dependency scan
+
+Linter rule S2-L*
+
+LAW SD-03 — Stage 3 Isolation
+
+RULE
+Stage 3 MUST NOT modify any Stage 0–2 artifact.
+
+ENFORCEMENT
+
+Git diff inspection in CI
+
+Any modification → BUILD FAIL
+
+4. IMMUTABILITY LAWS (HARD LOCK)
+LAW I-01 — Immutable Documents
+
+Once a stage is completed, the following become READ-ONLY:
+
+STAGE_1.md
+STAGE_2.md
+STAGE_2_PLAN.md
+VALIDATION.md (previous stages)
+
+
+ENFORCEMENT
+
+CI diff check
+
+Any modification → BUILD FAIL
+
+LAW I-02 — Immutable Code Zones (Post Stage 1)
+
+After Stage 1 completion, the following paths are IMMUTABLE:
+
+src/core/**
+src/shared/**
+src/modules/auth/**
+src/modules/organizations/**
+src/modules/users/**
+
+
+EXCEPTION
+
+src/prisma/schema.prisma
+
+
+Only additive models for new stages are allowed.
+
+ENFORCEMENT
+
+CI path diff scan
+
+Unauthorized change → BUILD FAIL
+
+5. SECURITY & ACCESS LAWS
+LAW SEC-01 — Guard Enforcement
+
+Every protected endpoint MUST use:
+
+@UseGuards(JwtAuthGuard, TenantGuard)
+
+
+ENFORCEMENT
+
+Controller AST scan
+
+Missing guard → BUILD FAIL
+
+LAW SEC-02 — Tenant Context Integrity
+
+RULE
+
+organizationId MUST NOT be accepted from client input
+
+Tenant context MUST come from CLS only
+
+ENFORCEMENT
+
+DTO scan
+
+Prisma call inspection
+
+Violation → BUILD FAIL
+
+6. MULTI-TENANCY DOCTRINE (FINAL & INTENTIONAL)
+LAW MT-01 — Isolation Strategy (FINAL)
+
+The system uses a DUAL BUT INTENTIONAL ISOLATION MODEL:
+
+CLS-based isolation
+
+For root entities
+
+Entities contain organizationId
+
+Relation-based isolation
+
+For indirect entities
+
+Entities DO NOT contain organizationId
+
+Access enforced via parent relation
+
+Parent–Child Implicit Filtering
+
+Child entities inherit tenant scope from parent
+
+No duplication of organizationId
+
+THIS IS NOT TRANSITIONAL.
+THIS IS NOT OPTIONAL.
+THIS IS NOT SUBJECT TO CHANGE WITHOUT OVERRIDE.
+
+ENFORCEMENT
+
+Prisma query pattern scan
+
+Relation filter verification
+
+Linter rules MT-L*
+
+7. CI ENFORCEMENT LAW
+LAW CI-01 — Mandatory CI Enforcement
+
+RULE
+All architectural laws MUST be executed in CI.
+
+REQUIRED
+
+Security linter executed
+
+Build fails on violation
+
+ENFORCEMENT
+
+CI configuration inspection
+
+Missing execution → STAGE INVALID
+
+8. PENALTY CLAUSE (NO EXCEPTIONS)
+
+Any violation of these laws results in:
+
+Immediate build failure
+
+Stage invalidation
+
+Automatic block of next stage
+
+Mandatory remediation before continuation
+
+No waiver.
+No discussion.
+No exception without OVERRIDE AUTHORITY.
+
+9. LAW PRECEDENCE
+
+Order of authority (highest to lowest):
+
+ARCHITECTURAL_LAWS.md
+
+Security Linter
+
+CI Pipeline
+
+Stage Plans
+
+ADRs
+
+SRS / BRD
+
+AI-generated code or documents
+
+10. FINAL STATEMENT
+
+If the system builds,
+the architecture is valid.
+
+If the build fails,
+the architecture is broken.
+
+There is no middle ground.
+
+END OF DOCUMENT

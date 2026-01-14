@@ -1,0 +1,731 @@
+🏗️ نظام "باسان" - نموذج C4 الكامل
+📊 تحليل الملفات
+الملف	الغرض	القدرة التجارية	الطبقة التقنية	مسؤوليات البيانات	التبعيات الخارجية
+مواصفات UI/UX	واجهات المستخدم	جميع القدرات	UI/Presentation	قراءة/عرض البيانات	لا
+User Stories	متطلبات المستخدمين	جميع القدرات	Domain/Business	تحليل الاحتياجات	لا
+الهيكل التقني	تصميم معماري	الهيكل التقني	Infrastructure	تصميم التدفقات	Shopify, Telegram, Redis, PostgreSQL
+تحديد الأقسام	الهيكل التنظيمي	إدارة الموظفين	Domain/Business	بيانات الأقسام	لا
+التفاعل بين الأقسام	التعاون الداخلي	إدارة المهام	Application	تنسيق البيانات	Message Queue
+متطلبات الأعمال	متطلبات الجودة	جميع القدرات	Business	متطلبات الأداء	لا
+خرائط سير العمل	تدفق العمليات	جميع القدرات	Application	تدفق البيانات	Webhooks, Message Queue
+مواصفات API	واجهات النظام	جميع القدرات	Infrastructure/Application	إدارة الـAPI	Telegram, Shopify
+🎯 النموذج البيئي للنظام (C4 - المستوى 1)
+السياق: نظام "باسان"
+text
+نظام SaaS لإدارة العمولات والموظفين للشركات العربية.
+يجمع بين إدارة الموارد البشرية، نظام العمولات الذكي،
+الأتمتة الذكية لسير العمل، والتكامل مع أدوات العمل اليومية.
+الممثلون الرئيسيون:
+مستخدمون بشريون:
+👑 صاحب الشركة - يرى الربحية والنمو، يحدد الميزانيات
+
+👔 المدير/مدير القسم - يدير الفريق، يراجع العمولات، يوزع المهام
+
+💼 الموظف بدوام كامل - يتتبع عمولاته، ينجز المهام
+
+🕐 موظف دوام جزئي - يتحكم في وقته، يقبل/يرفض المهام
+
+🚀 موظف بالعمولة فقط - يحصل على فرص، يبني سمعة
+
+🤝 مدير الموارد البشرية - يدير العقود، يتعامل مع النزاعات
+
+🤖 مدير النظام - يراقب الأداء، يحافظ على الاستقرار
+
+📊 المحلل - يحلل البيانات، يقدم توصيات
+
+أنظمة خارجية:
+🛒 Shopify Store - مصدر بيانات المبيعات عبر Webhooks
+
+📱 Telegram - قناة إشعارات فورية وأوامر سريعة
+
+💳 أنظمة الدفع (مستقبلي) - لدفع العمولات
+
+📧 بريد إلكتروني - للإشعارات غير العاجلة
+
+تدفقات البيانات:
+text
+┌─────────────────┐      Sales Data      ┌─────────────────┐
+│   Shopify Store │ ───(Webhook)──────▶ │   نظام باسان    │
+│   (متاجر)        │                    │                 │
+└─────────────────┘                    └─────────┬───────┘
+                                                 │
+                    Notifications/Commands       │
+┌─────────────────┐           │           ┌─────▼───────┐
+│    Telegram     │ ◀─────────┼────────── │             │
+│   (المستخدمون)   │                    │   Dashboard  │
+└─────────────────┘        HTTP API      │   (ويب/موبايل)│
+                              │           └─────────────┘
+                              │                  │
+                    Financial Reports    User Interactions
+                              │                  │
+                    ┌─────▼───────┐      ┌─────▼───────┐
+                    │   أنظمة     │      │  المستخدمون  │
+                    │   الدفع     │      │  (شركات)     │
+                    └─────────────┘      └─────────────┘
+حدود الثقة:
+text
+┌─────────────────────────────────────────────────┐
+│                 حدود الثقة 1                     │
+│        (بين نظام باسان والعالم الخارجي)           │
+├─────────────────────────────────────────────────┤
+│ • HMAC Verification for Shopify Webhooks        │
+│ • API Keys for External Integrations            │
+│ • TLS 1.3 for all external communications       │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│                 حدود الثقة 2                     │
+│          (بين المستأجرين/الشركات)                 │
+├─────────────────────────────────────────────────┤
+│ • Row-Level Security (RLS) in Database          │
+│ • Company ID in every API call                  │
+│ • No cross-company data leakage                 │
+└─────────────────────────────────────────────────┘
+📦 نموذج الحاويات (C4 - المستوى 2)
+الحاويات الرئيسية:
+1. 🌐 واجهة الويب والموبايل (Frontend Applications)
+text
+• المسؤولية: واجهة المستخدم للتفاعل مع النظام
+• التقنية: Next.js (ويب)، React Native (موبايل)
+• ملكية البيانات: لا تخزن بيانات، تعرض فقط
+• طريقة الاتصال: HTTPS → API Gateway
+• حدود الأمان: JWT Authentication، CORS محدود
+• المستخدمون: جميع الأدوار البشرية
+2. 🤖 بوت Telegram (Telegram Bot)
+text
+• المسؤولية: واجهة محادثة للموظفين
+• التقنية: Telegram Bot API، Node.js
+• ملكية البيانات: تخزين مؤقت لسياقات المحادثة
+• طريقة الاتصال: Telegram API ←→ Backend APIs
+• حدود الأمان: Token-based authentication
+• المستخدمون: الموظفون (للإشعارات والأوامر السريعة)
+3. 🚪 بوابة API (API Gateway)
+text
+• المسؤولية: نقطة الدخول الوحيدة لجميع الطلبات
+• التقنية: GraphQL + REST، Node.js
+• ملكية البيانات: لا تخزن بيانات
+• طريقة الاتصال: HTTPS ← Frontend/Bot/External
+• حدود الأمان:
+  - JWT Validation
+  - Rate Limiting
+  - Request Logging
+  - CORS Management
+• البيانات: جميع الطلبات تمر عبره
+4. 🧠 خدمة المصادقة والصلاحيات (Auth Service)
+text
+• المسؤولية: إدارة الهوية والصلاحيات
+• التقنية: Node.js + JWT + Redis
+• ملكية البيانات: بيانات المستخدمين، الجلسات، الصلاحيات
+• طريقة الاتصال: Sync HTTP ← API Gateway
+• حدود الأمان:
+  - Password Hashing (bcrypt)
+  - JWT Token Management
+  - Session Management
+  - Permission Validation
+• قاعدة البيانات: PostgreSQL (users, permissions)
+5. 🏢 خدمة الشركات والموظفين (Company & Employee Service)
+text
+• المسؤولية: إدارة بيانات الشركات والموظفين
+• التقنية: Node.js + TypeORM
+• ملكية البيانات: companies, employees, departments
+• طريقة الاتصال: Sync HTTP ← API Gateway، Async Events
+• حدود الأمان: Company Isolation Enforcement
+• قاعدة البيانات: PostgreSQL (الجدول الأساسي)
+6. 💰 محرك العمولات (Commission Engine)
+text
+• المسؤولية: حساب وإدارة العمولات
+• التقنية: Node.js + Rule Engine
+• ملكية البيانات: commissions, commission_rules, payments
+• طريقة الاتصال: Async Events ← Message Queue
+• حدود الأمان: 
+  - Financial Data Integrity
+  - Idempotency Enforcement
+  - Audit Trail
+• قاعدة البيانات: PostgreSQL (الجزء المالي)
+7. 📋 نظام المهام (Task Management System)
+text
+• المسؤولية: إنشاء وتوزيع ومتابعة المهام
+• التقنية: Node.js + Workflow Engine
+• ملكية البيانات: tasks, task_assignments
+• طريقة الاتصال: Sync HTTP ← API Gateway، Async Events
+• حدود الأمان: Task Assignment Validation
+• قاعدة البيانات: PostgreSQL
+8. 🔔 نظام الإشعارات (Notification System)
+text
+• المسؤولية: إرسال إشعارات عبر قنوات متعددة
+• التقنية: Node.js + Queue Workers
+• ملكية البيانات: notifications, user_preferences
+• طريقة الاتصال: Async Events ← Message Queue
+• حدود الأمان: Notification Channel Validation
+• التكاملات: Telegram API، Email SMTP
+9. 🔗 خدمة التكاملات (Integration Service)
+text
+• المسؤولية: إدارة التكاملات مع الأنظمة الخارجية
+• التقنية: Node.js + Webhook Handlers
+• ملكية البيانات: integrations, webhook_logs
+• طريقة الاتصال: Webhooks ← External Systems
+• حدود الأمان: 
+  - HMAC Verification (Shopify)
+  - API Key Management
+  - Rate Limit Enforcement
+• التكاملات: Shopify، Telegram، future payment systems
+10. 📊 خدمة التحليلات (Analytics Service)
+text
+• المسؤولية: تحليل البيانات وتوليد التقارير
+• التقنية: Node.js + Elasticsearch
+• ملكية البيانات: analytics_data, reports
+• طريقة الاتصال: Async Events ← Message Queue، Sync HTTP
+• حدود الأمان: Read-only for most users
+• قاعدة البيانات: Elasticsearch + PostgreSQL
+11. 📜 خدمة التدقيق (Audit Service)
+text
+• المسؤولية: تسجيل جميع التغييرات على البيانات الحساسة
+• التقنية: Node.js + Event Listeners
+• ملكية البيانات: audit_logs
+• طريقة الاتصال: Async Events ← Message Queue
+• حدود الأمان: Immutable Logs
+• قاعدة البيانات: PostgreSQL (مع Write-Once policy)
+12. 🗄️ قاعدة البيانات الرئيسية (Main Database)
+text
+• المسؤولية: تخزين البيانات العلائقية
+• التقنية: PostgreSQL 15+
+• ملكية البيانات: جميع البيانات المهيكلة
+• طريقة الاتصال: SQL ← جميع الخدمات
+• حدود الأمان:
+  - Row-Level Security (RLS)
+  - Encryption at Rest
+  - Backup & Recovery
+• المخطط: حسب وثائق قاعدة البيانات السابقة
+13. ⚡ ذاكرة التخزين المؤقت والطابور (Cache & Queue)
+text
+• المسؤولية: تخزين مؤقت وموازنة الأحمال
+• التقنية: Redis 7+
+• ملكية البيانات: الجلسات، الطابور، التخزين المؤقت
+• طريقة الاتصال: جميع الخدمات
+• حدود الأمان: Network Isolation، Authentication
+• الاستخدامات:
+  - Session Store
+  - Message Queue (Bull)
+  - Pub/Sub for Events
+  - Cache for frequent queries
+14. 📁 تخزين الملفات (File Storage)
+text
+• المسؤولية: تخزين الملفات المرفقة
+• التقنية: S3-Compatible Storage
+• ملكية البيانات: الملفات، الصور، المستندات
+• طريقة الاتصال: HTTPS ← الخدمات
+• حدود الأمان: 
+  - Signed URLs
+  - Access Control Lists
+  - Encryption
+• الاستخدامات: مرفقات المهام، مستندات العمولات، ملفات الموظفين
+تفاعلات الحاويات:
+text
+┌─────────────────┐     HTTPS     ┌─────────────────┐
+│    Frontend     │──────────────▶│  API Gateway    │
+│   (Web/Mobile)  │               │                 │
+└─────────────────┘               └────────┬────────┘
+                                           │
+                                           │ HTTP (JWT)
+                                    ┌──────▼──────┐
+                                    │ Auth Service│
+                                    │             │
+                                    └──────┬──────┘
+                                           │
+              ┌────────────────────────────┼────────────────────────────┐
+              │                            │                            │
+        ┌─────▼──────┐              ┌─────▼──────┐              ┌──────▼─────┐
+        │ Company &  │              │ Commission │              │ Task       │
+        │ Employee   │              │ Engine     │              │ Management │
+        │ Service    │              │            │              │            │
+        └─────┬──────┘              └─────┬──────┘              └──────┬─────┘
+              │                            │                            │
+              └─────────────┬──────────────┼─────────────────────┬──────┘
+                            │              │                     │
+                    ┌───────▼───────┐ ┌───▼─────┐         ┌─────▼──────┐
+                    │  PostgreSQL   │ │ Redis   │         │ Analytics  │
+                    │   Database    │ │ Cache/  │         │ Service    │
+                    │               │ │ Queue   │         │            │
+                    └───────────────┘ └─────────┘         └─────┬──────┘
+                                                                 │
+                                                                 │
+                    Events via Message Queue                     │
+                    ┌────────────────────────────────────────────┼────┐
+                    │                                            │    │
+            ┌───────▼──────┐                            ┌───────▼────▼────┐
+            │ Notification │                            │ Integration     │
+            │ Service      │                            │ Service         │
+            └───────┬──────┘                            └────────┬────────┘
+                    │                                            │
+                    │                                            │
+            ┌───────▼──────┐                            ┌───────▼────────┐
+            │ Telegram API │                            │ Shopify Webhook│
+            │ Email SMTP   │                            │ External APIs  │
+            └──────────────┘                            └────────────────┘
+🔧 نموذج المكونات (C4 - المستوى 3)
+المكونات داخل خدمة الشركات والموظفين:
+1. 🏢 مدير الشركات (Company Manager)
+text
+• المسؤولية: إدارة بيانات الشركات
+• المدخلات: Company CRUD Operations
+• المخرجات: Company Entities
+• التبعيات: PostgreSQL، Auth Service
+• قواعد العمل: 
+  - Company Creation Workflow
+  - Settings Management
+  - Subscription Management
+2. 👥 مدير الموظفين (Employee Manager)
+text
+• المسؤولية: إدارة بيانات الموظفين
+• المدخلات: Employee CRUD، Contract Updates
+• المخرجات: Employee Entities
+• التبعيات: PostgreSQL، Department Data
+• قواعد العمل:
+  - Employee Lifecycle Management
+  - Contract Validation
+  - Permission Assignment
+3. 🏗️ مدير الأقسام (Department Manager)
+text
+• المسؤولية: إدارة الهيكل التنظيمي
+• المدخلات: Department CRUD، Hierarchy Updates
+• المخرجات: Department Structure
+• التبعيات: PostgreSQL
+• قواعد العمل:
+  - Department Hierarchy Validation
+  - Manager Assignment
+  - Budget Allocation
+المكونات داخل محرك العمولات:
+4. 🧮 حاسبة العمولات (Commission Calculator)
+text
+• المسؤولية: حساب العمولات بناءً على القواعد
+• المدخلات: Sale Data، Employee Data، Rules
+• المخرجات: Calculated Commission
+• التبعيات: Rule Engine، Sale Service
+• قواعد العمل:
+  - Rule Application Logic
+  - Amount Calculation
+  - Currency Conversion
+5. ⚖️ محرك القواعد (Rule Engine)
+text
+• المسؤولية: تطبيق قواعد العمولات
+• المدخلات: Commission Rules، Context Data
+• المخرجات: Applied Rule Result
+• التبعيات: PostgreSQL (rules storage)
+• قواعد العمل:
+  - Rule Evaluation
+  - Conflict Resolution
+  - Version Management
+6. 💳 مدير المدفوعات (Payment Manager)
+text
+• المسؤولية: إدارة عملية الدفع
+• المدخلات: Approved Commissions
+• المخرجات: Payment Records
+• التبعيات: PostgreSQL، Audit Service
+• قواعد العمل:
+  - Payment Scheduling
+  - Status Tracking
+  - Reconciliation
+7. 🛡️ حارس عدم التكرار (Idempotency Guard)
+text
+• المسؤولية: منع العمليات المالية المكررة
+• المدخلات: Transaction Requests
+• المخرجات: Unique Transaction IDs
+• التبعيات: Redis (idempotency keys)
+• قواعد العمل:
+  - Idempotency Key Validation
+  - Duplicate Detection
+  - Cleanup of Old Keys
+المكونات داخل نظام المهام:
+8. 📋 منشئ المهام (Task Creator)
+text
+• المسؤولية: إنشاء مهام جديدة
+• المدخلات: Task Requirements، Assignees
+• المخرجات: Task Entities
+• التبعيات: PostgreSQL، Employee Service
+• قواعد العمل:
+  - Task Validation
+  - Auto-assignment Logic
+  - Priority Calculation
+9. 🔄 معالج سير العمل (Workflow Processor)
+text
+• المسؤولية: إدارة تدفق المهام
+• المدخلات: Task Updates، Status Changes
+• المخرجات: Workflow Events
+• التبعيات: Message Queue، Notification Service
+• قواعد العمل:
+  - State Transitions
+  - Deadline Management
+  - Dependency Resolution
+10. 👥 موزع المهام (Task Distributor)
+text
+• المسؤولية: توزيع المهام تلقائياً
+• المدخلات: Available Tasks، Employee Skills
+• المخرجات: Task Assignments
+• التبعيات: Employee Service， Analytics
+• قواعد العمل:
+  - Skill Matching
+  - Workload Balancing
+  - Fair Distribution
+المكونات داخل نظام الإشعارات:
+11. 📢 مرسل الإشعارات (Notification Dispatcher)
+text
+• المسؤولية: إرسال الإشعارات عبر القنوات
+• المدخلات: Notification Events
+• المخرجات: Sent Notifications
+• التتبعيات: Telegram API، Email Service، In-App
+• قواعد العمل:
+  - Channel Selection
+  - Retry Logic
+  - Delivery Tracking
+12. ⚙️ مدير التفضيلات (Preference Manager)
+text
+• المسؤولية: إدارة تفضيلات الإشعارات
+• المدخلات: User Preferences
+• المخرجات: Notification Rules
+• التبعيات: PostgreSQL
+• قواعد العمل:
+  - Preference Validation
+  - Channel Configuration
+  - Do-Not-Disturb Management
+المكونات داخل خدمة التكاملات:
+13. 🛒 معالج Shopify (Shopify Handler)
+text
+• المسؤولية: معالجة Webhooks من Shopify
+• المدخلات: Shopify Webhook Events
+• المخرجات: Internal Sale Events
+• التبعيات: HMAC Verification، Commission Engine
+• قواعد العمل:
+  - Webhook Validation
+  - Data Transformation
+  - Error Handling
+14. 🤖 معالج Telegram (Telegram Handler)
+text
+• المسؤولية: معالجة رسائل Telegram
+• المدخلات: Telegram Updates
+• المخرجات: Internal Commands/Responses
+• التبعيات: Telegram Bot API، Auth Service
+• قواعد العمل:
+  - Command Parsing
+  - User Authentication
+  - Response Generation
+المكونات داخل خدمة التحليلات:
+15. 📈 محلل الأداء (Performance Analyzer)
+text
+• المسؤولية: تحليل أداء الموظفين والأقسام
+• المدخلات: Commission Data، Task Data
+• المخرجات: Performance Metrics
+• التبعيات: PostgreSQL، Elasticsearch
+• قواعد العمل:
+  - KPI Calculation
+  - Trend Analysis
+  - Anomaly Detection
+16. 📄 مولد التقارير (Report Generator)
+text
+• المسؤولية: توليد التقارير المخصصة
+• المدخلات: Report Parameters، Time Range
+• المخرجات: Formatted Reports
+• التبعيات: Analytics Data، Template Engine
+• قواعد العمل:
+  - Data Aggregation
+  - Format Conversion (PDF/CSV)
+  - Scheduled Generation
+المكونات داخل خدمة التدقيق:
+17. 📝 مسجل التغييرات (Change Logger)
+text
+• المسؤولية: تسجيل جميع التغييرات على البيانات
+• المدخلات: Data Change Events
+• المخرجات: Audit Log Entries
+• التبعيات: PostgreSQL (audit table)
+• قواعد العمل:
+  - Change Detection
+  - Before/After Snapshots
+  - Immutable Logging
+18. 🔍 مفتش السجلات (Audit Inspector)
+text
+• المسؤولية: البحث والتحقيق في السجلات
+• المدخلات: Audit Query Parameters
+• المخرجات: Filtered Audit Logs
+• التبعيات: PostgreSQL
+• قواعد العمل:
+  - Access Control (who can see what)
+  - Search Optimization
+  - Export Capabilities
+🗃️ عرض البيانات والعزل متعدد المستأجرين
+إستراتيجية العزل:
+text
+1. كل جدول يحتوي company_id
+2. كل استعلام SQL يضيف WHERE company_id = ?
+3. Row-Level Security (RLS) في PostgreSQL
+4. API Gateway يضيف company_id من JWT
+5. لا JOINs بين شركات مختلفة
+تدفق البيانات المالية:
+text
+1. Shopify Webhook → Integration Service
+2. Integration Service → Message Queue (NEW_SALE event)
+3. Commission Engine (يستمع للحدث):
+   - يتحقق من company_id
+   - يحسب العمولة
+   - يسجل في PostgreSQL مع company_id
+   - ينشر COMMISSION_CREATED event
+4. Notification Service (يستمع للحدث):
+   - يرسل إشعار للموظف (فقط إذا كان في نفس الشركة)
+5. Audit Service (يستمع لكل الأحداث):
+   - يسجل التغيير مع company_id
+سلامة البيانات المالية:
+text
+1. الإثباتات غير القابلة للتغيير (Immutable Proofs)
+2. سلسلة كتل داخلية (Private Blockchain)
+3. توقيعات رقمية لكل عملية
+4. سجلات تدقيق شاملة
+5. نسخ احتياطية مشفرة
+موقع سجلات التدقيق:
+text
+• الخدمة: Audit Service
+• التخزين: PostgreSQL (audit_logs table)
+• الهيكل: 
+  - company_id (للعزل)
+  - user_id (من قام بالإجراء)
+  - entity_type (commission, employee, etc.)
+  - entity_id
+  - action (create, update, delete, approve)
+  - old_values / new_values (JSONB)
+  - timestamp
+• الاحتفاظ: 7 سنوات (للبيانات المالية)
+📐 مخططات C4 النصية
+المستوى 1: السياق (Context)
+text
+                   ┌─────────────────────┐
+                   │     نظام "باسان"    │
+                   │    (SaaS Platform)  │
+                   └──────────┬──────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌───────────────┐    ┌───────────────┐    ┌───────────────┐
+│   Shopify     │    │    Telegram   │    │   Dashboard   │
+│   Stores      │    │     Users     │    │   (Web/App)   │
+│               │    │               │    │               │
+│ • Sales Data  │    │ • Notifications│    │ • Company     │
+│ • Webhooks    │    │ • Commands    │    │   Management  │
+│               │    │               │    │ • Employee     │
+│               │    │               │    │   Tracking     │
+│               │    │               │    │ • Commission   │
+│               │    │               │    │   Review       │
+└───────┬───────┘    └───────┬───────┘    └───────┬───────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+                    ┌─────────▼─────────┐
+                    │   Payment Systems │
+                    │   (Future)        │
+                    │                   │
+                    │ • Bank Transfers  │
+                    │ • Wallet Payments │
+                    └───────────────────┘
+المستوى 2: الحاويات (Containers)
+text
+┌─────────────────────────────────────────────────────────────────────┐
+│                          نظام باسان                                 │
+├─────────────────┬─────────────────┬─────────────────┬───────────────┤
+│  Frontend Apps  │  Telegram Bot   │   API Gateway   │  Auth Service │
+│                 │                 │                 │               │
+│ • Web Dashboard │ • Chat Interface│ • Single Entry  │ • JWT         │
+│ • Mobile App    │ • Quick Commands│   Point         │ • RBAC        │
+│                 │                 │ • Rate Limiting │ • Sessions    │
+└─────────┬───────┴─────────┬───────┴─────────┬───────┴───────┬───────┘
+          │                 │                 │               │
+          └─────────────────┼─────────────────┘               │
+                            │                                 │
+        ┌───────────────────▼─────────────────────────────────▼──────┐
+        │                    Application Services                     │
+        ├─────────────┬─────────────┬─────────────┬──────────────────┤
+        │ Company &   │ Commission  │ Task        │ Notification     │
+        │ Employee    │ Engine      │ Management  │ System           │
+        │ Service     │             │             │                  │
+        │             │ • Calculate │ • Create    │ • Send Alerts    │
+        │ • Manage    │   Commissions│   Tasks     │ • Multi-channel │
+        │   Companies │ • Apply Rules│ • Assign    │ • Preferences   │
+        │ • Handle    │ • Process   │   Automatically│                  │
+        │   Employees │   Payments  │ • Track     │                  │
+        │ • Organize  │             │   Progress  │                  │
+        │   Departments│             │             │                  │
+        └──────┬──────┴──────┬──────┴──────┬──────┴──────────────────┘
+               │             │             │
+        ┌──────▼──────┐      │      ┌──────▼──────┐      ┌─────────────┐
+        │ Integration │      │      │ Analytics   │      │ Audit       │
+        │ Service     │      │      │ Service     │      │ Service     │
+        │             │      │      │             │      │             │
+        │ • Shopify   │      │      │ • Analyze   │      │ • Log       │
+        │   Webhooks  │      │      │   Data      │      │   Changes   │
+        │ • External  │      │      │ • Generate  │      │ • Track     │
+        │   APIs      │      │      │   Reports   │      │   Activity  │
+        │ • Webhook   │      │      │ • Predict   │      │ • Immutable │
+        │   Handling  │      │      │   Trends    │      │   Records   │
+        └──────┬──────┘      │      └──────┬──────┘      └──────┬──────┘
+               │             │             │                   │
+               └─────────────┼─────────────┼───────────────────┘
+                             │             │
+                    ┌────────▼─────────────▼───────────────────┐
+                    │          Data Storage & Queues           │
+                    ├─────────────────┬─────────────────┬─────┤
+                    │   PostgreSQL    │     Redis       │ S3  │
+                    │   (Main DB)     │  (Cache/Queue)  │(File│
+                    │                 │                 │Store)│
+                    │ • Companies     │ • Sessions      │ •   │
+                    │ • Employees     │ • Message Queue │   Attachments│
+                    │ • Commissions   │ • Pub/Sub       │ •   │
+                    │ • Tasks         │ • Cache         │   Documents│
+                    │ • Audit Logs    │                 │     │
+                    └─────────────────┴─────────────────┴─────┘
+المستوى 3: المكونات (Components) - مثال لـ Commission Engine
+text
+              ┌─────────────────────────────────────┐
+              │       Commission Engine Container    │
+              ├─────────────────────────────────────┤
+              │                                     │
+              │  ┌───────────────────────────────┐  │
+              │  │   Commission Calculator       │  │
+              │  │                               │  │
+              │  │ • Input: Sale Data           │  │
+              │  │ • Process: Apply Rules       │  │
+              │  │ • Output: Commission Amount  │  │
+              │  └───────────────┬───────────────┘  │
+              │                  │                   │
+              │  ┌───────────────▼───────────────┐  │
+              │  │      Rule Engine              │  │
+              │  │                               │  │
+              │  │ • Load Rules from DB         │  │
+              │  │ • Evaluate Conditions        │  │
+              │  │ • Resolve Conflicts          │  │
+              │  │ • Return Applicable Rule     │  │
+              │  └───────────────┬───────────────┘  │
+              │                  │                   │
+              │  ┌───────────────▼───────────────┐  │
+              │  │   Payment Manager             │  │
+              │  │                               │  │
+              │  │ • Schedule Payments          │  │
+              │  │ • Track Payment Status       │  │
+              │  │ • Handle Reconciliation      │  │
+              │  └───────────────┬───────────────┘  │
+              │                  │                   │
+              │  ┌───────────────▼───────────────┐  │
+              │  │   Idempotency Guard           │  │
+              │  │                               │  │
+              │  │ • Generate Unique Keys       │  │
+              │  │ • Check for Duplicates       │  │
+              │  │ • Prevent Re-processing      │  │
+              │  └───────────────────────────────┘  │
+              │                                     │
+              │  External Dependencies:             │
+              │  • PostgreSQL (Rules, Commissions) │
+              │  • Redis (Idempotency Keys)        │
+              │  • Message Queue (Events)          │
+              └─────────────────────────────────────┘
+⚠️ مخاطر وفجوات معمارية
+الفجوات الحرجة:
+1. غياب نظام المصادقة المالية المركزية
+text
+المشكلة: لا يوجد نظام توقيع رقمي للعمليات المالية
+المخاطر: يمكن تزوير العمولات والمدفوعات
+الحل: Financial Signing Service مع Private Key لكل شركة
+2. غياب نظام البلوكشين الداخلي
+text
+المشكلة: لا يوجد سجل غير قابل للتغيير للمعاملات المالية
+المخاطر: يمكن تعديل السجلات المالية
+الحل: Internal Blockchain للعمليات المالية الحساسة
+3. نظام الموافقات المتدرجة غير مكتمل
+text
+المشكلة: الموافقات بسيطة (موافق/غير موافق)
+المخاطر: يمكن للمدير الموافقة على أي مبلغ
+الحل: Approval Workflow Engine مع حدود مالية
+4. غياب نظام كشف الاحتيال
+text
+المشكلة: لا يوجد تحليل تلقائي للشذوذ
+المخاطر: الاحتيال الداخلي قد لا يكتشف
+الحل: Fraud Detection System مع Machine Learning
+مخاطر الأداء:
+1. قاعدة بيانات مركزية واحدة
+text
+المشكلة: جميع البيانات في PostgreSQL واحدة
+المخاطر: نقطة فشل واحدة، صعوبة التوسع
+الحل: Database Sharding حسب company_id
+2. غياب Read Replicas
+text
+المشكلة: جميع القراءات على قاعدة البيانات الرئيسية
+المخاطر: استعلامات التقارير تبطئ النظام
+الحل: Read Replicas للاستعلامات الثقيلة
+3. Message Queue كنقطة فشل
+text
+المشكلة: Redis وحيد للطابور
+المخاطر: إذا تعطل Redis، يتوقف النظام
+الحل: Redis Cluster مع Replication
+مخاطر الأمان:
+1. غياب التشفير في Rest
+text
+المشكلة: البيانات الحساسة مخزنة كنص واضح
+المخاطر: إذا اخترقت قاعدة البيانات، تتعرض جميع البيانات
+الحل: Column-Level Encryption للبيانات الحساسة
+2. غياب Web Application Firewall
+text
+المشكلة: لا حماية ضد هجمات الويب الشائعة
+المخاطر: هجمات SQL Injection، XSS
+الحل: WAF أمام API Gateway
+3. غياب نظام مراقبة الأمان
+text
+المشكلة: لا مراقبة للأنشطة المشبوهة
+المخاطر: الهجمات قد لا تكتشف
+الحل: Security Information and Event Management (SIEM)
+مخاطر التوسع:
+1. تصميم متعدد المستأجرين بسيط
+text
+المشكلة: جميع الشركات في نفس قاعدة البيانات
+المخاطر: شركة واحدة قد تؤثر على أداء الآخرين
+الحل: Database per Tenant للشركات الكبيرة
+2. غياب Rate Limiting حسب الخطة
+text
+المشكلة: نفس Rate Limiting للجميع
+المخاطر: الشركات الكبيرة قد تواجه قيوداً
+الحل: Tiered Rate Limiting حسب خطة الاشتراك
+3. غياب Disaster Recovery Plan واضح
+text
+المشكلة: لا توجد وثائق لخطة الاستعادة
+المخاطر: في حالة كارثة، قد يضيع النظام
+الحل: Documented DR Plan مع Recovery Time Objectives
+التوصيات الفورية:
+P0 (قبل الإطلاق):
+إضافة نظام التوقيع الرقمي المالي
+
+تطبيق Column-Level Encryption
+
+إنشاء Read Replicas للتقارير
+
+تطوير نظام الموافقات المتدرجة
+
+P1 (بعد 3 أشهر):
+تنفيذ Internal Blockchain
+
+إضافة Fraud Detection System
+
+تطبيق Database Sharding
+
+تنفيذ WAF
+
+P2 (بعد 6 أشهر):
+Database per Tenant للشركات الكبيرة
+
+نظام SIEM متكامل
+
+Disaster Recovery Automation
+
+Multi-region Deployment
+
+✅ الملخص النهائي
+هيكل النظام الحالي:
+text
+• 14 حاوية رئيسية
+• 18+ مكون أساسي
+• 3 طبقات أمان رئيسية
+• نظام متعدد المستأجرين معزول
+• بنية Event-Driven مع Message Queue
+نقاط القوة:

@@ -1,0 +1,622 @@
+🗺️ خريطة التنفيذ الكاملة لنظام "باسان"
+📁 هيكل الملفات والمشروع
+text
+bassan-system/
+├── 📁 backend/
+│   ├── 📁 src/
+│   │   ├── 📁 modules/
+│   │   │   ├── 📁 company/
+│   │   │   │   ├── company.controller.ts
+│   │   │   │   ├── company.service.ts
+│   │   │   │   ├── company.repository.ts
+│   │   │   │   └── company.validations.ts
+│   │   │   ├── 📁 employee/
+│   │   │   │   ├── employee.controller.ts
+│   │   │   │   ├── employee.service.ts
+│   │   │   │   └── employee.repository.ts
+│   │   │   ├── 📁 commission/
+│   │   │   │   ├── commission.controller.ts
+│   │   │   │   ├── commission.service.ts
+│   │   │   │   ├── commission.calculator.ts
+│   │   │   │   └── commission.rules-engine.ts
+│   │   │   ├── 📁 task/
+│   │   │   │   └── ... [باقي الوحدات]
+│   │   │   ├── 📁 notification/
+│   │   │   ├── 📁 integration/
+│   │   │   ├── 📁 analytics/
+│   │   │   └── 📁 audit/
+│   │   ├── 📁 core/
+│   │   │   ├── database/
+│   │   │   │   ├── database.config.ts
+│   │   │   │   ├── migrations/
+│   │   │   │   └── seeders/
+│   │   │   ├── auth/
+│   │   │   ├── middleware/
+│   │   │   └── utils/
+│   │   ├── 📁 shared/
+│   │   │   ├── dto/
+│   │   │   ├── interfaces/
+│   │   │   └── enums/
+│   │   └── main.ts
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── Dockerfile
+│   └── docker-compose.yml
+│
+├── 📁 frontend/
+│   ├── 📁 src/
+│   │   ├── 📁 modules/
+│   │   │   ├── 📁 auth/
+│   │   │   ├── 📁 dashboard/
+│   │   │   ├── 📁 employees/
+│   │   │   ├── 📁 commissions/
+│   │   │   ├── 📁 tasks/
+│   │   │   └── 📁 reports/
+│   │   ├── 📁 shared/
+│   │   │   ├── components/
+│   │   │   ├── utils/
+│   │   │   └── services/
+│   │   └── App.tsx
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── 📁 mobile/
+│   ├── src/
+│   └── package.json
+│
+├── 📁 infrastructure/
+│   ├── 📁 docker/
+│   │   ├── postgres/
+│   │   ├── redis/
+│   │   └── nginx/
+│   ├── 📁 kubernetes/
+│   │   ├── deployments/
+│   │   └── services/
+│   ├── 📁 terraform/
+│   │   └── main.tf
+│   └── 📁 scripts/
+│       └── deploy.sh
+│
+├── 📁 telegram-bot/
+│   └── src/
+│
+├── 📁 docs/
+│   ├── api/
+│   ├── architecture/
+│   └── deployment/
+│
+└── 📄 README.md
+🔄 خريطة سير التنفيذ (ترتيب الأولويات)
+المرحلة 1: البنية التحتية الأساسية (أسبوع 1-2)
+bash
+# 1. إنشاء المشروع الأساسي
+mkdir bassan-system
+cd bassan-system
+
+# 2. تهيئة Backend (NestJS)
+npx nest new backend
+cd backend
+
+# 3. تثبيت الاعتماديات الأساسية
+npm install @nestjs/typeorm typeorm pg
+npm install @nestjs/jwt bcrypt class-validator class-transformer
+npm install @nestjs/config @nestjs/throttler helmet cors
+npm install bull @nestjs/bull redis
+npm install axios
+npm install joi
+
+# 4. إنشاء هيكل المجلدات الأساسي
+mkdir -p src/modules/{company,employee,commission,task,notification,integration,analytics,audit}
+mkdir -p src/core/{database,auth,middleware,utils}
+mkdir -p src/shared/{dto,interfaces,enums}
+المرحلة 2: قاعدة البيانات والمخطط (أسبوع 2-3)
+sql
+-- 1. إنشاء ملف SQL الأساسي
+-- bassan-system/backend/src/core/database/migrations/001-initial-schema.sql
+-- [هذا الملف يحتوي على كود SQL السابق الذي كتبته]
+
+-- 2. إنشاء TypeORM entities لكل جدول
+-- backend/src/modules/company/entities/company.entity.ts
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+@Entity('companies')
+export class Company {
+  @PrimaryColumn('varchar', { length: 50 })
+  id: string;
+
+  @Column('varchar', { length: 255 })
+  name: string;
+
+  @Column('char', { length: 2 })
+  countryCode: string;
+
+  @Column('char', { length: 3 })
+  currency: string;
+
+  @Column('jsonb')
+  settings: Record<string, any>;
+
+  @Column('varchar', { length: 20 })
+  status: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
+المرحلة 3: الوحدات الأساسية (أسبوع 3-6)
+1. وحدة الشركات (Company Module)
+typescript
+// backend/src/modules/company/company.module.ts
+@Module({
+  imports: [TypeOrmModule.forFeature([Company]), JwtModule],
+  controllers: [CompanyController],
+  providers: [CompanyService, CompanyRepository],
+  exports: [CompanyService]
+})
+export class CompanyModule {}
+
+// backend/src/modules/company/company.service.ts
+@Injectable()
+export class CompanyService {
+  async createCompany(data: CreateCompanyDto): Promise<Company> {
+    const company = this.companyRepository.create({
+      id: `COMP_${uuidv4().replace(/-/g, '_')}`,
+      ...data
+    });
+    return this.companyRepository.save(company);
+  }
+}
+2. وحدة الموظفين (Employee Module)
+typescript
+// backend/src/modules/employee/employee.module.ts
+@Module({
+  imports: [TypeOrmModule.forFeature([Employee]), CompanyModule],
+  controllers: [EmployeeController],
+  providers: [EmployeeService, EmployeeRepository],
+  exports: [EmployeeService]
+})
+export class EmployeeModule {}
+3. محرك العمولات (Commission Engine)
+typescript
+// backend/src/modules/commission/commission.calculator.ts
+export class CommissionCalculator {
+  async calculateCommission(sale: Sale, employee: Employee): Promise<Commission> {
+    // 1. احصل على القواعد المناسبة
+    const rules = await this.getApplicableRules(employee, sale);
+    
+    // 2. طبّق القواعد
+    const amount = this.applyRules(rules, sale.amount);
+    
+    // 3. تحقق من الميزانيات
+    await this.checkBudgets(employee, amount);
+    
+    // 4. أنشئ سجل العمولة
+    return this.createCommissionRecord(sale, employee, amount, rules);
+  }
+}
+المرحلة 4: نظام الأحداث والطابور (أسبوع 6-8)
+typescript
+// backend/src/core/events/event-emitter.service.ts
+@Injectable()
+export class EventEmitterService {
+  private readonly bullQueues = {
+    commissions: 'commissions-queue',
+    notifications: 'notifications-queue',
+    tasks: 'tasks-queue'
+  };
+
+  async emitEvent(eventType: string, data: any): Promise<void> {
+    // إرسال إلى Redis Queue
+    await this.queueService.add(eventType, data);
+    
+    // إرسال Webhooks للمشتركين
+    await this.sendWebhooks(eventType, data);
+  }
+}
+المرحلة 5: تكاملات خارجية (أسبوع 8-10)
+1. تكامل Shopify
+typescript
+// backend/src/modules/integration/shopify/shopify.service.ts
+@Injectable()
+export class ShopifyService {
+  async handleWebhook(event: string, data: any): Promise<void> {
+    // 1. تحقق من التوقيع
+    this.verifySignature(event, data);
+    
+    // 2. حوّل البيانات إلى نموذج Sale
+    const sale = this.transformToSale(data);
+    
+    // 3. أطلق حدث NEW_SALE
+    await this.eventEmitter.emit('SALE_CREATED', {
+      sale,
+      source: 'shopify'
+    });
+  }
+}
+2. تكامل Telegram
+typescript
+// telegram-bot/src/bot.service.ts
+export class TelegramBotService {
+  @Command('start')
+  async startCommand(ctx: Context): Promise<void> {
+    const user = await this.authService.authenticateTelegramUser(ctx.from);
+    await ctx.reply(`مرحباً ${user.fullName}!`, {
+      reply_markup: this.getMainMenuKeyboard()
+    });
+  }
+
+  @Command('commissions')
+  async commissionsCommand(ctx: Context): Promise<void> {
+    const commissions = await this.commissionService.getEmployeeCommissions(
+      ctx.from.id
+    );
+    
+    const message = this.formatCommissionsMessage(commissions);
+    await ctx.reply(message, { parse_mode: 'HTML' });
+  }
+}
+🚀 سكربتات التنفيذ السريع
+سكربت 1: إعداد البيئة المحلية
+bash
+#!/bin/bash
+# setup-dev.sh
+
+echo "🚀 بدء إعداد بيئة تطوير نظام باسان..."
+
+# 1. Clone المشروع
+git clone https://github.com/your-org/bassan-system.git
+cd bassan-system
+
+# 2. تشغيل Docker Compose للبنية التحتية
+docker-compose -f infrastructure/docker/docker-compose.dev.yml up -d
+
+# 3. تثبيت Backend
+cd backend
+npm install
+cp .env.example .env
+
+# 4. تشغيل migrations
+npm run migration:run
+
+# 5. تثبيت Frontend
+cd ../frontend
+npm install
+
+echo "✅ تم إعداد البيئة بنجاح!"
+echo "📦 Backend: http://localhost:3000"
+echo "🌐 Frontend: http://localhost:5173"
+echo "🗄️ Database: http://localhost:8080 (Adminer)"
+سكربت 2: إنشاء قاعدة البيانات والمستخدمين
+sql
+-- create-database.sql
+-- تشغيل في PostgreSQL
+
+-- 1. إنشاء قاعدة البيانات
+CREATE DATABASE bassan_prod;
+CREATE DATABASE bassan_test;
+
+-- 2. إنشاء المستخدمين
+CREATE USER bassan_app WITH PASSWORD 'SecurePass123!';
+CREATE USER bassan_migrator WITH PASSWORD 'MigratorPass456!';
+
+-- 3. منح الصلاحيات
+GRANT CONNECT ON DATABASE bassan_prod TO bassan_app;
+GRANT ALL PRIVILEGES ON DATABASE bassan_prod TO bassan_migrator;
+
+-- 4. إنشاء Schema
+\c bassan_prod
+CREATE SCHEMA IF NOT EXISTS bassan;
+GRANT USAGE ON SCHEMA bassan TO bassan_app;
+GRANT CREATE ON SCHEMA bassan TO bassan_migrator;
+سكربت 3: تشغيل المهام المجدولة
+bash
+#!/bin/bash
+# start-workers.sh
+
+echo "👷 بدء تشغيل العمال (Workers)..."
+
+# 1. تشغيل Commission Worker
+pm2 start npm --name "commission-worker" -- run start:worker:commissions
+
+# 2. تشغيل Notification Worker
+pm2 start npm --name "notification-worker" -- run start:worker:notifications
+
+# 3. تشغيل Task Worker
+pm2 start npm --name "task-worker" -- run start:worker:tasks
+
+# 4. تشغيل Sync Worker للتكاملات
+pm2 start npm --name "sync-worker" -- run start:worker:sync
+
+# 5. حفظ الإعدادات
+pm2 save
+
+echo "✅ تم تشغيل جميع العمال!"
+pm2 status
+📦 Docker Compose للإنتاج
+yaml
+# infrastructure/docker/docker-compose.prod.yml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: bassan_prod
+      POSTGRES_USER: bassan_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bassan_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.prod
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://bassan_app:${DB_PASSWORD}@postgres:5432/bassan_prod
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+🔐 ملف البيئة (.env)
+env
+# ========================
+# قاعدة البيانات
+# ========================
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=bassan_prod
+DB_USERNAME=bassan_app
+DB_PASSWORD=SecurePass123!
+
+# ========================
+# Redis
+# ========================
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=RedisPass456!
+
+# ========================
+# JWT Authentication
+# ========================
+JWT_SECRET=YourSuperSecretJWTKeyForBassanSystem2024!
+JWT_EXPIRES_IN=1h
+REFRESH_TOKEN_SECRET=YourRefreshTokenSecretKey2024!
+REFRESH_TOKEN_EXPIRES_IN=30d
+
+# ========================
+# التكاملات الخارجية
+# ========================
+SHOPIFY_API_KEY=your_shopify_api_key
+SHOPIFY_API_SECRET=your_shopify_api_secret
+SHOPIFY_WEBHOOK_SECRET=your_shopify_webhook_secret
+
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+TELEGRAM_WEBHOOK_SECRET=your_telegram_webhook_secret
+
+# ========================
+# التخزين
+# ========================
+AWS_ACCESS_KEY_ID=your_aws_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret
+AWS_S3_BUCKET=bassan-uploads
+AWS_REGION=me-south-1
+
+# ========================
+# إعدادات النظام
+# ========================
+NODE_ENV=production
+PORT=3000
+FRONTEND_URL=https://app.bassan.com
+API_RATE_LIMIT=100
+CORS_ORIGIN=https://app.bassan.com
+
+# ========================
+# المراسلة
+# ========================
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+📋 قائمة المهام (Checklist) قبل الإطلاق
+قبل الإطلاق بـ 30 يومًا
+اكتمال جميع الجداول في قاعدة البيانات
+
+إنشاء TypeORM Entities لجميع الجداول
+
+إنشاء CRUD كامل للـ Companies و Employees
+
+نظام المصادقة والصلاحيات
+
+محرك العمولات الأساسي
+
+قبل الإطلاق بـ 15 يومًا
+تكامل Shopify استقبال Webhooks
+
+نظام الإشعارات عبر Telegram
+
+لوحة التحكم الأساسية (Dashboard)
+
+نظام إدارة المهام
+
+تقارير الأداء الأساسية
+
+قبل الإطلاق بـ 7 أيام
+اختبارات End-to-End
+
+اختبار الحمل والضغط
+
+تأمين البيانات والتشفير
+
+نسخ احتياطي تلقائي
+
+مراقبة و Logging
+
+قبل الإطلاق بـ 24 ساعة
+النسخة النهائية من قاعدة البيانات
+
+تهيئة SSL Certificates
+
+إعداد CDN
+
+خطة Rollback
+
+فريق الدعم الفني جاهز
+
+🛠️ أدوات يجب تثبيتها
+للتنمية (Development)
+bash
+# 1. أدوات النظام
+brew install node@18       # أو nvm install 18
+brew install postgresql
+brew install redis
+brew install docker
+
+# 2. أدوات المساعدة
+npm install -g typescript
+npm install -g @nestjs/cli
+npm install -g prisma
+npm install -g pm2
+
+# 3. أدوات قاعدة البيانات
+brew install pgadmin4      # أو DBeaver
+brew install redis-commander
+للإنتاج (Production)
+bash
+# 1. إعداد الخادم
+sudo apt update
+sudo apt install -y nginx postgresql redis-server
+sudo apt install -y nodejs npm
+
+# 2. إعداد Nginx
+sudo nano /etc/nginx/sites-available/bassan
+
+# 3. إعداد SSL (Let's Encrypt)
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d app.bassan.com
+
+# 4. إعداد PM2 للعملية الدائمة
+pm2 startup
+pm2 save
+📊 خطة النشر التدريجي
+المرحلة 0: النسخة التجريبية (Beta)
+bash
+# نشر على beta.bassan.com
+git checkout develop
+npm run build:beta
+pm2 start ecosystem.beta.config.js
+المرحلة 1: الإطلاق المحدود (Soft Launch)
+10 شركات تجريبية
+
+مراقبة الأداء 24/7
+
+جمع الملاحظات
+
+المرحلة 2: الإطلاق العام (Full Launch)
+bash
+# نشر على app.bassan.com
+git checkout main
+git pull origin main
+npm run build:prod
+pm2 restart ecosystem.prod.config.js
+🆘 خطة الطوارئ والتراجع (Rollback)
+إذا فشل الإطلاق:
+bash
+# 1. العودة للنسخة السابقة
+git revert HEAD --no-edit
+git push origin main
+
+# 2. إعادة تشغيل النسخة القديمة
+pm2 restart ecosystem.previous.config.js
+
+# 3. استعادة قاعدة البيانات
+pg_restore -U postgres -d bassan_prod /backups/bassan_backup.dump
+
+# 4. إرسال إشعار للفريق
+curl -X POST https://hooks.slack.com/services/... \
+  -d '{"text": "🚨 تم التراجع عن الإطلاق! تحقق من المشاكل."}'
+📞 قنوات الدعم والاتصال
+قنوات التواصل للفريق:
+Slack: #bassan-dev, #bassan-alerts
+
+Discord: قناة الدعم الفني
+
+Email: devops@bassan.com
+
+مراقبة النظام:
+New Relic أو DataDog للأداء
+
+Sentry للأخطاء
+
+Loggly أو Papertrail للـ Logs
+
+🎯 نصائح التنفيذ النهائية
+ابدأ بـ MVP: أنشئ الأساس أولاً ثم أضف الميزات
+
+اختر كل خطوة: لا تنتقل لخطوة جديدة إلا بعد اكتمال السابقة
+
+استخدم Git Flow: feature/ ← develop ← main
+
+اكتب التوثيق: كل ميزة تحتاج توثيقها
+
+اختبر مبكراً: اختبارات وحدة + تكامل + E2E
+
+راقب الأداء: استخدم APM tools من البداية
+
+خطط للقياس: التصميم يجب أن يكون Scalable من اليوم الأول
+
+النسخ الاحتياطي: تلقائي واختبار الاستعادة دورياً
+
+✅ التحقق النهائي قبل الضغط على زر الإطلاق
+bash
+# سكربت التحقق النهائي
+./scripts/pre-launch-checklist.sh
+
+# سيسألك الأسئلة:
+# 1. هل جميع الاختبارات نجحت؟ ✅
+# 2. هل النسخ الاحتياطي يعمل؟ ✅  
+# 3. هل نظام المراقبة جاهز؟ ✅
+# 4. هل فريق الدعم جاهز؟ ✅
+# 5. هل خطة التراجع جاهزة؟ ✅
+
+echo "🚀 النظام جاهز للإطلاق!"

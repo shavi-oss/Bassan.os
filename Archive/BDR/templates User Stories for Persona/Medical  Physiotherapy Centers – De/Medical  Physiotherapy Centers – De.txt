@@ -1,0 +1,338 @@
+Medical / Physiotherapy Centers – Detailed Personas & User Stories
+Personas / User Roles – تفصيل كامل
+Medical / Physiotherapy Center – Ultra-Detailed Personas & User Stories
+Personas / User Roles – تفصيل كامل جدًا
+1️⃣ CEO / Owner – Ahmed El-Sayed
+
+Age: 45
+
+Background: مالك المركز الطبي، خبرة 15 سنة في إدارة المراكز الصحية والعلاج الطبيعي
+
+Goals / Objectives:
+
+الرؤية الشاملة لكل أقسام المركز (الموظفين، المرضى، المعدات، المبيعات، العمليات)
+
+القدرة على اتخاذ قرارات استراتيجية قائمة على بيانات دقيقة
+
+زيادة معدل رضا المرضى وإعادة زيارتهم
+
+مراقبة الأداء المالي والعمليات التشغيلية
+
+Pain Points / Challenges:
+
+صعوبة معرفة أداء الأقسام بشكل لحظي
+
+تأخر تحديث التقارير المالية اليومية
+
+ضعف التكامل بين الأقسام يؤدي إلى تأخيرات وجدولة خاطئة للمرضى
+
+Tools / Modules Used:
+
+Dashboard & Analytics Module: KPIs للمرضى، الجلسات، الإيرادات
+
+Operations Module: لمتابعة سير العمل
+
+Finance Module: لمتابعة الإيرادات، المدفوعات، الفواتير
+
+Notifications Module: استلام تنبيهات عند أي خلل أو تأخير
+
+Inputs / Outputs:
+
+Inputs: بيانات الجلسات، حضور المرضى، المدفوعات، تقارير الموظفين
+
+Outputs: KPIs، تقارير مالية، تحذيرات التنبيهات
+
+Interactions / Integrations:
+
+يتفاعل مع Operations Manager للحصول على تحديثات الجداول
+
+يتلقى إشعارات من CRM و Finance Module
+
+يمكن التكامل مع WhatsApp / Email / Telegram لإشعارات الإدارة
+
+Success Criteria:
+
+مؤشرات الأداء محدثة لحظيًا
+
+تقارير مالية دقيقة يوميًا وأسبوعيًا
+
+معدل رضا المرضى ≥ 90%
+
+2️⃣ Operations Manager – Nour El-Din
+
+Age: 35
+
+Background: مدير العمليات، خبرة 10 سنوات في إدارة الموارد البشرية والمراكز الطبية
+
+Goals / Objectives:
+
+تنظيم الجداول اليومية للمرضى والموظفين
+
+مراقبة استخدام المعدات الطبية
+
+إدارة الموارد البشرية والجدولة بفعالية
+
+تقليل التأخيرات والأخطاء التشغيلية
+
+Pain Points / Challenges:
+
+صعوبة مطابقة مواعيد المرضى مع الموظفين
+
+نقص المعدات يؤدي لتأجيل الجلسات
+
+غياب إشعارات فورية عن المشاكل أو التأخيرات
+
+Tools / Modules Used:
+
+Operations Module: لإنشاء ومتابعة الجداول
+
+CRM Module: لمتابعة بيانات المرضى
+
+Notifications Module: لإشعارات التأخيرات
+
+Analytics Module: لمتابعة الأداء اليومي والأسبوعي
+
+Inputs / Outputs:
+
+Inputs: بيانات المرضى، الموظفين، المعدات، الحضور
+
+Outputs: جدول الجلسات اليومي، تنبيهات تأخيرات، تقارير استخدام المعدات
+
+Interactions / Integrations:
+
+مع Therapists لتأكيد توافرهم
+
+مع Receptionist لتحديث الحجز التلقائي
+
+مع Finance Module لمعرفة جلسات الدفع المعلقة
+
+Success Criteria:
+
+الجداول تلقائية مع إشعارات فورية
+
+تقارير دقيقة لاستخدام الموظفين والمعدات
+
+تقليل تأخيرات الجلسات بنسبة ≥ 95%
+
+3️⃣ Customer Support – Rania Adel
+
+Age: 30
+
+Background: دعم العملاء، خبرة 5 سنوات
+
+Goals / Objectives:
+
+الرد السريع على استفسارات المرضى وشكاواهم
+
+رفع مستوى رضا المرضى
+
+تقديم دعم شخصي لكل مريض باستخدام التاريخ الطبي الكامل
+
+Pain Points / Challenges:
+
+صعوبة الوصول لتاريخ كل مريض بسرعة
+
+فقدان التذاكر أو عدم متابعة الاستفسارات يؤدي لتأخر الاستجابة
+
+Tools / Modules Used:
+
+CRM Module: للوصول لتاريخ المريض
+
+Customer Support / Ticketing Module: لتسجيل الاستفسارات والشكاوى
+
+Notifications Module: للتنبيهات الفورية عند وصول تذاكر جديدة
+
+Inputs / Outputs:
+
+Inputs: استفسارات المرضى، تاريخ الجلسات، نتائج العلاج
+
+Outputs: تذاكر معالجة، إشعارات لحل المشكلات
+
+Interactions / Integrations:
+
+مع Operations لمعالجة المشاكل التشغيلية
+
+مع Therapists لمعرفة تقدم العلاج
+
+مع CEO لإبلاغه عن شكاوى مهمة
+
+Success Criteria:
+
+استجابة فورية لكل استفسار (< 2 ساعات)
+
+تتبع كل الشكاوى حتى الإغلاق
+
+رضا العملاء ≥ 95%
+
+4️⃣ Therapist / Physiotherapist – Dr. Mona Khaled
+
+Age: 32
+
+Background: معالجة علاج طبيعي، خبرة 7 سنوات
+
+Goals / Objectives:
+
+متابعة خطة العلاج لكل مريض بدقة
+
+تسجيل ملاحظات الجلسة لكل مريض
+
+معرفة تاريخ الجلسات والتقدم في العلاج
+
+Pain Points / Challenges:
+
+صعوبة متابعة كل مريض يدويًا
+
+الجداول غير متزامنة مع حضور المرضى
+
+Tools / Modules Used:
+
+Operations Module: لمتابعة الجلسات
+
+CRM Module: للوصول لتاريخ المرضى
+
+Notifications Module: لتذكير الجلسات
+
+Inputs / Outputs:
+
+Inputs: ملفات المرضى، خطط العلاج، الجلسات
+
+Outputs: ملاحظات الجلسة، تحديثات تقدم المريض
+
+Interactions / Integrations:
+
+مع Receptionist لمزامنة المواعيد
+
+مع Customer Support لمعالجة استفسارات المرضى
+
+مع CEO و Operations Manager لتقارير الأداء
+
+Success Criteria:
+
+كل جلسة موثقة إلكترونيًا
+
+القدرة على تحليل التقدم لكل مريض
+
+إشعارات دقيقة لتجنب التأخير
+
+5️⃣ Receptionist / Front Desk – Sara Tamer
+
+Age: 28
+
+Background: استقبال وحجز المواعيد، خبرة 3 سنوات
+
+Goals / Objectives:
+
+تسجيل المرضى الجدد وربطهم بالنظام
+
+جدولة الجلسات وربطها بالموظفين المتاحين
+
+إرسال إشعارات وتذكيرات للمرضى
+
+Pain Points / Challenges:
+
+أخطاء الحجز اليدوي
+
+صعوبة متابعة الدفع أو الحجز السابق
+
+Tools / Modules Used:
+
+CRM Module: لتسجيل المرضى
+
+Operations Module: لإدارة الجلسات
+
+Notifications Module: لتذكير المرضى
+
+Finance Module: لمتابعة المدفوعات
+
+Inputs / Outputs:
+
+Inputs: بيانات المرضى، توافر الموظفين، المدفوعات
+
+Outputs: جلسات مجدولة، إشعارات، تحديثات CRM
+
+Interactions / Integrations:
+
+مع Therapists لتأكيد الجلسات
+
+مع Operations Manager لمزامنة الجداول
+
+مع Customer Support لمعالجة الاستفسارات
+
+Success Criteria:
+
+الحجز والتأكيد يتم آليًا
+
+جميع بيانات المرضى موجودة وسهلة الوصول
+
+تقليل الغياب والتأخيرات بنسبة ≥ 90%
+
+-------------------------
+
+Medical / Physiotherapy Center – User Stories
+1️⃣ CEO / Owner – Ahmed El-Sayed
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a CEO, I want to view real-time KPIs for patient visits, staff performance, and revenue, so that I can make informed strategic decisions.	1. Dashboard updates every 5 minutes.
+2. KPIs include patient attendance, revenue, and staff efficiency.
+3. Can filter by date range, department, or staff member.	High	Analytics & Reporting
+2	As a CEO, I want to receive automatic alerts for any delayed sessions or patient complaints, so that I can intervene promptly.	1. Alerts sent via email, WhatsApp, and in-app notification.
+2. Alerts categorized by severity.
+3. History of alerts accessible for audit.	High	Notifications / Operations
+3	As a CEO, I want to track department budgets and financial performance, so that I can optimize resource allocation.	1. Finance module shows department-wise revenue, costs, and profit.
+2. Can export reports as PDF or Excel.
+3. Alerts if spending exceeds budget.	High	Finance / Accounting
+4	As a CEO, I want to analyze patient satisfaction trends over time, so that I can improve services.	1. Collects survey results from Customer Support.
+2. Generates trend graphs.
+3. Can segment by treatment type, therapist, or department.	Medium	Customer Support / Analytics
+2️⃣ Operations Manager – Nour El-Din
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As an Operations Manager, I want to assign patient sessions to available therapists automatically, so that schedules are optimized.	1. Auto-assignment respects therapist availability, specialization, and patient preferences.
+2. Conflicts flagged immediately.
+3. Manual override available.	High	Operations / Scheduling
+2	As an Operations Manager, I want to monitor real-time utilization of equipment, so that resources are efficiently used.	1. Dashboard shows equipment usage by session and time.
+2. Alerts if equipment is overbooked or idle.
+3. Historical usage reports available.	High	Operations / Analytics
+3	As an Operations Manager, I want to track employee attendance and overtime, so that I can manage staffing costs.	1. Attendance integrated with CRM and Operations modules.
+2. Alerts for absenteeism or overtime.
+3. Reports exportable.	Medium	HR & Workforce Management
+4	As an Operations Manager, I want to generate exception reports for missed or delayed sessions, so that corrective action can be taken.	1. All missed sessions automatically logged.
+2. Notifications sent to responsible staff.
+3. CEO receives weekly exception report.	High	Operations / Notifications
+3️⃣ Customer Support – Rania Adel
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Customer Support agent, I want to view each patient’s history and treatment plan, so that I can respond to inquiries accurately.	1. CRM shows complete patient history.
+2. Can access previous tickets, payments, and treatment notes.
+3. Data updates in real-time.	High	CRM / Customer Support
+2	As a Customer Support agent, I want to log and track patient complaints, so that every issue is resolved.	1. Ticket system creates unique IDs.
+2. Status tracked (Open / In Progress / Resolved).
+3. Automatic reminders for pending tickets.	High	Customer Support / Notifications
+3	As a Customer Support agent, I want to escalate unresolved issues to management automatically, so that urgent matters are addressed.	1. Escalation rules configurable by severity.
+2. Automatic notifications to Operations Manager and CEO.
+3. Escalation history logged.	Medium	Customer Support / Operations
+4️⃣ Therapist / Physiotherapist – Dr. Mona Khaled
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Therapist, I want to see a daily schedule of patient sessions, so that I can plan my day efficiently.	1. Schedule updates in real-time.
+2. Conflicts flagged.
+3. Can filter by session type or patient priority.	High	Operations / Scheduling
+2	As a Therapist, I want to record notes and treatment progress for each patient, so that I can track improvements.	1. Notes linked to patient’s record in CRM.
+2. Accessible by Customer Support and CEO.
+3. Secure and backed-up automatically.	High	CRM / Operations
+3	As a Therapist, I want automatic reminders for upcoming sessions, so that I don’t miss appointments.	1. Notifications sent via app and email.
+2. Option to reschedule integrated.
+3. Conflicts updated in real-time.	High	Notifications / Operations
+4	As a Therapist, I want to generate session reports for management, so that they can review performance.	1. Reports include session counts, patient progress, and session duration.
+2. Exportable as PDF/Excel.
+3. Accessible only to authorized roles.	Medium	Analytics / Reporting
+5️⃣ Receptionist / Front Desk – Sara Tamer
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Receptionist, I want to register new patients quickly, so that onboarding is efficient.	1. Patient form auto-validates inputs.
+2. Assigns unique patient ID.
+3. Automatically creates profile in CRM and Operations.	High	CRM / Operations
+2	As a Receptionist, I want to schedule patient sessions and link them to therapists, so that appointments are accurate.	1. Scheduler prevents double-booking.
+2. Sends confirmation to patient and therapist.
+3. Adjustments reflected in real-time.	High	Operations / CRM
+3	As a Receptionist, I want to track payments and outstanding balances, so that finance is accurate.	1. Integrated with Finance Module.
+2. Sends automatic payment reminders.
+3. Allows partial payments and adjustments.	High	Finance / CRM
+4	As a Receptionist, I want to send reminders to patients via WhatsApp/email, so that no-shows are minimized.	1. Automatic notifications based on session schedule.
+2. Patients can confirm or reschedule.
+3. Dashboard shows confirmation status.	Medium	Notifications / CRM

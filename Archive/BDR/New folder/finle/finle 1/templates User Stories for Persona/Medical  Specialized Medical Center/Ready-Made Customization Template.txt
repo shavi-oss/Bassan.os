@@ -1,0 +1,506 @@
+🏥 Ready-Made Customization Template
+Medical / Specialized Medical Center
+
+(مراكز طبية – عيادات تخصصية – مجمعات طبية – مراكز تشخيص)
+
+هذا القالب مبني على تشغيل فعلي لمراكز طبية حقيقية (مش افتراضات)، ويغطي الإدارة الطبية، التشغيل اليومي، الامتثال، والربحية.
+
+أولًا: التقسيم الرئيسي للأقسام (Main Business Sectors)
+
+القالب مبني على 10 قطاعات أساسية واقعية:
+
+Medical Administration (الإدارة الطبية)
+
+Patients Management (إدارة المرضى)
+
+Doctors & Medical Staff (الأطباء والطاقم الطبي)
+
+Appointments & Scheduling (الحجوزات والمواعيد)
+
+Medical Records & EMR (الملفات الطبية)
+
+Services & Procedures (الخدمات الطبية)
+
+Pharmacy & Consumables (الصيدلية والمستلزمات)
+
+Financial & Insurance Management (المالية والتأمين)
+
+Operations & Front Desk (التشغيل والاستقبال)
+
+Reports, Compliance & Audit (التقارير والامتثال)
+
+1️⃣ Medical Administration
+الإدارة الطبية
+الدور الواقعي
+
+إدارة الهيكل الطبي، التخصصات، السياسات العلاجية.
+
+وحدات حقيقية
+
+Medical Departments
+
+باطنة – أسنان – جلدية – عظام – تحاليل – أشعة
+
+Clinical Policies
+
+سياسات التشخيص
+
+بروتوكولات العلاج
+
+Medical Governance
+
+صلاحيات القرار الطبي
+
+مراجعة الحالات الحرجة
+
+بيانات حقيقية
+
+Specialization → Service → Procedure
+
+Medical Protocols Versioning
+
+2️⃣ Patients Management
+إدارة المرضى
+Personas
+
+Patient
+
+Patient Affairs Officer
+
+وحدات النظام
+
+Patient Profile
+
+بيانات شخصية
+
+تاريخ مرضي
+
+تحاليل سابقة
+
+Patient Status
+
+New / Follow-up / Chronic
+
+Patient Journey Tracking
+
+واقع عملي
+
+مريض مزمن بزيارات متكررة
+
+مريض محول من طبيب لطبيب
+
+ملف عائلي (أكثر من فرد)
+
+3️⃣ Doctors & Medical Staff
+الأطباء والطاقم الطبي
+Personas
+
+Doctor
+
+Nurse
+
+Lab Technician
+
+Medical Director
+
+وحدات واقعية
+
+Doctor Profile
+
+التخصص
+
+أيام العمل
+
+نظام الأجر (نسبة / ثابت)
+
+Shift Management
+
+Medical Licenses Tracking
+
+سيناريوهات حقيقية
+
+طبيب يعمل أيام محددة
+
+طبيب بنظام نسبة من الكشف
+
+غياب طارئ لطبيب
+
+4️⃣ Appointments & Scheduling
+المواعيد والحجوزات
+وحدات
+
+Appointment Booking
+
+حضوري
+
+أونلاين
+
+Doctor Availability
+
+Waiting List
+
+Emergency Slots
+
+واقع يومي
+
+تأخير مريض
+
+إلغاء حجز
+
+حجز طارئ
+
+5️⃣ Medical Records & EMR
+السجلات الطبية الإلكترونية
+وحدات عميقة
+
+Visit Records
+
+شكوى
+
+تشخيص
+
+علاج
+
+Prescriptions
+
+Lab Results
+
+Imaging Reports
+
+واقعية عالية
+
+سجل تاريخي كامل
+
+مراجعة الطبيب للحالات السابقة
+
+منع التعديل بعد الإغلاق (Audit Trail)
+
+6️⃣ Services & Procedures
+الخدمات الطبية
+تقسيم حقيقي
+
+Consultations
+
+Procedures
+
+Packages
+
+باقات متابعة
+
+باقات تحاليل
+
+خصائص الخدمة
+
+السعر
+
+المدة
+
+الطبيب المسؤول
+
+المستلزمات المطلوبة
+
+7️⃣ Pharmacy & Consumables
+الصيدلية والمستلزمات
+وحدات
+
+Medications Inventory
+
+Medical Supplies
+
+Expiry Tracking
+
+Prescription Fulfillment
+
+واقع السوق
+
+نفاد مخزون
+
+أدوية مرتبطة بخدمة
+
+صلاحيات صرف
+
+8️⃣ Financial & Insurance Management
+الإدارة المالية والتأمين
+Personas
+
+Accountant
+
+Insurance Officer
+
+وحدات واقعية
+
+Pricing
+
+Payments
+
+كاش
+
+بطاقة
+
+تأمين
+
+Insurance Claims
+
+Doctor Revenue Share
+
+تقارير حقيقية
+
+Revenue per Doctor
+
+Insurance Pending Claims
+
+Profit per Service
+
+9️⃣ Operations & Front Desk
+التشغيل والاستقبال
+وحدات
+
+Check-in / Check-out
+
+Queue Management
+
+Call Center Logs
+
+Complaints & Feedback
+
+واقع فعلي
+
+ضغط مرضى
+
+تنظيم الدور
+
+شكاوى تأخير
+
+🔟 Reports, Compliance & Audit
+التقارير والامتثال
+تقارير أساسية
+
+Medical Performance
+
+Financial Reports
+
+Patient Flow
+
+Doctor Productivity
+
+Compliance
+
+Privacy & Access Control
+
+Audit Logs
+
+Regulatory Reports
+
+🔐 Ready-Made Roles (جاهزة)
+
+Super Admin
+
+Medical Director
+
+Doctor
+
+Nurse
+
+Lab Technician
+
+Receptionist
+
+Accountant
+
+Insurance Officer
+
+Patient (Limited Access)
+
+🎯 لماذا هذا القالب قوي؟
+
+مطابق لتشغيل مراكز طبية حقيقية
+
+يدعم التوسع بدون إعادة تصميم
+
+جاهز للامتثال والتنظيم
+
+يصلح لـ:
+
+عيادة فردية
+
+مركز تخصصي
+
+مجمع طبي
+----------------
+
+🏥 User Stories – Medical / Specialized Medical Center Template
+👤 Persona 1: Medical Director (المدير الطبي)
+
+الخلفية
+
+طبيب استشاري
+
+خبرة 10–20 سنة
+
+مسؤول عن الجودة الطبية والالتزام والبروتوكولات
+
+الأهداف
+
+ضمان جودة الخدمة الطبية
+
+توحيد البروتوكولات
+
+تقليل الأخطاء الطبية
+
+Pain Points
+
+اختلاف أسلوب الأطباء
+
+صعوبة مراجعة الحالات
+
+غياب تقارير دقيقة
+
+User Stories
+User Story	Acceptance Criteria	Priority	Module
+كمدير طبي، أريد إنشاء وتحديث بروتوكولات علاج لكل تخصص، بحيث يلتزم بها جميع الأطباء	- إمكانية إضافة/تعديل بروتوكول
+- ربط البروتوكول بتخصص وخدمة
+- تسجيل نسخة وتاريخ التعديل	High	Medical Administration
+كمدير طبي، أريد مراجعة الحالات الحرجة قبل إغلاقها، لضمان سلامة القرارات الطبية	- تحديد حالة كـ Critical
+- إشعار المدير الطبي
+- منع الإغلاق بدون مراجعة	High	EMR
+كمدير طبي، أريد الاطلاع على أداء الأطباء، لأتمكن من تحسين جودة الخدمة	- تقرير زيارات لكل طبيب
+- متوسط التشخيص والعلاج
+- شكاوى المرضى	Medium	Reports
+كمدير طبي، أريد التحكم في صلاحيات التعديل على الملفات الطبية، لمنع العبث	- RBAC طبي
+- Audit Log لكل تعديل	High	Security / EMR
+👤 Persona 2: Doctor (طبيب)
+
+الخلفية
+
+طبيب تخصص
+
+يعمل بدوام جزئي أو كامل
+
+أحيانًا بنظام نسبة
+
+الأهداف
+
+تشخيص سريع ودقيق
+
+الوصول لتاريخ المريض
+
+تقليل الأعمال الإدارية
+
+Pain Points
+
+فقدان ملفات
+
+تكرار أسئلة المرضى
+
+ضغط الوقت
+
+User Stories
+User Story	Acceptance Criteria	Priority	Module
+كطبيب، أريد الاطلاع على التاريخ الطبي الكامل للمريض، لاتخاذ قرار علاجي دقيق	- عرض الزيارات السابقة
+- التحاليل
+- الأشعة	High	EMR
+كطبيب، أريد تسجيل التشخيص والعلاج بسهولة أثناء الكشف	- نموذج زيارة مرن
+- دعم ملاحظات سريعة
+- حفظ تلقائي	High	EMR
+كطبيب، أريد إنشاء روشتة إلكترونية مرتبطة بالصيدلية	- اختيار دواء من المخزون
+- تحديد الجرعة
+- إرسال للصيدلية	High	Pharmacy
+كطبيب، أريد رؤية جدولي اليومي، لتنظيم وقتي	- عرض المواعيد
+- تنبيهات تأخير	Medium	Appointments
+كطبيب، أريد معرفة دخلي من كل خدمة، لأتابع مستحقاتي	- تقرير نسبة/أجر
+- تصفية مالية	Medium	Finance
+👤 Persona 3: Receptionist / Front Desk (الاستقبال)
+
+الخلفية
+
+موظف تشغيل
+
+يتعامل مع المرضى طوال اليوم
+
+الأهداف
+
+سرعة تسجيل المرضى
+
+تقليل الزحام
+
+تنظيم الدور
+
+Pain Points
+
+ضغط المواعيد
+
+مرضى بدون حجز
+
+شكاوى الانتظار
+
+User Stories
+User Story	Acceptance Criteria	Priority	Module
+كموظف استقبال، أريد تسجيل مريض جديد بسرعة، لتقليل وقت الانتظار	- نموذج مبسط
+- تحقق من التكرار	High	Patients
+كموظف استقبال، أريد إدارة قائمة انتظار، لتنظيم الدور	- Queue مرئي
+- تحديث تلقائي	High	Operations
+كموظف استقبال، أريد حجز أو تعديل موعد بسهولة	- اختيار طبيب/وقت
+- إشعار المريض	High	Appointments
+كموظف استقبال، أريد تسجيل حضور وانصراف المرضى	- Check-in / Check-out	Medium	Operations
+👤 Persona 4: Accountant (المحاسب)
+
+الخلفية
+
+خبرة محاسبية
+
+يتعامل مع نقدي وتأمين
+
+الأهداف
+
+ضبط الإيرادات
+
+حساب نسب الأطباء
+
+تقليل الأخطاء المالية
+
+Pain Points
+
+اختلاف الأسعار
+
+تأخير التأمين
+
+تقارير غير دقيقة
+
+User Stories
+User Story	Acceptance Criteria	Priority	Module
+كمحاسب، أريد تسجيل المدفوعات لكل زيارة، لضبط الإيرادات	- ربط الدفع بالزيارة
+- طرق دفع متعددة	High	Finance
+كمحاسب، أريد حساب نسبة الطبيب تلقائيًا	- إعداد نسبة لكل طبيب
+- تقرير مستحقات	High	Finance
+كمحاسب، أريد تقارير أرباح حسب الخدمة	- Revenue per Service	Medium	Reports
+كمحاسب، أريد إدارة المطالبات التأمينية	- حالة المطالبة
+- تتبع التحصيل	High	Insurance
+👤 Persona 5: Patient (المريض)
+
+الخلفية
+
+مريض عادي أو مزمن
+
+الأهداف
+
+حجز سهل
+
+وقت انتظار أقل
+
+فهم حالته
+
+User Stories
+User Story	Acceptance Criteria	Priority	Module
+كمريض، أريد حجز موعد أونلاين، لتوفير الوقت	- اختيار طبيب/وقت	Medium	Appointments
+كمريض، أريد استلام إشعار بالموعد	- SMS / WhatsApp	Medium	Notifications
+كمريض، أريد معرفة تكلفة الخدمة قبل الكشف	- عرض السعر	Medium	Services
+كمريض، أريد الاطلاع على ملخص الزيارة	- عرض التشخيص والعلاج	Low	Patient Portal
+✅ ما تم إنجازه
+
+User Stories واقعية جدًا
+
+مغطية التشغيل اليومي
+
+مربوطة بوحدات النظام
+
+جاهزة للتنفيذ Agile / Waterfall

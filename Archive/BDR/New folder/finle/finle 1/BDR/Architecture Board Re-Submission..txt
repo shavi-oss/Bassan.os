@@ -1,0 +1,1490 @@
+Bassan.os – Refactored Container Architecture
+ARCHITECTURE REFACTORING ANALYSIS
+Based on the architecture review findings, I'm refactoring the container design to address:
+
+Overloaded containers with mixed responsibilities
+
+Cross-cutting concerns scattered across multiple containers
+
+Missing dedicated services for key business capabilities
+
+Infrastructure gaps in observability and security
+
+REFACTORED CONTAINER LIST
+1. WEB FRONTEND CONTAINERS (Split from original Web Application)
+Container Name	Type	Responsibilities	Changes Made	Justification
+Admin Web Application	Web App	Administration interfaces, system configuration, user management	NEW - Split from original Web App	Separate admin concerns from business workflows. Enables different security, scaling, and deployment.
+Business Web Application	Web App	Business user interfaces (Sales, Marketing, Ops, HR, Finance workflows)	NEW - Split from original Web App	Focus on business transaction processing. Can scale independently from admin interfaces.
+Client Portal Application	Web App	Customer/Partner self-service portal, status tracking, communication	NEW - Split from original Web App	External-facing with different security, performance, and compliance requirements.
+2. API GATEWAY REFACTORING
+Container Name	Type	Responsibilities	Changes Made	Justification
+Edge Gateway	API Gateway	Request routing, rate limiting, DDoS protection, SSL termination	REFACTORED - Reduced scope	Focus on edge concerns only. Removed monitoring and transformation.
+API Management Service	Microservice	API versioning, transformation, composition, developer portal	NEW - Extracted from original API Gateway	Separates API management from routing. Enables API productization.
+3. CORE BUSINESS SERVICES (Refactored)
+Container Name	Type	Responsibilities	Changes Made	Justification
+Workflow Orchestration Service	Microservice	Business process execution, state management, SLA tracking	RENAMED/REFINED - From Workflow Engine	Clearer responsibility focus on orchestration only.
+Task Management Service	Microservice	Task lifecycle, assignment, evidence handling	UNCHANGED - Well-defined	Already cohesive. No changes needed.
+Customer Service	Microservice	Customer profiles, contact management, basic interaction tracking	REFACTORED - Reduced scope from CRM Service	Focus on core customer data only. Removed attribution and pipeline.
+Sales & Pipeline Service	Microservice	Lead management, sales pipeline, opportunity tracking, forecasting	NEW - Split from CRM Service	Separate sales domain from core customer management.
+Marketing Automation Service	Microservice	Campaign management, attribution, ROI tracking, lead scoring	NEW - Created to fill gap	Dedicated marketing capability previously missing.
+Commission Management Service	Microservice	Commission rules, calculations, evidence validation, disputes	RENAMED - From Commission Service	Clearer naming reflecting management focus.
+Billing & Invoicing Service	Microservice	Invoice generation, payment tracking, basic revenue recognition	REFACTORED - Reduced scope from Billing Service	Focus on core billing. Removed credit management and reporting.
+Credit & Collections Service	Microservice	Credit limits, collections, payment plans, risk assessment	NEW - Split from Billing Service	Separate credit domain with different risk profile.
+4. SUPPORT & COLLABORATION SERVICES (New/Refactored)
+Container Name	Type	Responsibilities	Changes Made	Justification
+Customer Support Service	Microservice	Ticket management, knowledge base, escalation workflows	NEW - Created to fill gap	Dedicated support capability previously missing.
+Partner Collaboration Service	Microservice	Partner portal, milestone tracking, deliverable validation	NEW - Extracted from Integration Hub	Separate partner collaboration from system integration.
+Human Resources Service	Microservice	Employee management, performance tracking, role configuration	NEW - Created to fill gap	Dedicated HR capability previously missing.
+5. ANALYTICS & INTELLIGENCE SERVICES (Refactored)
+Container Name	Type	Responsibilities	Changes Made	Justification
+Business Intelligence Service	Microservice	Business metrics, dashboards, reporting, trend analysis	REFACTORED - From Analytics Service	Focus on business intelligence only.
+System Monitoring Service	Microservice	Performance metrics, health checks, alerting, SLO tracking	NEW - Split from Analytics Service	Separate system monitoring from business analytics.
+6. INTEGRATION & DATA SERVICES (Refactored)
+Container Name	Type	Responsibilities	Changes Made	Justification
+Integration Service	Microservice	External system connections, data synchronization, API management	REFACTORED - From Integration Hub	Clearer naming and reduced scope.
+Document Management Service	Microservice	Document storage, versioning, access control, retention	RENAMED - From Document/File Service	Broader scope beyond just files.
+Search & Discovery Service	Microservice	Full-text search, faceted filtering, relevance ranking	UNCHANGED - Well-defined	Already cohesive. No changes needed.
+7. PLATFORM & INFRASTRUCTURE SERVICES (New/Refactored)
+Container Name	Type	Responsibilities	Changes Made	Justification
+Identity & Access Service	Microservice	Authentication, authorization, session management, MFA	RENAMED/EXPANDED - From Authentication Service	Broader scope including authorization.
+Tenant Management Service	Microservice	Multi-tenant organization management, isolation enforcement	REFACTORED - Reduced scope	Focus on tenant lifecycle only. Removed subscription management.
+Subscription & Billing Service	Microservice	Subscription plans, pricing, billing cycles, upgrades	NEW - Created from parts of Tenant and Billing services	Centralized subscription management.
+Observability Service	Microservice	Centralized logging, distributed tracing, metrics aggregation	NEW - Created to fill critical gap	Addresses major architecture review finding.
+Security Policy Service	Microservice	Security policies, compliance rules, audit logging, threat detection	NEW - Created to fill critical gap	Centralized security management.
+8. DATA STORES (Refactored)
+Container Name	Type	Responsibilities	Changes Made	Justification
+Transactional Database	Database	ACID transactions, relational data, business records	RENAMED - From Relational Database	Clearer purpose naming.
+Analytical Database	Database	Read-optimized queries, data warehousing, reporting	NEW - Split from Relational Database	Separate analytical workload from transactions.
+Document Database	Database	Flexible schema storage, high-volume writes, caching	RENAMED - From NoSQL Database	Clearer technology-agnostic naming.
+Object Storage	Database	Binary file storage, CDN integration, versioning	UNCHANGED	Already well-defined.
+Message Broker	Infrastructure	Event streaming, message queues, pub/sub distribution	RENAMED - From Message Queue	Broader capability beyond simple queues.
+CONTAINER MERGES, SPLITS, AND REMOVALS SUMMARY
+MERGED CONTAINERS:
+None - Architecture favored separation of concerns over merging
+
+SPLIT CONTAINERS:
+Web Application → 3 containers (Admin, Business, Client Portal)
+
+Why: Different security, scaling, and deployment needs
+
+Benefit: Independent scaling, separate security boundaries
+
+API Gateway → 2 containers (Edge Gateway, API Management)
+
+Why: Separate edge routing from API product management
+
+Benefit: Clean separation of infrastructure vs business concerns
+
+CRM Service → 3 containers (Customer, Sales & Pipeline, Marketing Automation)
+
+Why: Separate domains with different change velocities
+
+Benefit: Independent development, clearer ownership
+
+Billing Service → 3 containers (Billing & Invoicing, Credit & Collections, Subscription)
+
+Why: Different risk profiles and business processes
+
+Benefit: Isolate credit risk, separate subscription management
+
+Analytics Service → 2 containers (Business Intelligence, System Monitoring)
+
+Why: Separate business analytics from system observability
+
+Benefit: Clear ownership, different SLA requirements
+
+NEW CONTAINERS ADDED:
+Customer Support Service - Filled critical gap
+
+Human Resources Service - Filled critical gap
+
+Marketing Automation Service - Filled critical gap
+
+Observability Service - Addressed major architecture gap
+
+Security Policy Service - Addressed major security gap
+
+Analytical Database - Separated analytical workload
+
+RENAMED FOR CLARITY:
+Workflow Engine → Workflow Orchestration Service
+
+Commission Service → Commission Management Service
+
+Document/File Service → Document Management Service
+
+Authentication Service → Identity & Access Service
+
+Relational Database → Transactional Database
+
+NoSQL Database → Document Database
+
+Message Queue → Message Broker
+
+OWNERSHIP & TEAM STRUCTURE
+Container Group	Team Ownership	Primary Skills Required
+Web Frontends	Frontend Platform Team	React/Angular, UX/UI, Performance
+API & Gateway	API Platform Team	API Design, Security, Performance
+Core Business Services	Business Domain Teams (Sales, Ops, Finance)	Domain Knowledge, Business Logic
+Support & Collaboration	Customer Experience Team	Support Processes, UX, Communication
+Analytics & Intelligence	Data Platform Team	Data Engineering, Analytics, Visualization
+Integration & Data	Integration Team	API Integration, ETL, Data Governance
+Platform Services	Platform Engineering Team	Security, Infrastructure, DevOps
+Data Stores	Data Engineering Team	Database Administration, Performance Tuning
+KEY ARCHITECTURAL IMPROVEMENTS
+1. CLEARER BOUNDARIES:
+Business vs Admin vs Client interfaces separated
+
+Sales vs Marketing vs Support domains separated
+
+Billing vs Credit vs Subscription financial concerns separated
+
+Business analytics vs System monitoring separated
+
+2. ADDRESSED CRITICAL GAPS:
+Observability: Dedicated service for logging/tracing/metrics
+
+Security: Centralized policy management
+
+HR & Support: Dedicated business capabilities
+
+Marketing: Complete automation capability
+
+3. IMPROVED SCALABILITY:
+Independent scaling: Each container scales based on its workload
+
+Database separation: Transactional vs Analytical workloads separated
+
+Frontend separation: Admin, business, and client portals scale independently
+
+4. BETTER TEAM ALIGNMENT:
+Domain-aligned services: Match business organization structure
+
+Clear ownership: Each container has obvious team owner
+
+Reduced coordination: Less cross-team dependency
+
+5. ENHANCED SECURITY:
+Separate client portal: External-facing with stricter controls
+
+Centralized security: Policy service for consistent enforcement
+
+Service authentication: Identity service provides auth for all services
+
+CONTAINER COUNT SUMMARY
+Category	Original Count	Refactored Count	Change
+Web Applications	1	3	+2
+API Gateway	1	2	+1
+Core Business Services	6	9	+3
+Support & Collaboration	0	3	+3
+Analytics & Intelligence	1	2	+1
+Integration & Data	3	3	0
+Platform Services	2	5	+3
+Data Stores	4	5	+1
+TOTAL	18	32	+14
+
+-------------------------
+Bassan.os – Refactored Container Architecture (Updated)
+DAY-1 vs PHASE-2 CONTAINERS
+DAY 1 (MVP LAUNCH - 6 MONTHS)
+Containers required for minimum viable product and initial go-live
+
+Container	Criticality	Rationale
+Business Web Application	MUST	Primary user interface for business operations
+Edge Gateway	MUST	Basic routing, security, and API exposure
+Identity & Access Service	MUST	Authentication and basic authorization
+Tenant Management Service	MUST	Multi-tenant foundation
+Workflow Orchestration Service	MUST	Core business process automation
+Task Management Service	MUST	Task execution and tracking
+Customer Service	MUST	Basic customer/contact management
+Sales & Pipeline Service	MUST	Revenue generation workflows
+Billing & Invoicing Service	MUST	Basic billing and payment tracking
+Transactional Database	MUST	Primary data persistence
+Document Database	MUST	Flexible data storage
+Message Broker	MUST	Event-driven architecture foundation
+Day-1 Total: 12 Containers (Focus on core business value delivery)
+
+PHASE 2 (SCALING - 6-18 MONTHS)
+Containers added as business scales and matures
+
+Container	Timing	Business Driver
+Admin Web Application	Month 7-9	Administrative scalability needs
+Client Portal Application	Month 7-9	Customer self-service demand
+API Management Service	Month 10-12	API productization and partners
+Marketing Automation Service	Month 7-9	Marketing scale and sophistication
+Commission Management Service	Month 7-9	Sales team growth
+Credit & Collections Service	Month 10-12	Financial risk management
+Customer Support Service	Month 7-9	Support volume increase
+Partner Collaboration Service	Month 10-12	Partner ecosystem expansion
+Human Resources Service	Month 13-15	Team growth beyond 50 people
+Business Intelligence Service	Month 7-9	Data-driven decision making
+System Monitoring Service	Month 10-12	Production reliability focus
+Integration Service	Month 7-12	Gradual external system integration
+Document Management Service	Month 7-9	Document volume increase
+Search & Discovery Service	Month 10-12	Information discovery needs
+Subscription & Billing Service	Month 13-15	Complex pricing models
+Observability Service	Month 10-12	NON-BLOCKING - Can use external tools initially
+Security Policy Service	Month 13-15	NON-BLOCKING - Basic policies in Identity service initially
+Analytical Database	Month 16-18	Advanced analytics requirements
+Object Storage	Month 7-9	File storage scale
+Phase-2 Total: 20 Containers (Added based on business needs and scale)
+
+OBSERVABILITY STRATEGY (NON-BLOCKING)
+Initial Approach (Day-1 to Month 12):
+text
+External Observability Stack
+    ↓
+Edge Gateway + Application Logging
+    ↓
+Third-Party SaaS (DataDog, New Relic, etc.)
+Why Non-Blocking:
+
+MVP Focus: Business functionality takes priority over perfect observability
+
+External Solutions Mature: Proven SaaS tools available (DataDog, New Relic, Splunk)
+
+Quick Time-to-Market: Avoid building custom observability during MVP phase
+
+Cost-Effective: Pay-as-you-go vs upfront build investment
+
+Transition to Internal Service (Month 10-12):
+Instrumentation First: All services emit standard metrics/logs/traces from Day-1
+
+Abstraction Layer: Use OpenTelemetry standards
+
+Progressive Build: Start with centralized logging (ELK), add tracing (Jaeger), then metrics (Prometheus)
+
+Hybrid Operation: Run internal alongside external during transition
+
+Observability Boundary Enforcement:
+Service Contracts: All services must emit OpenTelemetry-compatible data
+
+Gateway Collection: Edge Gateway aggregates and forwards to observability backend
+
+No Direct Service Dependencies: Services don't depend on Observability Service for core functionality
+
+SECURITY POLICY ENFORCEMENT BOUNDARIES
+Boundary 1: Identity & Access Service (Day-1)
+Responsibility: Authentication, basic role-based authorization, session management
+Enforcement: API Gateway integration, token validation
+Scope: WHO can access WHAT at the service entry point
+
+Boundary 2: Security Policy Service (Phase-2)
+Responsibility: Advanced authorization, compliance policies, threat detection, audit
+Enforcement: Policy decision point (PDP) for fine-grained access control
+Scope: WHAT actions are allowed under WHICH conditions
+
+Clear Separation:
+text
+Request → Edge Gateway → Identity Service (Auth) → Security Policy Service (AuthZ) → Business Service
+                       (WHO)                    (WHAT + CONDITIONS)
+Non-Blocking Rationale:
+MVP Security Sufficient: Basic RBAC in Identity Service covers 80% of needs
+
+Progressive Enhancement: Start simple, add complexity as threats evolve
+
+External Alternatives: Can use Open Policy Agent (OPA) initially
+
+Risk-Based Approach: Implement based on actual security incidents and compliance requirements
+
+MULTI-TENANCY STRATEGY (LOGICAL)
+Core Principle: "Virtual Private Cloud per Tenant"
+Each tenant operates in logical isolation as if they have their own dedicated instance.
+
+Implementation Layers:
+1. Data Layer Isolation:
+text
+Strategy: Database Schema per Tenant
+Rationale: 
+- Clear data boundary
+- Easy backup/restore per tenant
+- Natural performance isolation
+Implementation: Tenant context in all queries
+2. Application Layer Isolation:
+text
+Strategy: Tenant Context Propagation
+Mechanism: JWT claims + Thread-local context
+Enforcement: All services validate tenant context
+Fallback: Tenant Management Service as source of truth
+3. Cache Layer Isolation:
+text
+Strategy: Tenant-prefixed cache keys
+Pattern: `tenant:{tenantId}:{cacheKey}`
+Eviction: Whole tenant cache eviction possible
+Risk Mitigation: Cache poisoning prevention in cache client
+4. Message Layer Isolation:
+text
+Strategy: Tenant-specific routing keys
+Pattern: Topic per tenant type: `events.tenant.{tenantId}.{eventType}`
+Consumer: Services filter by tenant context
+5. File Storage Isolation:
+text
+Strategy: Tenant-specific paths in Object Storage
+Pattern: `tenants/{tenantId}/files/{filePath}`
+Access Control: Pre-signed URLs with tenant validation
+Collaboration Model:
+text
+Default: Complete isolation
+Exception: Explicitly configured data sharing
+Mechanism: Cross-tenant reference tables with approval workflows
+Audit: All cross-tenant access logged to security audit
+Performance Considerations:
+Hot Tenants: Can be moved to dedicated infrastructure
+
+Query Optimization: Tenant-aware query planning
+
+Connection Pooling: Tenant-aware connection management
+
+Monitoring: Per-tenant performance metrics
+
+INFRASTRUCTURE TECHNOLOGY DIRECTION (ADR-STYLE)
+ADR-001: Container Orchestration
+Decision: Kubernetes
+Alternatives Considered: AWS ECS, Nomad, Docker Swarm
+Rationale:
+
+Industry standard with largest ecosystem
+
+Multi-cloud capability (avoid vendor lock-in)
+
+Rich observability and management tooling
+
+Mature security and networking features
+Consequences:
+
+Steeper learning curve
+
+Higher operational complexity
+
+Need for dedicated platform team
+
+ADR-002: Service Mesh
+Decision: Istio
+Alternatives Considered: Linkerd, Consul Connect, AWS App Mesh
+Rationale:
+
+Comprehensive feature set (traffic management, security, observability)
+
+CNCF project with strong adoption
+
+Integrated with Kubernetes ecosystem
+
+Fine-grained traffic control for canary deployments
+Consequences:
+
+Significant resource overhead
+
+Complex configuration
+
+Steep learning curve
+
+ADR-003: Message Broker
+Decision: Apache Kafka
+Alternatives Considered: RabbitMQ, AWS SQS/SNS, Google Pub/Sub
+Rationale:
+
+Event streaming capabilities (not just queuing)
+
+Strong durability and ordering guarantees
+
+High throughput for analytics workloads
+
+Built-in replication and partitioning
+Consequences:
+
+Operational complexity
+
+Requires dedicated expertise
+
+Higher infrastructure cost
+
+ADR-004: API Gateway
+Decision: Kong
+Alternatives Considered: Ambassador, Gloo, AWS API Gateway
+Rationale:
+
+Open-source core with enterprise options
+
+Plugin architecture for extensibility
+
+Strong performance characteristics
+
+Good Kubernetes integration
+Consequences:
+
+Self-managed operational overhead
+
+Need for custom plugin development
+
+ADR-005: Observability Stack
+Decision: OpenTelemetry + Vendor SaaS (initially)
+Alternatives Considered: Built-in, Multiple proprietary solutions
+Rationale:
+
+Vendor neutrality with OpenTelemetry standards
+
+Quick startup with SaaS solutions
+
+Flexibility to bring in-house later
+
+Reduced initial build cost
+Consequences:
+
+Ongoing SaaS costs
+
+Potential vendor lock-in during initial phase
+
+Need for abstraction layer
+
+ADR-006: Database Strategy
+Decision: PostgreSQL + MongoDB + S3-compatible storage
+Rationale:
+
+PostgreSQL: ACID transactions, relational data, strong consistency
+
+MongoDB: Flexible schema, high write throughput, developer productivity
+
+S3: Unlimited scalability, cost-effective storage, CDN integration
+Consequences:
+
+Polyglot persistence complexity
+
+Multiple expertise requirements
+
+Cross-database consistency challenges
+
+ADR-007: Deployment Strategy
+Decision: GitOps with ArgoCD
+Rationale:
+
+Declarative infrastructure as code
+
+Automated synchronization
+
+Rollback capability
+
+Multi-environment management
+Consequences:
+
+Git as single source of truth requires discipline
+
+Learning curve for teams
+
+Initial setup complexity
+
+ADR-008: Security Foundation
+Decision: Zero-trust architecture with mTLS
+Rationale:
+
+No implicit trust between services
+
+Encryption in transit by default
+
+Identity-based access control
+
+Defense in depth
+Consequences:
+
+Certificate management overhead
+
+Performance impact from encryption
+
+Complex network configuration
+
+SUMMARY OF CRITICAL UPDATES
+1. Phased Approach Implemented:
+Day-1: 12 focused containers for MVP
+
+Phase-2: Progressive addition based on business need
+
+Observability & Security: Explicitly non-blocking with clear migration paths
+
+2. Clear Boundaries Established:
+Observability: External tools initially, internal service later
+
+Security: Basic auth Day-1, advanced policies Phase-2
+
+Multi-tenancy: Logical isolation with explicit collaboration model
+
+3. Technology Direction Set:
+Kubernetes + Istio + Kafka + Kong stack selected
+
+OpenTelemetry standards for observability
+
+Zero-trust security foundation
+
+GitOps deployment methodology
+
+4. Business Alignment Maintained:
+MVP focuses on revenue-generating capabilities
+
+Scalability built into architecture from Day-1
+
+Cost-effective approach with vendor solutions initially
+
+Clear migration path to full internal platform
+
+---------------------------
+Bassan.os Architecture Board Review
+Next Steps & Risk Analysis
+Document Version: 2.0
+Date: 2024
+Prepared For: Architecture Review Board
+Prepared By: Enterprise Architecture Team
+Status: For Review & Approval
+
+1. EXECUTIVE SUMMARY
+Based on the comprehensive architecture review and subsequent refactoring, we present a phased implementation approach for Bassan.os. The architecture has been structured to:
+
+Deliver MVP in 6 months with 12 core containers
+
+Scale progressively with 20 additional containers over 12-18 months
+
+Address critical gaps in observability and security with clear migration paths
+
+Establish clear technology foundations through documented ADRs
+
+This document outlines the implementation roadmap, risk analysis, and Board approval requirements.
+
+2. CONTAINER CONTEXT DIAGRAM
+Day-1 Architecture (Months 1-6)
+text
+┌─────────────────────────────────────────────────────────────┐
+│                    EXTERNAL USERS & SYSTEMS                 │
+│  Customers │ Partners │ Employees │ External APIs           │
+└────────────┴──────────┴───────────┴─────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    EDGE GATEWAY (Kong)                      │
+│  • Routing • Rate Limiting • SSL Termination                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ BUSINESS WEB  │   │IDENTITY &     │   │OBSERVABILITY  │
+│  APPLICATION  │   │ ACCESS SVC    │   │  (External)   │
+│               │   │               │   │               │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ WORKFLOW      │   │TENANT         │   │SALES &        │
+│ ORCHESTRATION │   │MANAGEMENT     │   │PIPELINE       │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ TASK          │   │CUSTOMER       │   │BILLING &      │
+│ MANAGEMENT    │   │SERVICE        │   │INVOICING      │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ TRANSACTIONAL │   │DOCUMENT       │   │MESSAGE        │
+│ DATABASE      │   │DATABASE       │   │BROKER         │
+│ (PostgreSQL)  │   │(MongoDB)      │   │(Kafka)        │
+└───────────────┘   └───────────────┘   └───────────────┘
+Phase-2 Expansion (Months 7-18)
+text
+┌─────────────────────────────────────────────────────────────┐
+│                    EXPANDED USER INTERFACES                 │
+│  Admin Portal │ Client Portal │ API Developer Portal       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│API MANAGEMENT │   │OBSERVABILITY  │   │SECURITY       │
+│ SERVICE       │   │SERVICE        │   │POLICY SVC     │
+│               │   │(Internal)     │   │               │
+└───────────────┘   └───────────────┘   └───────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│MARKETING      │   │CUSTOMER       │   │HR SERVICE     │
+│AUTOMATION     │   │SUPPORT        │   │               │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│COMMISSION     │   │CREDIT &       │   │PARTNER        │
+│MANAGEMENT     │   │COLLECTIONS    │   │COLLABORATION  │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│BUSINESS       │   │SYSTEM         │   │ANALYTICAL     │
+│INTELLIGENCE   │   │MONITORING     │   │DATABASE       │
+└───────────────┘   └───────────────┘   └───────────────┘
+3. DAY-1 CONTAINER CRITICALITY ANALYSIS
+Container	Criticality	Rationale	Risk if Delayed
+Business Web Application	MUST	Primary user interface for all business operations. No alternative.	Business cannot operate
+Edge Gateway	MUST	Security boundary, API exposure, rate limiting. Fundamental to multi-tenant security.	Security vulnerabilities, API chaos
+Identity & Access Service	MUST	Authentication foundation. Required for any user access.	No user access possible
+Tenant Management Service	MUST	Multi-tenant core capability. Defines business model.	Single-tenant only, business model failure
+Workflow Orchestration Service	MUST	Core value proposition - business process automation.	Manual processes, no differentiation
+Task Management Service	MUST	Execution engine for workflows. Required for accountability.	Workflows cannot execute
+Customer Service	MUST	Basic customer/contact management. Sales foundation.	No customer records, sales impossible
+Sales & Pipeline Service	MUST	Revenue generation engine. Direct business impact.	No sales tracking, revenue leakage
+Billing & Invoicing Service	MUST	Revenue collection. Cash flow dependency.	No invoicing, revenue recognition issues
+Transactional Database	MUST	Data persistence. No alternative for ACID transactions.	No data persistence, system unusable
+Document Database	MUST	Flexible data storage for high-volume writes.	Performance bottlenecks, scalability issues
+Message Broker	MUST	Event-driven architecture foundation. Service decoupling.	Tight coupling, monolithic tendencies
+Admin Web Application	NICE-TO-HAVE	Administrative interfaces. Can use CLI/API initially.	Manual administration, operational overhead
+Client Portal Application	NICE-TO-HAVE	Customer self-service. Manual support initially acceptable.	Increased support costs
+Observability Service	NICE-TO-HAVE	External tools sufficient for MVP.	Manual debugging, longer MTTR
+CRITICAL PATH: 12 MUST containers required for MVP launch.
+
+4. SECURITY & OBSERVABILITY FLOW DIAGRAMS
+Observability Flow (Non-Blocking Boundary)
+text
+┌─────────────────┐    OpenTelemetry    ┌─────────────────┐
+│   SERVICE A     │───────────────────▶│  OTEL Collector │
+│                 │    Metrics/Logs     │                 │
+└─────────────────┘    Traces          └─────────────────┘
+         │                                       │
+         │                                       ▼
+┌─────────────────┐                     ┌─────────────────┐
+│   SERVICE B     │                     │ External SaaS   │
+│                 │                     │ (DataDog/NewRelic)│
+└─────────────────┘                     └─────────────────┘
+         │                                       │
+         │              Phase-2 Transition       │
+         └───────────────────────────────────────┘
+                               │
+                               ▼
+                     ┌─────────────────┐
+                     │ INTERNAL        │
+                     │ OBSERVABILITY   │
+                     │ SERVICE         │
+                     │ (ELK+Jaeger+    │
+                     │  Prometheus)    │
+                     └─────────────────┘
+
+NON-BLOCKING BOUNDARY: Services emit OTEL data → External SaaS initially
+                         ↓
+                  Internal service added without code changes
+Security Enforcement Flow
+text
+┌─────────────────┐           ┌─────────────────┐
+│   CLIENT        │──────────▶│  EDGE GATEWAY   │
+│                 │  Request  │                 │
+└─────────────────┘           └─────────────────┘
+                                      │
+                                      │ Validate JWT
+                                      ▼
+                           ┌─────────────────┐
+                           │ IDENTITY &      │  DAY-1
+                           │ ACCESS SERVICE  │───────┐
+                           │ (AuthN + Basic  │       │
+                           │  AuthZ)         │       │
+                           └─────────────────┘       │
+                                      │              │
+                                      │ Tenant Context│
+                                      ▼              │
+                           ┌─────────────────┐       │
+                           │ BUSINESS        │       │
+                           │ SERVICE         │       │
+                           │                 │       │
+                           └─────────────────┘       │
+                                      │              │
+                                      │              │
+                           ┌─────────────────┐       │
+                           │ SECURITY POLICY │◀──────┘
+                           │ SERVICE         │  PHASE-2
+                           │ (Advanced       │
+                           │  AuthZ + Policy)│
+                           └─────────────────┘
+
+SECURITY BOUNDARY: Basic Auth (Day-1) → Advanced Policies (Phase-2)
+                   Non-blocking: Services work with basic auth initially
+5. TENANT ISOLATION SCENARIOS
+Scenario 1: Cross-Tenant Query Prevention
+text
+SITUATION: Support agent from Tenant-A queries customer data
+EXPECTED: Only Tenant-A customers returned
+IMPLEMENTATION:
+  1. All queries include tenant_id filter
+  2. Database row-level security enforces tenant isolation
+  3. Application service validates tenant context matches query
+  4. Audit log records query attempt
+
+EXAMPLE QUERY:
+  SELECT * FROM customers 
+  WHERE tenant_id = 'tenant-a' 
+  AND id = 'customer-123'
+  
+  -- Rejected if tenant context ≠ 'tenant-a'
+Scenario 2: Cache Eviction by Tenant
+text
+SITUATION: Tenant-B requests data purge for compliance
+ACTION: Evict all Tenant-B cache entries without affecting others
+IMPLEMENTATION:
+  1. Cache keys prefixed: tenant:{tenantId}:{resource}:{id}
+  2. Pattern: tenant:tenant-b:customer:*
+  3. Eviction command targets pattern
+  4. Other tenants remain cached
+
+EXAMPLE:
+  Redis: KEYS "tenant:tenant-b:*" → DEL matched keys
+  Impact: Only Tenant-B data cleared
+Scenario 3: Secure File Sharing with Audit
+text
+SITUATION: Tenant-A shares document with Partner Company (Tenant-C)
+PROCESS:
+  1. Tenant-A uploads document → /tenants/tenant-a/documents/doc-123
+  2. System creates cross-tenant reference with explicit permissions
+  3. Partner receives time-limited, pre-signed URL
+  4. All access logged: who, when, what, from which tenant
+
+AUDIT TRAIL:
+  {
+    "timestamp": "2024-01-15T10:30:00Z",
+    "action": "document_access",
+    "document_id": "doc-123",
+    "source_tenant": "tenant-a",
+    "accessing_tenant": "tenant-c",
+    "user": "user@partner.com",
+    "permission_granted_by": "admin@tenant-a.com"
+  }
+Scenario 4: Performance Isolation for "Hot Tenant"
+text
+SITUATION: Tenant-D experiences 10x traffic during promotion
+RESPONSE:
+  1. Monitoring detects Tenant-D performance degradation
+  2. System automatically:
+     - Increases connection pool for Tenant-D
+     - Adjusts query timeouts for Tenant-D
+     - Allocates dedicated cache segment
+  3. Other tenants unaffected
+  4. If sustained, move Tenant-D to dedicated infrastructure segment
+6. ADR EFFORT & COST IMPACT ANALYSIS
+ADR	Effort	Cost Impact	Timeline	Dependencies
+Kubernetes	High	Medium	Month 1-3	Team training, CI/CD setup
+Istio Service Mesh	High	Medium	Month 4-6	Kubernetes mastery required
+Apache Kafka	Medium	High	Month 2-4	Dedicated operations expertise
+Kong API Gateway	Medium	Low	Month 1-2	Standard deployment
+OpenTelemetry + SaaS	Low	Medium (ongoing)	Month 1	Quick setup, ongoing fees
+PostgreSQL + MongoDB	Medium	Medium	Month 1-2	Database admin expertise
+GitOps (ArgoCD)	Medium	Low	Month 3-4	Team process adaptation
+Zero-trust + mTLS	High	Medium	Month 5-6	Certificate management overhead
+TOTAL ESTIMATED EFFORT: 24-30 person-months for foundation
+CRITICAL PATH: Kubernetes → Kafka → Istio
+
+7. MINOR RISKS & AREAS TO TIGHTEN
+Risk 1: Day-1 Container Scope Creep
+text
+CURRENT: 12 MUST containers
+RISK: Business demands additional features pre-MVP
+MITIGATION:
+  - Strict MVP definition signed by stakeholders
+  - Feature freeze 3 months before launch
+  - Clear "Phase-2" backlog visibility
+Risk 2: Observability External Dependency
+text
+CURRENT: External SaaS (DataDog/NewRelic)
+RISK: Vendor lock-in, cost escalation
+MITIGATION:
+  - OpenTelemetry abstraction layer from Day-1
+  - 6-month cost ceiling in contracts
+  - Parallel internal service development starting Month 4
+Risk 3: Security Policy Delay
+text
+CURRENT: Basic auth Day-1, advanced policies Phase-2
+RISK: Compliance requirements emerge earlier than expected
+MITIGATION:
+  - Security audit at Month 3
+  - Policy engine skeleton built in Day-1 (no enforcement)
+  - Quick enablement path if needed
+Risk 4: Multi-Tenancy Edge Cases
+text
+IDENTIFIED EDGE CASES:
+  1. Tenant data migration (mergers/acquisitions)
+  2. Cross-tenant analytics (aggregate reporting)
+  3. Super-admin emergency access
+MITIGATION:
+  - Design patterns documented for each scenario
+  - Approval workflows for exceptional access
+  - Legal review of data isolation guarantees
+Risk 5: Team Capacity for Distributed System
+text
+CURRENT: Assumes experienced microservices team
+RISK: Learning curve impacts velocity
+MITIGATION:
+  - Dedicated platform team for foundation services
+  - Incremental service rollout (not all Day-1)
+  - Extensive monitoring and alerting from start
+8. BOARD APPROVAL REQUEST
+Required Approvals:
+✅ Architecture Approach
+
+Phased implementation (Day-1 vs Phase-2)
+
+Non-blocking observability/security strategy
+
+Multi-tenancy isolation model
+
+✅ Technology Stack
+
+Kubernetes + Istio + Kafka foundation
+
+Polyglot persistence strategy
+
+GitOps deployment methodology
+
+✅ Resource Allocation
+
+Platform team formation (Month 1)
+
+Training budget for new technologies
+
+External tooling budget (Year 1)
+
+✅ Risk Acceptance
+
+External observability dependency
+
+Delayed advanced security policies
+
+Distributed system complexity
+
+Decision Timeline:
+Week 1: Architecture approval
+
+Month 1: Platform team formation
+
+Month 3: MVP feature freeze
+
+Month 6: MVP launch readiness
+
+9. NEXT IMMEDIATE ACTIONS
+Action	Owner	Timeline	Success Criteria
+Form Platform Team	CTO	Week 2	Team hired/trained
+Set up Kubernetes Cluster	Platform Team	Month 1	Production-ready cluster
+Implement Observability Layer	Platform Team	Month 2	All services emitting OTEL data
+Deploy Core Services (3-5)	Product Teams	Month 3	Services communicating via events
+Security Audit	Security Team	Month 3	No critical vulnerabilities
+Load Testing	Platform Team	Month 5	1000 concurrent users simulated
+MVP Launch Readiness	Program Office	Month 6	All MUST containers deployed
+10. SUCCESS METRICS (FIRST 12 MONTHS)
+Metric	Target	Measurement
+MVP Launch	Month 6	12 core containers live
+Tenant Onboarding	10 tenants/month	After Month 6
+System Availability	99.5%	Month 7-12 average
+Mean Time to Recovery	< 1 hour	Month 7-12 average
+Development Velocity	2 services/month	After Month 6
+Observability Transition	Month 10	Internal service handling 50% traffic
+Security Policy Implementation	Month 12	Advanced policies enforced
+------------------------------
+
+Board Review & Approval Package
+Document Version: 3.0
+Date: 2024
+Prepared For: Architecture Review Board
+Prepared By: Enterprise Architecture Office
+Status: For Approval & Implementation
+
+1️⃣ EXECUTIVE SUMMARY
+Phased MVP Delivery Plan
+Bassan.os is architected as a multi-tenant Business Operating System delivered through a phased approach:
+
+Day-1 (Months 1-6): 12 core containers delivering Minimum Viable Product (MVP) with essential business capabilities
+
+Phase-2 (Months 7-18): 20 additional containers added progressively based on business scaling needs
+
+Progressive Enhancement: Non-blocking observability and security strategies allow core business functionality to launch while foundational capabilities mature
+
+Core Day-1 Containers (12 MUST)
+The MVP focuses on revenue-generating capabilities:
+
+Business Web Application - Primary user interface
+
+Edge Gateway - Security and API exposure
+
+Identity & Access Service - Authentication foundation
+
+Tenant Management Service - Multi-tenant core
+
+Workflow Orchestration Service - Business process automation
+
+Task Management Service - Execution engine
+
+Customer Service - Customer management
+
+Sales & Pipeline Service - Revenue generation
+
+Billing & Invoicing Service - Revenue collection
+
+Transactional Database - ACID data persistence
+
+Document Database - Flexible data storage
+
+Message Broker - Event-driven architecture foundation
+
+Phase-2 Scaling Containers (20 Additional)
+Added based on business need and scale:
+
+Admin & Client Portals - Expanded user interfaces
+
+Marketing, HR, Support Services - Business capability expansion
+
+Advanced Security & Observability - Platform maturity
+
+Analytics & Intelligence - Data-driven operations
+
+Observability & Security Non-Blocking Approach
+Observability: External SaaS tools (DataDog/NewRelic) initially → Internal service transition (Months 10-12)
+
+Security: Basic authentication/authorization Day-1 → Advanced policy engine Phase-2
+
+Migration Path: Services instrumented with OpenTelemetry from Day-1, enabling seamless transition
+
+Technology Stack Overview
+Orchestration: Kubernetes with Istio service mesh
+
+Messaging: Apache Kafka for event streaming
+
+API Gateway: Kong for edge routing and security
+
+Databases: PostgreSQL (transactional), MongoDB (document), S3-compatible storage
+
+Observability: OpenTelemetry standards with external SaaS initially
+
+Security: Zero-trust architecture with mTLS between services
+
+Deployment: GitOps with ArgoCD for declarative infrastructure
+
+2️⃣ CONTAINER CONTEXT DIAGRAMS
+Day-1 Architecture Diagram (MVP - 12 Containers)
+text
+┌─────────────────────────────────────────────────────────────┐
+│                    EXTERNAL USERS                           │
+│  Employees │ Customers │ Partners                           │
+└────────────┴───────────┴────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    EDGE GATEWAY (Kong)                      │
+│  • Request Routing • Rate Limiting • SSL Termination        │
+│  • JWT Validation • Tenant Context Injection                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ BUSINESS WEB  │   │IDENTITY &     │   │EXTERNAL       │
+│  APPLICATION  │   │ ACCESS SVC    │   │OBSERVABILITY  │
+│ • React SPA   │   │ • AuthN       │   │ • DataDog     │
+│ • Real-time   │   │ • Basic AuthZ │   │ • New Relic   │
+│ • Responsive  │   │ • Sessions    │   │               │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ WORKFLOW      │   │TENANT         │   │SALES &        │
+│ ORCHESTRATION │   │MANAGEMENT     │   │PIPELINE       │
+│ • BPMN Engine │   │ • Isolation   │   │ • Leads       │
+│ • SLA Tracking│   │ • Provisioning│   │ • Pipeline    │
+│ • Routing     │   │ • Settings    │   │ • Forecasting │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ TASK          │   │CUSTOMER       │   │BILLING &      │
+│ MANAGEMENT    │   │SERVICE        │   │INVOICING      │
+│ • Assignment  │   │ • Profiles    │   │ • Invoices    │
+│ • Evidence    │   │ • History     │   │ • Payments    │
+│ • Tracking    │   │ • Interactions│   │ • Recognition │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ TRANSACTIONAL │   │DOCUMENT       │   │MESSAGE        │
+│ DATABASE      │   │DATABASE       │   │BROKER         │
+│ • PostgreSQL  │   │ • MongoDB     │   │ • Kafka       │
+│ • ACID        │   │ • Flexible    │   │ • Events      │
+│ • Tenant Data │   │ • High Write  │   │ • Streaming   │
+└───────────────┘   └───────────────┘   └───────────────┘
+Phase-2 Expansion Diagram (20 Additional Containers)
+text
+┌─────────────────────────────────────────────────────────────┐
+│                    EXPANDED USER INTERFACES                 │
+│  Admin Portal │ Client Portal │ API Portal │ Mobile        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│API MANAGEMENT │   │INTERNAL       │   │SECURITY       │
+│ SERVICE       │   │OBSERVABILITY  │   │POLICY SVC     │
+│ • Versioning  │   │ • Logging     │   │ • Fine-grained│
+│ • Developer   │   │ • Tracing     │   │ • Compliance  │
+│ • Monetization│   │ • Metrics     │   │ • Audit       │
+└───────────────┘   └───────────────┘   └───────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│MARKETING      │   │CUSTOMER       │   │HR SERVICE     │
+│AUTOMATION     │   │SUPPORT        │   │ • Employees   │
+│ • Campaigns   │   │ • Tickets     │   │ • Performance │
+│ • Attribution │   │ • Knowledge   │   │ • Roles       │
+│ • ROI         │   │ • Escalation  │   │ • Compliance  │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│COMMISSION     │   │CREDIT &       │   │PARTNER        │
+│MANAGEMENT     │   │COLLECTIONS    │   │COLLABORATION  │
+│ • Rules       │   │ • Limits      │   │ • Milestones  │
+│ • Calculations│   │ • Risk        │   │ • Validation  │
+│ • Disputes    │   │ • Collections │   │ • Billing     │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│BUSINESS       │   │SYSTEM         │   │ANALYTICAL     │
+│INTELLIGENCE   │   │MONITORING     │   │DATABASE       │
+│ • Dashboards  │   │ • SLO/SLI     │   │ • Columnar    │
+│ • Reporting   │   │ • Alerts      │   │ • Aggregates  │
+│ • Trends      │   │ • Health      │   │ • Warehousing │
+└───────────────┘   └───────────────┘   └───────────────┘
+3️⃣ DAY-1 CONTAINER CRITICALITY TABLE
+Container	Criticality	Rationale	Risk if Delayed
+Business Web Application	MUST	Primary interface for all business users. No alternative for MVP.	Business operations cannot start
+Edge Gateway	MUST	Security boundary, API exposure, tenant isolation enforcement.	Multiple security vulnerabilities, uncontrolled API access
+Identity & Access Service	MUST	Foundation for authentication and basic authorization.	No user access possible, zero security
+Tenant Management Service	MUST	Enables multi-tenant SaaS business model. Core to value proposition.	Single-tenant only, business model failure
+Workflow Orchestration Service	MUST	Core differentiation - business process automation engine.	Manual processes only, no competitive advantage
+Task Management Service	MUST	Execution engine for workflows, enables accountability.	Workflows cannot execute, no task tracking
+Customer Service	MUST	Customer data management, foundation for sales and service.	No customer records, CRM functionality missing
+Sales & Pipeline Service	MUST	Revenue generation engine, sales tracking and forecasting.	No sales process automation, revenue leakage
+Billing & Invoicing Service	MUST	Revenue collection, cash flow management.	No invoicing, payment tracking, financial chaos
+Transactional Database	MUST	ACID-compliant data persistence for business transactions.	No reliable data storage, system unusable
+Document Database	MUST	High-volume, flexible data storage for evidence and documents.	Performance bottlenecks, scalability constraints
+Message Broker	MUST	Event-driven architecture foundation, service decoupling.	Tight coupling, monolithic architecture patterns
+Admin Web Application	NICE-TO-HAVE	Administrative interfaces for system management.	Manual administration via CLI/API initially
+Client Portal Application	NICE-TO-HAVE	Customer self-service portal.	Increased support costs initially
+Observability Service	NICE-TO-HAVE	Internal observability platform.	External tools suffice for MVP
+4️⃣ SECURITY & OBSERVABILITY FLOW DIAGRAMS
+Observability Flow with Non-Blocking Transition
+text
+┌─────────────────┐    OpenTelemetry    ┌─────────────────┐
+│   SERVICE A     │───────────────────▶│  OTEL Collector │
+│ • Instrumented  │    • Metrics       │ • Aggregation   │
+│ • Standardized  │    • Logs          │ • Export        │
+│ • No Direct     │    • Traces        │                 │
+│   Dependencies  │                    └─────────────────┘
+└─────────────────┘                             │
+         │                                      ▼
+┌─────────────────┐                    ┌─────────────────┐
+│   SERVICE B     │                    │   EXTERNAL      │
+│ • Same pattern  │                    │    SaaS         │
+│ • Zero config   │                    │ • DataDog       │
+│   changes for   │                    │ • New Relic     │
+│   transition    │                    │ • Splunk        │
+└─────────────────┘                    └─────────────────┘
+         │                                      │
+         │       ┌──────────────────────────────┘
+         │       │ Phase-2 Migration (Months 10-12)
+         ▼       ▼
+┌─────────────────────────────────────────────┐
+│           INTERNAL OBSERVABILITY            │
+│ • ELK Stack (Logging)                       │
+│ • Jaeger (Tracing)                          │
+│ • Prometheus + Grafana (Metrics)            │
+│ • Same OTEL ingestion                       │
+│ • No service changes required               │
+└─────────────────────────────────────────────┘
+
+NON-BLOCKING BOUNDARY: Services emit OTEL → External SaaS initially
+                       Services unaware of observability backend
+                       Seamless transition to internal service
+Security Enforcement with Progressive Enhancement
+text
+┌─────────────────┐           Request           ┌─────────────────┐
+│   CLIENT        │────────────────────────────▶│  EDGE GATEWAY   │
+│ • Web Browser   │           + JWT             │ • Kong          │
+│ • Mobile App    │                             │ • Route         │
+│ • API Client    │                             │ • Validate JWT  │
+└─────────────────┘                             └─────────────────┘
+                                                        │
+                                    Validate Token & Extract Tenant Context
+                                                        ▼
+                                             ┌─────────────────┐
+                                             │ IDENTITY &      │  ╔═══════════════╗
+                                             │ ACCESS SERVICE  │  ║   DAY-1       ║
+                                             │ • AuthN         │  ║   MUST        ║
+                                             │ • Basic AuthZ   │  ║   (Auth Only) ║
+                                             │ • Tenant Scope  │  ╚═══════════════╝
+                                             └─────────────────┘
+                                                        │
+                                       Tenant Context + User Roles
+                                                        ▼
+                                             ┌─────────────────┐
+                                             │   BUSINESS      │
+                                             │    SERVICE      │
+                                             │ • Processes     │
+                                             │ • Validates     │
+                                             │   Tenant Scope  │
+                                             └─────────────────┘
+                                                        │
+                                                        │ Phase-2 Enhancement
+                                                        │ (Months 13-15)
+                                                        ▼
+                                             ┌─────────────────┐
+                                             │   SECURITY      │  ╔═══════════════╗
+                                             │   POLICY SVC    │  ║   PHASE-2     ║
+                                             │ • Fine-grained  │  ║   Advanced    ║
+                                             │ • ABAC/RBAC     │  ║   Policies    ║
+                                             │ • Compliance    │  ╚═══════════════╝
+                                             │ • Audit         │
+                                             └─────────────────┘
+
+SECURITY BOUNDARY: Basic Auth (MUST, Day-1) → Advanced Policies (Phase-2)
+                   Services work with basic auth initially
+                   Policy engine added without breaking changes
+5️⃣ TENANT ISOLATION SCENARIOS
+Scenario 1: Cross-Tenant Query Prevention
+Situation: Support agent from "Acme Corp" (tenant-acme) queries customer data
+Expected: Only Acme Corp customers returned, even if query doesn't specify tenant
+Implementation:
+
+sql
+-- Application automatically adds tenant filter
+SELECT * FROM customers 
+WHERE id = 'cust-123' 
+  AND tenant_id = 'tenant-acme'  -- Automatically injected
+  AND deleted_at IS NULL;
+
+-- Database row-level security (PostgreSQL example)
+CREATE POLICY tenant_isolation ON customers
+    USING (tenant_id = current_setting('app.current_tenant_id'));
+
+-- Audit log entry
+INSERT INTO audit_logs (tenant_id, user_id, action, resource, timestamp)
+VALUES ('tenant-acme', 'user-456', 'QUERY', 'customers', NOW());
+Scenario 2: Cache Eviction by Tenant
+Situation: "Beta Ltd" (tenant-beta) requests GDPR data purge
+Action: Evict all Beta Ltd cache entries without affecting other tenants
+Implementation:
+
+redis
+# Cache key pattern: tenant:{tenantId}:{resourceType}:{resourceId}
+SET "tenant:tenant-beta:customer:cust-789" "{customer_data}"
+SET "tenant:tenant-beta:invoice:inv-456" "{invoice_data}"
+SET "tenant:tenant-alpha:customer:cust-123" "{other_tenant_data}"
+
+# Evict only Beta Ltd data
+EVAL "
+  local keys = redis.call('KEYS', 'tenant:tenant-beta:*')
+  for i, key in ipairs(keys) do
+    redis.call('DEL', key)
+  end
+  return #keys
+" 0
+
+# Result: tenant-beta data deleted (2 keys)
+# tenant-alpha data remains intact
+Scenario 3: Secure File Sharing with Audit Trail
+Situation: "Gamma Inc" (tenant-gamma) shares contract document with partner "Delta Co" (tenant-delta)
+Process with Full Audit:
+
+json
+// 1. Document stored with tenant isolation
+{
+  "document_id": "doc-contract-2024-001",
+  "tenant_id": "tenant-gamma",
+  "storage_path": "/tenants/tenant-gamma/documents/contracts/doc-contract-2024-001.pdf",
+  "created_by": "user-gamma-admin",
+  "created_at": "2024-01-15T10:30:00Z"
+}
+
+// 2. Cross-tenant sharing record created
+{
+  "share_id": "share-xyz-789",
+  "source_tenant": "tenant-gamma",
+  "target_tenant": "tenant-delta",
+  "document_id": "doc-contract-2024-001",
+  "permissions": ["READ"],
+  "expires_at": "2024-02-15T10:30:00Z",
+  "created_by": "user-gamma-admin",
+  "requires_acknowledgment": true
+}
+
+// 3. Audit entry for each access
+{
+  "audit_id": "audit-abc-123",
+  "timestamp": "2024-01-20T14:25:00Z",
+  "action": "document_access_cross_tenant",
+  "user_id": "user-delta-viewer",
+  "user_tenant": "tenant-delta",
+  "resource_tenant": "tenant-gamma",
+  "resource_id": "doc-contract-2024-001",
+  "access_granted_by": "user-gamma-admin",
+  "access_method": "pre-signed-url",
+  "ip_address": "203.0.113.45"
+}
+Scenario 4: Hot Tenant Performance Isolation
+Situation: "Epsilon SA" (tenant-epsilon) runs major promotion, traffic increases 15x
+Automatic Response:
+
+text
+1. MONITORING DETECTS ANOMALY:
+   - Tenant-epsilon request rate: 1500 RPM (normal: 100 RPM)
+   - Tenant-epsilon error rate: 8% (threshold: 2%)
+   - Other tenants unaffected
+
+2. AUTOMATED ACTIONS:
+   - Increase connection pool for tenant-epsilon only
+   - Adjust query timeouts: tenant-epsilon: 10s, others: 2s
+   - Allocate dedicated cache segment: 30% for tenant-epsilon
+   - Scale tenant-epsilon service replicas: 3 → 8
+
+3. ISOLATION MAINTAINED:
+   - Other tenants: Normal performance maintained
+   - Tenant-epsilon: Degraded but functional
+   - Alert: "Consider dedicated infrastructure for tenant-epsilon"
+
+4. POST-INCIDENT:
+   - Auto-scale back after traffic normalizes
+   - Report generated for capacity planning
+   - Billing adjustment for resource spike
+6️⃣ ADR EFFORT & COST IMPACT TABLE
+ADR	Effort	Cost Impact	Timeline	Dependencies	Rationale
+Kubernetes Orchestration	High	Medium	Months 1-3	Team training	Industry standard, multi-cloud capability, rich ecosystem
+Istio Service Mesh	High	Medium	Months 4-6	Kubernetes mastery	Traffic management, security, observability integration
+Apache Kafka	Medium	High	Months 2-4	Dedicated ops expertise	Event streaming, strong durability, high throughput
+Kong API Gateway	Medium	Low	Months 1-2	Standard deployment	Open-source core, extensible, good K8s integration
+OpenTelemetry + SaaS	Low	Medium (ongoing)	Month 1	Quick setup	Vendor neutrality, quick startup, reduced initial build
+PostgreSQL + MongoDB	Medium	Medium	Months 1-2	DB admin expertise	Right tool for each workload: ACID vs flexible schema
+GitOps (ArgoCD)	Medium	Low	Months 3-4	Team process adaptation	Declarative infrastructure, automated sync, rollback
+Zero-trust + mTLS	High	Medium	Months 5-6	Certificate management	No implicit trust, encryption by default, defense in depth
+Total Foundation Effort: 24-30 person-months
+Critical Path: Kubernetes → Kafka → Istio
+Cost Profile: Higher initial investment, lower long-term TCO
+
+7️⃣ MINOR RISKS & MITIGATIONS
+Risk 1: Day-1 Container Scope Creep
+Risk: Business demands additional features pre-MVP, delaying launch
+Mitigation:
+
+Strict MVP definition signed by all stakeholders
+
+Feature freeze 3 months before launch
+
+Clear "Phase-2" backlog visible to all
+
+Change control board for any MVP scope changes
+
+Risk 2: Observability External Dependency
+Risk: Vendor lock-in, cost escalation, limited customization
+Mitigation:
+
+OpenTelemetry abstraction layer from Day-1
+
+6-month cost ceiling in SaaS contracts
+
+Parallel internal service development starting Month 4
+
+Regular evaluation of build-vs-buy decision
+
+Risk 3: Security Policy Delay
+Risk: Compliance requirements emerge earlier than Phase-2 timeline
+Mitigation:
+
+Security audit at Month 3 to reassess needs
+
+Policy engine skeleton built in Day-1 (non-enforcing)
+
+Quick enablement path (2-4 weeks) if needed earlier
+
+Regular compliance requirement monitoring
+
+Risk 4: Multi-Tenancy Edge Cases
+Risk: Unanticipated scenarios break isolation guarantees
+Mitigation:
+
+Design patterns documented for:
+
+Tenant data migration (mergers/acquisitions)
+
+Cross-tenant analytics (aggregate reporting)
+
+Super-admin emergency access
+
+Approval workflows for all exceptional access
+
+Legal review of data isolation guarantees
+
+Penetration testing focusing on tenant isolation
+
+Risk 5: Team Capacity for Distributed System
+Risk: Learning curve impacts velocity, operational complexity
+Mitigation:
+
+Dedicated platform team (3-5 engineers) from Month 1
+
+Incremental service rollout (not all Day-1 services at once)
+
+Extensive monitoring and alerting from Day-1
+
+External training budget for Kubernetes/Istio/Kafka
+
+Runbook development parallel to implementation
+
+8️⃣ BOARD APPROVAL SECTION
+Approval Options
+[ ] APPROVE AS-IS - Proceed with architecture as documented
+[ ] APPROVE WITH CONDITIONS - Proceed with specified changes
+[ ] REQUEST REVISIONS - Major changes required before approval
+[ ] REJECT - Architecture not viable
+
+Potential Conditions for Approval
+Visual Mapping for Tenant Edge Cases: Provide flowchart for cross-tenant emergency access procedures
+
+Criticality Justification Table: Add column for "Alternative Workarounds if Delayed"
+
+Observability Exit Strategy: Detailed migration plan from external SaaS to internal service
+
+Security Compliance Matrix: Map architecture to specific regulatory requirements (GDPR, HIPAA, etc.)
+
+Disaster Recovery RTO/RPO: Define specific recovery time and point objectives per service tier
+
+Board Decision Framework
+APPROVE IF:
+
+MVP timeline (6 months) is acceptable for business objectives
+
+Phased approach addresses immediate revenue needs while building platform
+
+Risk mitigation strategies are adequate for identified risks
+
+Team capacity and budget align with effort estimates
+
+REQUEST REVISIONS IF:
+
+Critical business requirements not addressed in Day-1 containers
+
+Security or compliance gaps exist for target markets
+
+Timeline or budget constraints require scope reduction
+
+Key technology decisions conflict with existing enterprise standards
+
+9️⃣ NEXT IMMEDIATE ACTIONS TIMELINE
+Action	Owner	Timeline	Success Criteria
+Architecture Board Approval	CTO	Week 1	Signed approval document
+Platform Team Formation	Head of Engineering	Week 2	3-5 engineers hired/trained
+Kubernetes Cluster Setup	Platform Team	Month 1	Production-ready cluster with monitoring
+Observability Layer Implementation	Platform Team	Month 2	All services emitting OpenTelemetry data
+Core Services Development (3-5 services)	Product Teams	Month 3	Services communicating via events, basic UI
+Security Audit & Penetration Test	Security Team	Month 3	No critical vulnerabilities, remediation plan
+Load Testing & Performance Validation	Platform Team	Month 5	1000 concurrent users simulated, SLA validation
+MVP Launch Readiness Review	Program Office	Month 6	All MUST containers deployed, UAT passed
+MVP Launch Readiness Checklist (Month 6):
+
+✅ All 12 MUST containers deployed to production
+
+✅ Multi-tenancy isolation validated
+
+✅ Basic observability operational (external SaaS)
+
+✅ Security baseline implemented
+
+✅ Performance SLA met (99.5% availability)
+
+✅ Disaster recovery tested
+
+✅ Support processes documented
+
+✅ Tenant onboarding process defined
+
+🔟 SUCCESS METRICS (FIRST 12 MONTHS)
+Metric	Target	Measurement Method	Owner
+MVP Launch Date	Month 6	Calendar date when first paying tenant onboarded	Program Office
+Tenant Onboarding Rate	10 new tenants/month (post-MVP)	Monthly count of new production tenants	Customer Success
+System Availability	99.5% (Month 7-12)	Uptime monitoring across all services	Platform Team
+Mean Time to Recovery (MTTR)	< 1 hour	Incident response time tracking	Platform Team
+Development Velocity	2 new services/month (post-MVP)	Completed services per sprint	Engineering
+Observability Transition	50% traffic via internal service by Month 10	Traffic routing metrics	Platform Team
+Security Policy Implementation	Advanced policies enforced by Month 12	Policy coverage assessment	Security Team
+Tenant Satisfaction (NPS)	> 40	Quarterly tenant surveys	Customer Success
+Revenue Recognition	Accurate to 99%	Billing vs delivered services reconciliation	Finance Team
+APPROVAL & NEXT STEPS
+Required Signatures:
+Architecture Board Chair: _________________________
+Date: _________________________
+
+Chief Technology Officer: _________________________
+Date: _________________________
+
+Head of Engineering: _________________________
+Date: _________________________
+
+Security Officer: _________________________
+Date: _________________________
+
+Post-Approval Actions:
+Week 1: Distribute approved architecture to all teams
+
+Week 2: Kick off platform team formation and training
+
+Month 1: Begin Kubernetes cluster implementation
+
+Month 2: Start core service development sprints
+
+Monthly: Architecture review checkpoint with Board
+
+Change Control Process:
+Any deviations from approved architecture require:
+
+Impact assessment document
+
+Architecture review board approval
+
+Updated timeline and budget implications
+
+Risk mitigation plan
+
+DOCUMENT HISTORY:
+Version 1.0: Initial Architecture Review
+Version 2.0: Post-Review Refactoring
+Version 3.0: Board-Ready Package (Current)
+
+

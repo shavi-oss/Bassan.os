@@ -1,0 +1,2158 @@
+Architecture Design Document (ADD)
+
+Bassan.os – Architecture Design Document (Enterprise SaaS)
+
+**Version:** 1.0  
+**Date:** 2026-01-01  
+**Author:** Principal Software Architect  
+**Approval Status:** Draft – For Review  
+
+---
+
+## Version Control
+
+| Version | Date | Description | Author | Approval |
+|---------|------|------------|--------|---------|
+| 1.0 | 2026-01-01 | Initial enterprise-grade architecture document for Bassan.os | Principal Software Architect | Draft |
+
+---
+
+# 1. Introduction
+
+## 1.1 Purpose
+
+The purpose of this Architecture Design Document is to define the **complete architecture blueprint** for **Bassan.os**, a multi-tenant, cloud-native SaaS platform aimed at **enhancing company operations, employee management, and partner collaboration**, while supporting **flexible workflows, multi-user access, and real-time analytics**.  
+
+This document provides a **detailed reference for developers, DevOps, QA, product teams, and stakeholders**, ensuring that every module, workflow, integration, and infrastructure component is **enterprise-ready, secure, scalable, and traceable** to the BRD.
+
+The system supports both **internal company efficiency** and **external partner collaboration**, enabling organizations to operate internal teams, integrate remote employees, manage clients, and exchange tasks with partner companies seamlessly.
+
+---
+
+## 1.2 Scope
+
+**Bassan.os** is designed to:
+
+- Serve **multi-tenant organizations** (B2B), adaptable to any company size or sector.
+- Enable **internal operations management**, including CRM, Sales, Marketing, Operations, HR, Support, and optional Finance modules.
+- Support **external collaboration**, allowing partner companies to execute services or tasks on behalf of other companies while maintaining workflow visibility and accountability.
+- Provide **multi-user, role-based access**, including CEOs, Department Heads, Internal Employees, Remote Staff, Partner Companies, and Clients.
+- Offer **flexible workflow design**, allowing admins to create, modify, and remove task flows per department, role, or tenant.
+- Provide **real-time analytics and reporting** for each department, workflow, and tenant.
+- Facilitate **notifications and alerts** via email, WhatsApp, Telegram, or in-app system notifications.
+- Enable **integration with external services** (WhatsApp Business API, Telegram Bot, Resend Email) and potential third-party APIs.
+- Operate fully on **cloud infrastructure** (Supabase, Vercel) with **scalable backend, frontend, and serverless edge functions**.
+
+---
+
+## 1.3 References
+
+- BRD – Bassan.os (generated from enterprise analysis)  
+- Supabase Documentation – https://supabase.com/docs  
+- Next.js 14 Documentation – https://nextjs.org/docs  
+- Vercel Documentation – https://vercel.com/docs  
+- WhatsApp Business API Guide – https://developers.facebook.com/docs/whatsapp  
+- Telegram Bot API – https://core.telegram.org/bots/api  
+- GDPR Compliance Guidelines – https://gdpr-info.eu  
+- ISO 27001 Security Standard – https://www.iso.org/isoiec-27001-information-security.html  
+
+---
+
+## 1.4 Document Overview
+
+This document is organized into the following sections:
+
+1. **Introduction:** Purpose, scope, references, and overview.  
+2. **High-Level Architecture:** Layered system view, including frontend, backend, database, edge functions, notifications, and external integrations.  
+3. **Module Interaction Diagram:** How all modules communicate and share data.  
+4. **Employee Workflow:** Step-by-step internal staff task flow.  
+5. **Client Workflow:** Step-by-step customer task and service flow.  
+6. **Data Architecture:** Database schema, ERD, data flows, and backup/disaster recovery strategy.  
+7. **Integration Architecture:** APIs, external system integrations, and communication protocols.  
+8. **Deployment & Infrastructure:** Cloud setup, hosting, load balancing, scaling, and monitoring.  
+9. **Security & Compliance:** Authentication, authorization, encryption, and compliance requirements.  
+10. **Performance & Scalability:** Expected loads, caching, optimization, and scaling plans.  
+11. **Risk Analysis & Assumptions:** Technical and operational risks with mitigation strategies.  
+12. **Appendices:** Glossary, diagram placeholders, and references.  
+
+This structure ensures that **Bassan.os is fully traceable, modular, and enterprise-ready**, capable of adapting to any company structure, internal or external workflows, and multi-tenant SaaS environment.
+
+---
+# 2. High-Level Architecture
+
+## 2.1 Description of System Layers
+
+Bassan.os is designed as a **multi-tenant, cloud-native SaaS platform** with a modular architecture that supports both **internal operations** and **external collaborations**. The system is composed of the following layers:
+
+| Layer | Description | Key Components | Dependencies |
+|-------|------------|----------------|--------------|
+| **Frontend Layer** | User interface for all user classes (CEOs, department heads, employees, remote staff, partner companies, clients) | Next.js 14, React 18, TypeScript, TailwindCSS, Shadcn/ui | Supabase Auth, API endpoints |
+| **API / Backend Layer** | Business logic and inter-module communication | Next.js API Routes, Supabase Edge Functions | Database, External APIs, Notification services |
+| **Database Layer** | Multi-tenant PostgreSQL database for storing all persistent data | Supabase PostgreSQL | Proper schema design, RBAC enforcement |
+| **Edge Functions** | Serverless functions to handle asynchronous tasks, workflow automation, scheduled jobs, and notifications | Supabase Edge Functions | Backend API, Database triggers, External integrations |
+| **Notification Layer** | Handles real-time alerts and notifications for users | Email (Resend), WhatsApp Business API, Telegram Bot, In-app notifications | Edge Functions, API endpoints |
+| **Integration Layer** | Connects Bassan.os with external systems and partner company services | REST APIs, Webhooks | External system availability, authentication |
+| **Monitoring & Logging Layer** | Tracks system health, performance metrics, errors, and audit logs | Supabase Realtime Logs, Vercel Analytics, Custom dashboards | All system layers, logging policies |
+| **Security & Compliance Layer** | Ensures secure access, data protection, and regulatory compliance | Supabase Auth (MFA, OAuth), RBAC, Data encryption | Database, API, Frontend |
+
+---
+
+## 2.2 Architectural Highlights
+
+- **Multi-Tenant Support:** Each company (tenant) has **isolated data and configuration**, including workflows, users, modules, and analytics.  
+- **Role-Based Access Control (RBAC):** Defines permissions per user role and module. For example, CEOs can access all dashboards; department heads can manage only their teams; remote staff can execute tasks but cannot alter workflows globally.  
+- **Workflow Engine:** Flexible workflow system allows dynamic **task assignment, automated routing, and status tracking** for internal employees and partner companies.  
+- **Notifications Engine:** Configurable real-time notifications via **email, WhatsApp, Telegram, or in-app alerts**, prioritizable per role, task, or tenant.  
+- **Integration-Friendly:** External API support allows partner companies to plug in, exchange tasks, and send updates while maintaining **auditability and accountability**.  
+- **Analytics & Reporting:** Dashboards provide **real-time KPIs per module, per team, per tenant**, supporting decision-making and SLA monitoring.  
+- **Extensible Modules:** Core modules (CRM, Sales, Marketing, Operations, HR, Support, Finance) can be **added, removed, or customized per tenant**.
+
+---
+
+## 2.3 Diagram Placeholder
+
+[High-Level Architecture Diagram Placeholder]
+Layers:
+
+Frontend (Next.js + React)
+
+API / Backend (Next.js API Routes)
+
+Edge Functions (Supabase Edge)
+
+Database (Supabase PostgreSQL)
+
+Notifications (Email, WhatsApp, Telegram, In-app)
+
+External Integrations (Partner Companies, 3rd-party APIs)
+
+Monitoring & Logging
+
+Security & Compliance
+
+yaml
+Copy code
+
+---
+
+## 2.4 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | Supabase availability, Vercel hosting, external APIs (WhatsApp, Telegram, Resend), network stability |
+| **Assumptions** | Each tenant provides required access for integrations; user adoption and role assignment are accurate; workflows are configured by admins |
+| **Risks** | External API downtime may delay notifications; misconfigured workflows could disrupt internal operations; multi-tenant isolation errors could expose data |
+
+---
+---
+
+# 3. Module Interaction Diagram
+
+## 3.1 Overview
+
+Bassan.os is a **modular SaaS platform** where each module interacts seamlessly with others to ensure **end-to-end workflow automation, data visibility, and real-time analytics**. The modules are designed to support **internal operations, external collaboration, and client engagement**.
+
+### Core Modules:
+
+1. **Customer Management (CRM)**  
+2. **Sales Management**  
+3. **Marketing Module**  
+4. **Operations / Service Delivery**  
+5. **Customer Support**  
+6. **HR & Workforce Management**  
+7. **Finance / Accounting (Optional)**  
+8. **Inter-Company Collaboration**  
+9. **Analytics & Reporting**  
+10. **Notifications System**
+
+---
+
+## 3.2 Module Interaction Logic
+
+| Module | Interacts With | Interaction Purpose |
+|--------|----------------|------------------|
+| **CRM** | Sales, Marketing, Operations, Support | Centralizes customer info; links campaigns, leads, tasks, support tickets |
+| **Sales Management** | CRM, Operations, Finance, Analytics | Tracks leads, pipeline, commission calculation; updates CRM status |
+| **Marketing Module** | CRM, Sales, Analytics | Launches campaigns; tracks leads, conversion; feeds results to Sales and Analytics |
+| **Operations / Service Delivery** | CRM, Sales, HR, Notifications | Assigns tasks, monitors service delivery, escalates delays, coordinates with internal and partner staff |
+| **Customer Support** | CRM, Operations, Notifications, Analytics | Handles tickets, escalates issues, tracks resolution time, reports customer satisfaction |
+| **HR & Workforce Management** | Operations, Sales, Marketing, Finance | Manages internal & remote staff, performance KPIs, role-based permissions, LinkedIn integration |
+| **Finance / Accounting** | Sales, HR, Operations, Analytics | Tracks invoices, budgets, commissions, revenue reports, expense tracking |
+| **Inter-Company Collaboration** | Operations, Sales, CRM, Partner Companies | Enables task delegation to partner companies, tracks completion, ensures accountability |
+| **Analytics & Reporting** | All modules | Aggregates data for dashboards, KPIs, and reports |
+| **Notifications System** | All modules | Sends alerts/notifications triggered by task status, deadlines, or SLA breaches |
+
+---
+
+## 3.3 Interaction Highlights
+
+- **CRM acts as the central hub**: All customer, lead, and service data flows through CRM.  
+- **Sales ↔ Marketing ↔ Analytics**: Marketing campaigns feed leads into Sales, which reports conversion rates to Analytics.  
+- **Operations ↔ HR ↔ Partner Companies**: Task assignments consider employee availability (internal and remote) and partner capabilities.  
+- **Notifications Layer**: Subscribes to all modules for real-time updates, escalations, or reminders.  
+- **Finance Module**: Computes commissions and invoices automatically based on Sales and Operations data.  
+
+---
+
+## 3.4 Diagram Placeholder
+
+[Module Interaction Diagram Placeholder]
+
+Modules represented as nodes:
+
+CRM
+
+Sales
+
+Marketing
+
+Operations
+
+Customer Support
+
+HR & Workforce
+
+Finance
+
+Inter-Company Collaboration
+
+Analytics & Reporting
+
+Notifications
+
+Arrows indicating data and task flow between modules as described in the table above.
+
+
+---
+
+## 3.5 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | All modules must adhere to standard APIs for data exchange; notifications rely on edge functions and external APIs |
+| **Assumptions** | Each module is configured by the tenant admin; workflows are accurate and mapped to roles |
+| **Risks** | Misalignment between modules (e.g., Sales and Marketing data mismatch) could affect KPIs; delayed notifications may impact SLA adherence |
+
+---
+# 4. Employee Workflow
+
+## 4.1 Overview
+
+The **Employee Workflow** in Bassan.os is designed to manage **task assignment, execution, tracking, completion, and notifications** for both **internal employees** and **remote staff / partner companies**. The workflow is **role-based, flexible, and configurable per tenant**, ensuring seamless collaboration across departments.
+
+---
+
+## 4.2 Workflow Steps
+
+| Step | Description | Responsible Module | Participants / Roles | Inputs | Outputs |
+|------|------------|------------------|--------------------|--------|---------|
+| **1. Task Creation** | New tasks are generated either automatically (from CRM, Sales, Operations) or manually by department heads or CEOs | Operations / Service Delivery | Department Heads, CEOs | Customer request, campaign result, operational need | Task record with priority, deadline, assigned role |
+| **2. Task Assignment** | Tasks are assigned to internal employees, remote staff, or partner companies based on availability, role, and skill | HR & Workforce Management + Operations | HR Manager, Team Leads | Employee profiles, LinkedIn data, partner company capability | Task assignments per employee / partner |
+| **3. Task Execution** | Employees perform the assigned work | Employee Dashboard (Operations/Sales/Marketing/Support) | Internal Employee, Remote Staff, Partner Company | Task details, associated client/project info, access to tools | Progress updates, partial completions, comments |
+| **4. Status Tracking** | Real-time tracking of task progress | Analytics & Reporting + Notifications | Department Heads, Team Leads | Task updates, timestamps, dependency status | Dashboard updates, KPI tracking, SLA alerts |
+| **5. Exception Handling** | Automatic detection and handling of delays, blockers, or incomplete tasks | Operations / Notifications | Department Heads, CEO | Task status, SLA rules | Escalation alerts, reassignment, notifications |
+| **6. Task Completion** | Task marked as complete; metrics recorded for performance evaluation | Analytics & Reporting | Internal Employee, Remote Staff, Partner Company | Completed task data | KPI update, employee performance record, project completion report |
+| **7. Feedback & Review** | Post-completion review and feedback collection | HR & Workforce Management + Customer Support | Team Leads, Employees, Clients | Task outcome, client satisfaction | Performance reports, process improvement suggestions |
+| **8. Notification & Audit** | Alerts sent to relevant stakeholders for visibility | Notifications System | All roles | Task updates, SLA breaches, completion status | Emails, WhatsApp messages, Telegram alerts, in-app notifications; audit log entries |
+
+---
+
+## 4.3 Key Features
+
+1. **Role-Based Access & Permissions:** Employees see tasks relevant to their role; cannot modify tasks outside their scope.  
+2. **Automated Routing:** Tasks move automatically between departments and employees based on workflow rules.  
+3. **Multi-Tenant Flexibility:** Each company defines its own rules, priority levels, and task dependencies.  
+4. **Remote & Partner Integration:** Assign tasks to external teams while maintaining visibility and accountability.  
+5. **Notifications & Escalations:** Real-time alerts for deadlines, SLA breaches, or task delays.  
+6. **Performance Metrics:** Task completion rates, average handling times, employee productivity tracked for HR and management reporting.  
+7. **Customizable Workflows:** Admins can add/remove steps, reassign roles, or integrate additional tools per company needs.
+
+---
+
+## 4.4 Diagram Placeholder
+
+[Employee Workflow Diagram Placeholder]
+
+Flow:
+Task Creation → Assignment → Execution → Tracking → Exception Handling → Completion → Feedback → Notification/Audit
+
+yaml
+Copy code
+
+---
+
+## 4.5 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | HR module for employee/remote staff data; Notifications for alerts; Analytics for tracking |
+| **Assumptions** | Employee roles, availability, and skills are accurately maintained; Partner companies provide timely updates |
+| **Risks** | Misconfigured workflows could lead to delays; remote staff non-compliance; missed SLA notifications impacting client satisfaction |
+
+---
+# 5. Client Workflow
+
+## 5.1 Overview
+
+The **Client Workflow** in Bassan.os is designed to ensure **transparent, trackable, and efficient handling of client requests**, from initial contact to service delivery and post-service feedback. This workflow supports **internal employees, partner companies, and remote staff** while keeping clients informed through **dedicated portals and notifications**.
+
+---
+
+## 5.2 Workflow Steps
+
+| Step | Description | Responsible Module | Participants / Roles | Inputs | Outputs |
+|------|------------|------------------|--------------------|--------|---------|
+| **1. Client Onboarding** | New clients are registered in the system through manual entry by reception, automated capture from campaigns, or API integrations | CRM | Receptionist, Marketing, Sales | Client data (contact info, company info, source) | Client record in CRM, assignment to Sales |
+| **2. Lead Qualification** | Assess client readiness, budget, and fit | Sales Management | Sales Representatives, Team Leads | Lead data, client profile, campaign source | Qualified/Disqualified lead status, potential revenue |
+| **3. Service / Product Proposal** | Create proposals, quotes, or plans for client review | Sales Management + Operations | Sales, Operations, Partner Companies | Lead status, client requirements | Proposal document, expected deliverables, approval workflow |
+| **4. Task Assignment & Execution** | Tasks related to client service (internal or outsourced) are assigned | Operations / Service Delivery | Internal employees, Remote staff, Partner companies | Proposal details, client requirements | Task records, execution status updates |
+| **5. Status Tracking** | Clients can monitor the progress of their requests | Analytics & Reporting + CRM | Clients, Account Managers | Task updates, project milestones | Client portal status updates, dashboards |
+| **6. Exception Handling** | Handle delays, blockers, or unmet SLAs | Operations / Notifications | Department Heads, Account Managers | Task data, SLA rules | Notifications to clients & internal teams, escalation logs |
+| **7. Delivery & Completion** | Deliver service or product to client | Operations + CRM | Operations team, Partner company, Account Manager | Completed tasks, service confirmation | Client receives deliverables, system records completion |
+| **8. Feedback & Satisfaction** | Collect client feedback for service improvement | Customer Support + Analytics | Client, Account Manager | Completion report, survey forms | Feedback record, client satisfaction score, actionable insights |
+| **9. Billing & Finance (Optional)** | Invoice client and record payment status | Finance / Accounting | Finance team | Service completion confirmation, client data | Invoice sent, payment recorded, status updated in CRM |
+| **10. Notifications & Audit** | Automated updates and alerts sent to client | Notifications System | Clients, Account Managers | Task completion, SLA alerts, pending approvals | Emails, WhatsApp messages, Telegram alerts, in-app notifications; audit log entries |
+
+---
+
+## 5.3 Key Features
+
+1. **Client Portal:** Secure, role-based access for clients to track their requests and view relevant updates.  
+2. **Lead Management Integration:** Connects Marketing campaigns and CRM data for accurate client tracking.  
+3. **Workflow Transparency:** Clients can see task progress without altering internal operations.  
+4. **Notifications Engine:** Real-time alerts for status changes, approvals, and SLA breaches.  
+5. **Service Delivery Flexibility:** Tasks can be executed by internal teams, remote staff, or partner companies with accountability tracked.  
+6. **Feedback Collection:** Continuous client satisfaction measurement, feeding Analytics and HR modules for performance insights.  
+7. **Optional Financial Tracking:** Invoices, payments, and commissions integrated if Finance module is enabled.  
+8. **Escalation Management:** Automatic alerts to managers when delays or issues arise, ensuring SLA adherence.
+
+---
+
+## 5.4 Diagram Placeholder
+
+[Client Workflow Diagram Placeholder]
+
+Flow:
+Client Onboarding → Lead Qualification → Proposal → Task Assignment → Execution → Status Tracking → Exception Handling → Delivery → Feedback → Notifications/Audit
+
+yaml
+Copy code
+
+---
+
+## 5.5 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | CRM for client data, Operations for task execution, Notifications for updates, Analytics for dashboards |
+| **Assumptions** | Client data is accurate; partner companies provide timely updates; automated notifications function correctly |
+| **Risks** | Delayed updates may reduce client trust; miscommunication between internal staff and partner companies; SLA breaches impacting reputation |
+
+---
+# 6. Data Architecture
+
+## 6.1 Overview
+
+The **Data Architecture** for Bassan.os ensures **secure, scalable, multi-tenant storage**, and efficient retrieval of data across all modules and workflows. The architecture supports **internal employees, remote staff, partner companies, and clients**, maintaining **data isolation per tenant** while enabling **cross-module analytics**.
+
+---
+
+## 6.2 Key Principles
+
+1. **Multi-Tenant Data Isolation:** Each company (tenant) has logically separated data to ensure privacy and security.  
+2. **Role-Based Access Control (RBAC):** Users can only access data aligned with their role and department.  
+3. **Auditability:** Every change is logged for compliance and performance tracking.  
+4. **Scalable Storage:** Designed to handle high-volume transactional data and analytics.  
+5. **Flexible Schema:** Supports adding/removing modules without major schema changes.  
+6. **Data Consistency & Integrity:** Enforced via relational constraints, validation rules, and transactional processing.
+
+---
+
+## 6.3 Core Data Entities
+
+| Entity | Description | Key Fields | Relationships |
+|--------|------------|------------|---------------|
+| **Tenant** | Represents a company using Bassan.os | tenant_id, name, subscription_plan, created_at | One-to-many → Users, Departments, Modules |
+| **User** | Internal or remote staff | user_id, tenant_id, role_id, name, email, LinkedIn_profile, status | Many-to-one → Tenant; Many-to-many → Tasks |
+| **Role** | Defines access levels and permissions | role_id, name, permissions, department_id | One-to-many → Users |
+| **Department** | Organizational units | department_id, tenant_id, name, manager_id | One-to-many → Users, Tasks |
+| **Customer / Client** | Clients tracked in CRM | customer_id, tenant_id, name, contact_info, status, assigned_sales_id | Many-to-one → Tenant; One-to-many → Leads, Tasks |
+| **Lead** | Potential clients / opportunities | lead_id, customer_id, source_campaign_id, status, estimated_value | Many-to-one → Customer; Many-to-one → Campaign |
+| **Campaign** | Marketing campaigns | campaign_id, tenant_id, name, type, start_date, end_date, budget, metrics | One-to-many → Leads |
+| **Task** | Work items for employees or partners | task_id, assigned_to_user_id / partner_id, module_id, status, priority, SLA, created_at, due_date | Many-to-one → User / Partner; Many-to-one → Module |
+| **Transaction / Invoice** | Financial records | transaction_id, tenant_id, customer_id, amount, status, due_date, completed_at | Many-to-one → Customer |
+| **Notification** | Alerts sent to users or clients | notification_id, recipient_id, type, content, status, created_at | Many-to-one → User / Client |
+| **Partner Company** | External companies providing services | partner_id, tenant_id, name, services_offered, rating | One-to-many → Tasks, Users |
+| **Module Config** | Tenant-specific module settings | module_id, tenant_id, enabled, configuration_json | Many-to-one → Tenant |
+
+---
+
+## 6.4 Data Flow (High-Level)
+
+[Data Flow Diagram Placeholder]
+
+Flow:
+
+Client Input → CRM → Leads → Tasks → Operations → Notifications → Analytics → HR / Performance Metrics → Reporting
+
+yaml
+Copy code
+
+- **CRM & Marketing:** Captures client data, campaign performance, and lead status.  
+- **Sales & Operations:** Tracks task assignments, execution, SLA compliance.  
+- **Finance:** Logs transactions, invoices, and commissions.  
+- **HR:** Tracks employee performance and KPIs.  
+- **Analytics:** Aggregates data from all modules for dashboards and reporting.  
+- **Notifications:** Uses event triggers for alerts to employees, clients, and partner companies.
+
+---
+
+## 6.5 Database Design Principles
+
+1. **Relational Database (PostgreSQL via Supabase):** Ensures structured storage and strong transactional integrity.  
+2. **Schema Flexibility:** JSONB fields for module-specific or optional data (e.g., campaign metrics, partner configurations).  
+3. **Indexes & Query Optimization:** For high-volume tables like Tasks, Notifications, Leads.  
+4. **Audit & Logging Tables:** Track changes in Users, Tasks, Transactions.  
+5. **Tenant Isolation:** Each table contains `tenant_id`; row-level security applied via Supabase RLS.  
+
+---
+
+## 6.6 Backup & Disaster Recovery
+
+| Aspect | Approach |
+|--------|---------|
+| **Backup Frequency** | Daily full backup, hourly incremental backup |
+| **Retention Policy** | 30 days for incremental, 90 days for full backups |
+| **Recovery Point Objective (RPO)** | < 1 hour |
+| **Recovery Time Objective (RTO)** | < 2 hours |
+| **Geo-Redundancy** | Replication across multiple Supabase regions |
+| **Testing** | Quarterly restore testing to validate backups |
+
+---
+
+## 6.7 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | Supabase PostgreSQL, Edge Functions, APIs for integrations, Notifications system |
+| **Assumptions** | Tenant data is accurately assigned; RBAC roles are properly maintained |
+| **Risks** | Misconfigured RLS could lead to data leaks; large volume of tasks/customers may impact query performance; partner companies not updating task statuses promptly |
+
+---
+# 7. Integration Architecture
+
+## 7.1 Overview
+
+The **Integration Architecture** of Bassan.os enables seamless communication between **internal modules, external systems, partner companies, and communication platforms**. It ensures data consistency, real-time updates, and flexibility to integrate additional services as the system scales.
+
+---
+
+## 7.2 Integration Principles
+
+1. **Standardized API Interfaces:** RESTful JSON APIs for inter-module and external communication.  
+2. **Event-Driven Notifications:** Real-time triggers for task updates, SLA alerts, client notifications.  
+3. **Secure Authentication & Authorization:** OAuth2.0 / API keys for external systems.  
+4. **Flexible Connectors:** Plug-and-play integrations with partner systems, messaging platforms, and analytics tools.  
+5. **Audit Logging:** All API calls, responses, and integration events are logged for compliance and debugging.  
+
+---
+
+## 7.3 Internal Module Integrations
+
+| Source Module | Target Module | Purpose | Communication Type | Frequency |
+|---------------|---------------|---------|-----------------|-----------|
+| CRM | Sales Management | Sync lead & client data | REST API / Webhooks | Real-time |
+| Sales Management | Operations | Task creation based on client approvals | REST API / Event Queue | Real-time |
+| Marketing | CRM / Analytics | Campaign performance & ROI tracking | REST API | Daily / Real-time |
+| Operations | Notifications | Task assignments, SLA alerts | Event-driven | Real-time |
+| HR & Workforce | Analytics | Employee performance KPIs | REST API | Daily |
+| Finance | CRM / Sales | Payment and commission tracking | REST API | Daily |
+| Analytics | Notifications | Alert generation for KPIs & SLA breaches | Event-driven | Real-time |
+
+---
+
+## 7.4 External Integrations
+
+| Integration | Purpose | Data Flow | Protocol / API | Notes |
+|-------------|--------|-----------|---------------|-------|
+| **WhatsApp Business API** | Client notifications & updates | Two-way (send alerts, receive confirmations) | REST API, Webhooks | Supports automated SLA alerts, messages tied to tasks |
+| **Telegram Bot API** | Internal & client notifications | Two-way | HTTPS / Webhooks | Optional for clients or remote staff updates |
+| **Resend Email API** | Email notifications | One-way | REST API | Bulk or transactional emails, SLA & campaign updates |
+| **LinkedIn API** | Remote employee verification & portfolio linking | One-way | REST API / OAuth2 | Used by HR module for candidate evaluation |
+| **Partner Company APIs** | Task assignments, status updates | Two-way | REST / JSON | Supports multi-tenant collaboration and partner accountability |
+| **External CRMs or ERPs** | Optional integration for client synchronization | Two-way | REST / SOAP | Configurable per tenant; mapped via ETL or API connector |
+
+---
+
+## 7.5 Communication Protocols
+
+- **RESTful HTTP/HTTPS:** Standardized interface for modules and external APIs.  
+- **Webhooks / Event Queue:** Real-time notifications between modules and external systems.  
+- **JSON & JSONB Payloads:** Flexible schema for structured and semi-structured data.  
+- **OAuth2 / API Key Authentication:** Secured access for partner integrations and remote employees.  
+- **Rate Limiting & Throttling:** Protects system from API abuse and ensures stability.  
+
+---
+
+## 7.6 Integration Workflow Examples
+
+**1. Client Task via Partner Company**
+
+Client → CRM → Sales → Operations → Partner API → Partner Staff → Task Status → Operations → Notifications → Client Portal
+
+css
+Copy code
+
+**2. Campaign Metrics to Analytics**
+
+Marketing Module → Analytics Module → Notifications → Department Heads
+
+markdown
+Copy code
+
+**3. Remote Employee Assignment**
+
+Operations Module → HR Module → LinkedIn API → Employee Verification → Task Assignment → Notifications → Employee Dashboard
+
+yaml
+Copy code
+
+---
+
+## 7.7 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | Stable internet, API credentials, partner system reliability, notification channels |
+| **Assumptions** | External APIs follow standards, rate limits are adhered to, webhooks are delivered reliably |
+| **Risks** | API downtime causing delayed updates, misalignment in partner task statuses, failed notifications affecting SLA adherence |
+
+---
+# 8. Deployment & Infrastructure Architecture
+
+## 8.1 Overview
+
+Bassan.os is designed as a **cloud-native, multi-tenant SaaS platform** optimized for **scalability, high availability, and low operational overhead**. The deployment architecture ensures **resilient operations**, **efficient resource utilization**, and **easy extensibility** for new modules and tenants.
+
+---
+
+## 8.2 Cloud Architecture
+
+| Layer | Technology / Service | Purpose |
+|-------|--------------------|---------|
+| **Frontend Hosting** | Vercel | Host Next.js 14 app, Server Components, SSR, App Router |
+| **Backend / API Routes** | Vercel Serverless Functions | Handle REST API requests, business logic |
+| **Database** | Supabase PostgreSQL | Multi-tenant relational storage, RLS for tenant isolation |
+| **Edge Functions** | Supabase Edge Functions | Scheduled jobs, real-time task routing, notifications |
+| **CDN** | Vercel / Cloudflare | Static asset delivery, global low-latency access |
+| **Authentication** | Supabase Auth | OAuth2, Email, Social login (Google, GitHub) |
+| **Notifications** | WhatsApp Business API, Telegram Bot API, Resend Email | Multi-channel alerts, SLA notifications |
+
+---
+
+## 8.3 Deployment Topology
+
+[Deployment Diagram Placeholder]
+
+Client → CDN → Frontend (Vercel) → Backend API Routes → Supabase PostgreSQL / Edge Functions → Notifications / External Integrations
+
+yaml
+Copy code
+
+- **Multi-region Deployment:** Optional for enterprise tenants requiring geo-redundancy.  
+- **Load Balancing:** Managed via Vercel and CDN; ensures automatic distribution of requests.  
+- **Edge Functions:** Perform lightweight business logic close to the user, reducing latency.
+
+---
+
+## 8.4 CI/CD Pipeline
+
+| Stage | Tool | Purpose |
+|-------|------|--------|
+| **Source Control** | GitHub | Version control, branch management |
+| **Build / Test** | GitHub Actions | Compile TypeScript, run unit & integration tests |
+| **Deployment** | Vercel | Automatic deployment per branch/environment |
+| **Monitoring** | Supabase logs, Vercel Analytics, Cloudflare Insights | Track runtime errors, request latency, uptime |
+| **Rollback** | Vercel Deploy Rollback | Revert faulty releases instantly |
+
+---
+
+## 8.5 Monitoring & Logging
+
+| Aspect | Tool | Description |
+|--------|------|------------|
+| **Application Monitoring** | Vercel Analytics / Supabase Logs | Monitor API performance, errors, request rates |
+| **Database Metrics** | Supabase Metrics / pg_stat | Track query performance, connection usage, replication lag |
+| **Notification Delivery** | Custom Event Logs | Track message delivery, failures, SLA breaches |
+| **Alerts** | Slack / Email / Telegram | Send alerts to DevOps or tenant admins for critical failures |
+
+---
+
+## 8.6 Scalability Strategy
+
+- **Frontend Scaling:** Auto-scaling via Vercel Serverless Functions.  
+- **Backend Scaling:** Horizontal scaling using stateless serverless API Routes.  
+- **Database Scaling:** Supabase PostgreSQL vertical scaling (CPU, memory), read replicas for reporting.  
+- **Edge Functions Scaling:** Automatic based on scheduled jobs or event triggers.  
+- **Multi-Tenant Isolation:** RLS ensures queries and operations are scoped per tenant.
+
+---
+
+## 8.7 Disaster Recovery & Redundancy
+
+| Aspect | Strategy |
+|--------|---------|
+| **Database Replication** | Multi-region replication via Supabase |
+| **Automatic Failover** | Supabase handles failover between primary and secondary nodes |
+| **Backup & Restore** | Daily full, hourly incremental, 90-day retention |
+| **High Availability** | Frontend and API deployed globally via Vercel + CDN caching |
+| **Testing** | Quarterly DR drills and restore validation |
+
+---
+
+## 8.8 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | Supabase, Vercel, Cloudflare, external integrations (WhatsApp, Telegram, Resend) |
+| **Assumptions** | Stable cloud provider SLAs, network reliability, automated scaling works correctly |
+| **Risks** | Regional outages, API rate limits, misconfigured edge functions, insufficient monitoring alerts |
+
+---
+# 9. Security & Compliance Architecture
+
+## 9.1 Overview
+
+Security and compliance are **foundational pillars** of Bassan.os, ensuring **data privacy, regulatory adherence, and trust** for tenants, employees, and clients. The architecture integrates **multi-layered security controls**, **role-based access**, and **continuous monitoring**.
+
+---
+
+## 9.2 Authentication & Authorization
+
+| Component | Technology / Approach | Purpose |
+|-----------|---------------------|---------|
+| **User Authentication** | Supabase Auth (Email, OAuth2, Social login: Google, GitHub) | Secure login for employees, tenants, and clients |
+| **Role-Based Access Control (RBAC)** | Custom roles mapped to modules (Admin, Department Head, Employee, Remote Staff, Partner, Client) | Enforce access permissions per module and action |
+| **Multi-Factor Authentication (MFA)** | Optional via Email or Authenticator apps | Additional security layer for sensitive operations |
+| **Session Management** | JWT + Supabase session management | Stateless authentication for API requests |
+
+---
+
+## 9.3 Data Security
+
+| Aspect | Approach |
+|--------|---------|
+| **Data at Rest** | PostgreSQL encryption (AES-256) for sensitive tables: passwords, financial data, client PII |
+| **Data in Transit** | TLS 1.3 / HTTPS for all API requests and web traffic |
+| **Field-Level Encryption** | Optional encryption for financial and HR sensitive fields |
+| **Tenant Isolation** | RLS (Row-Level Security) per tenant, ensuring no cross-tenant access |
+
+---
+
+## 9.4 Compliance
+
+| Regulation / Standard | Implementation |
+|----------------------|----------------|
+| **GDPR** | Data access, right-to-delete, consent management |
+| **ISO 27001 (optional for enterprise clients)** | Information security management policies and controls |
+| **PCI-DSS (if payment module integrated)** | Secure handling of financial transactions and cardholder data |
+| **Local Data Residency Requirements** | Configurable deployment regions per tenant |
+
+---
+
+## 9.5 Threat Modeling & Mitigation
+
+| Threat Category | Potential Risk | Mitigation Strategy |
+|-----------------|----------------|------------------|
+| **Unauthorized Access** | Credential theft, brute force attacks | MFA, strong password policies, account lockout, RBAC |
+| **Data Breach** | Database compromise | Encryption at rest, RLS, network firewalls, database audit logs |
+| **API Exploitation** | Malicious requests, injection attacks | Rate limiting, input validation, API gateways, monitoring |
+| **Insider Threats** | Misuse by employees or contractors | Role-based permissions, logging, audit trails, alerts on abnormal actions |
+| **Third-Party Integration Risks** | Compromised partner APIs | Token expiration, validation, strict permissions, logging |
+
+---
+
+## 9.6 Logging & Auditing
+
+| Logging Area | Details |
+|--------------|---------|
+| **User Activity Logs** | Login attempts, task assignments, approvals, critical data access |
+| **API Logs** | All inbound/outbound requests, status codes, payload metadata |
+| **Integration Logs** | Partner API calls, delivery confirmations, webhook events |
+| **Alerts & Notifications** | SLA breaches, unusual login patterns, failed integrations |
+
+---
+
+## 9.7 Security Monitoring
+
+- **Real-time Alerts**: Notify DevOps or tenant admins via email, Slack, or Telegram on critical events  
+- **Periodic Audits**: Quarterly internal security reviews and penetration testing  
+- **Incident Response Plan**: Predefined steps for data breaches, downtime, or integration failures  
+
+---
+
+## 9.8 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | Supabase security features, HTTPS/TLS, OAuth providers, cloud provider compliance |
+| **Assumptions** | Tenants adhere to password policies, external integrations maintain secure channels |
+| **Risks** | Credential leakage, misconfigured RBAC, API key compromise, unpatched vulnerabilities |
+
+---
+ 10. Performance & Scalability Architecture
+
+## 10.1 Overview
+
+Bassan.os is designed to **handle high loads across multiple tenants** while maintaining **fast response times, consistent throughput, and low latency**. Scalability is **horizontal and vertical**, ensuring elasticity for sudden spikes, seasonal usage, or enterprise growth.
+
+---
+
+## 10.2 Load & Capacity Planning
+
+| Component | Expected Load | Strategy |
+|-----------|---------------|---------|
+| **Frontend (Next.js + Vercel)** | 10,000–100,000 concurrent users | Serverless scaling via Vercel, CDN caching for static assets |
+| **Backend API Routes** | 1,000–50,000 requests/sec | Auto-scaling serverless functions; stateless architecture ensures rapid instance provisioning |
+| **Database (Supabase PostgreSQL)** | 1–50 tenants per database shard, 100K+ records per tenant | Sharding if needed, read replicas for reporting, connection pooling |
+| **Notifications System** | 10,000+ messages/day | Queued processing via Edge Functions, rate-limiting for external APIs |
+
+---
+
+## 10.3 Caching & Optimization Strategies
+
+| Layer | Approach | Details |
+|-------|---------|---------|
+| **Frontend** | CDN + Browser Cache | Cache static assets globally via Cloudflare/Vercel |
+| **Backend** | Edge Caching & In-memory Cache | Frequently requested data (e.g., lookup tables, campaign templates) stored in memory or Supabase Edge |
+| **Database** | Query Optimization & Indexing | Use primary/foreign keys, indexes on high-read tables (Customers, Tasks, Leads) |
+| **API Responses** | Pagination & Filtering | Limit payload size, support partial responses to reduce bandwidth |
+
+---
+
+## 10.4 Horizontal & Vertical Scaling
+
+| Component | Horizontal Scaling | Vertical Scaling |
+|-----------|------------------|----------------|
+| **Frontend** | Auto-scale Vercel serverless instances | Increase allocated memory/CPU per function if necessary |
+| **Backend** | Additional serverless instances automatically provisioned | Upgrade Vercel plan for higher concurrency if limits reached |
+| **Database** | Read replicas for reporting, partitioning by tenants | Supabase allows upgrading node size (CPU/RAM) |
+| **Edge Functions** | Parallel execution for scheduled tasks | None needed; functions are lightweight by design |
+
+---
+
+## 10.5 Multi-Tenant Performance Isolation
+
+- **Row-Level Security (RLS):** Prevent cross-tenant data access  
+- **Query Rate Limiting per Tenant:** Prevent a single tenant from affecting global performance  
+- **Tenant-Level Metrics:** Track individual tenant load, error rate, and latency for SLA reporting
+
+---
+
+## 10.6 Monitoring & Metrics
+
+| Metric | Tool / Approach | Purpose |
+|--------|----------------|---------|
+| **Frontend Latency** | Vercel Analytics | Measure page load times, component render times |
+| **API Response Time** | Supabase + Vercel logs | Identify bottlenecks in serverless functions |
+| **Database Performance** | Supabase Metrics | Track slow queries, connection usage, deadlocks |
+| **Notification Queue Health** | Custom dashboards | Ensure timely delivery and SLA adherence |
+| **Tenant SLA Tracking** | Built-in analytics | Monitor per-tenant response times, error rates |
+
+---
+
+## 10.7 Optimization & Auto-Scaling Policies
+
+- **Event-driven Scaling:** Serverless backend and edge functions automatically scale based on requests/events  
+- **Queue-based Throttling:** Tasks (like notifications, campaigns) are queued and processed asynchronously to prevent overload  
+- **Load Testing:** Regular performance testing to validate capacity planning (10K–100K concurrent users simulated)  
+- **Bottleneck Mitigation:** Monitoring identifies slow queries, failed integrations, or overused functions, triggering alerts and auto-scaling
+
+---
+
+## 10.8 Dependencies, Assumptions, and Risks
+
+| Aspect | Details |
+|--------|---------|
+| **Dependencies** | Vercel auto-scaling, Supabase DB performance, CDN availability, Edge Function concurrency |
+| **Assumptions** | Cloud provider guarantees SLA, workload patterns predictable, tenants follow recommended usage |
+| **Risks** | Sudden tenant spikes causing throttling, unoptimized queries, API limits on external integrations (WhatsApp, Telegram, Resend), caching misconfigurations |
+
+---
+# 11. Risk Analysis & Assumptions
+
+## 11.1 Overview
+
+Bassan.os is a **complex, multi-tenant SaaS platform** with numerous modules, integrations, and workflows. This section identifies **technical, operational, and market risks**, along with **assumptions** that underpin the architecture, and defines **mitigation strategies** to ensure business continuity and reliability.
+
+---
+
+## 11.2 Technical Risks
+
+| Risk | Description | Likelihood | Impact | Mitigation |
+|------|-------------|-----------|--------|------------|
+| **Database Performance Degradation** | High query volume or large tenants may slow response | Medium | High | Use read replicas, indexing, query optimization, sharding per tenant |
+| **API Rate Limiting / Integration Failures** | External APIs (WhatsApp, Telegram, Resend) may throttle requests | High | Medium | Implement retry logic, queuing, exponential backoff, monitoring alerts |
+| **Edge Function Overload** | Scheduled tasks or notifications may exceed function concurrency | Medium | Medium | Monitor Edge function limits, queue tasks, auto-scale |
+| **Authentication & RBAC Failures** | Misconfigured roles or auth can expose data | Low | High | Regular security audits, RBAC testing, MFA enforcement |
+| **Frontend / Backend Latency** | Slow page loads or API response times | Medium | Medium | CDN caching, query optimization, auto-scaling, performance monitoring |
+| **Data Loss / Corruption** | Human error, software bug, or malicious activity | Low | High | Automated backups, audit logs, disaster recovery plan |
+
+---
+
+## 11.3 Operational Risks
+
+| Risk | Description | Likelihood | Impact | Mitigation |
+|------|-------------|-----------|--------|------------|
+| **Tenant Misconfiguration** | Incorrect setup leading to access or workflow errors | Medium | Medium | Guided onboarding, validation rules, admin training |
+| **Employee / Partner Misuse** | Unauthorized changes or bypassing workflow | Medium | High | Logging, audit trails, role-based permissions, alerts for abnormal actions |
+| **Support Delays** | Tickets not handled promptly due to high volume | Medium | Medium | Escalation rules, automated notifications, SLA monitoring |
+| **Remote Workforce Dependency** | Dependence on remote employees’ tools or connectivity | Medium | Medium | Cloud-native SaaS ensures access anywhere, offline fallback limited |
+
+---
+
+## 11.4 Market & Business Risks
+
+| Risk | Description | Likelihood | Impact | Mitigation |
+|------|-------------|-----------|--------|------------|
+| **Competition** | Existing SaaS platforms may offer similar features | High | Medium | Focus on multi-module flexibility, inter-company collaboration, remote workforce features |
+| **Tenant Adoption** | Difficulty onboarding internal teams | Medium | Medium | Provide guided setup, documentation, onboarding webinars |
+| **External Integration Reliance** | Third-party services downtime (WhatsApp, Telegram, Resend) | Medium | Medium | Graceful degradation, fallback notifications, multi-channel support |
+
+---
+
+## 11.5 Assumptions
+
+| Assumption | Justification |
+|------------|---------------|
+| Cloud provider uptime and SLA are reliable | Necessary for SaaS availability |
+| Tenants follow recommended workflow guidelines | Ensures correct task routing and performance |
+| External APIs are stable and available | Critical for notifications, emails, and partner collaboration |
+| Users have basic internet literacy | Enables proper use of multi-module SaaS platform |
+| System resources scale as planned | Serverless architecture and auto-scaling handle growth |
+
+---
+
+## 11.6 Mitigation Strategy Summary
+
+1. **Monitoring & Alerts:** Implement real-time monitoring for API calls, database performance, Edge function load, and tenant SLA compliance.
+2. **Automated Backups & Recovery:** Ensure daily automated backups and test disaster recovery procedures.
+3. **Role-Based Access & Audit:** Strict RBAC for internal, remote, and partner users; maintain logs for all sensitive actions.
+4. **Graceful Degradation:** In case of external API failure, system continues core workflows and queues notifications for retry.
+5. **Tenant Onboarding & Training:** Structured guidance to minimize misconfiguration and adoption risk.
+6. **Load Testing & Optimization:** Regular stress tests to validate performance under peak load conditions.
+
+---
+| **Tenant** | An individual company or organization using Bassan.os; each tenant has isolated data and configuration. |
+| **RBAC** | Role-Based Access Control; defines permissions and access levels per user role. |
+| **CRM** | Customer Relationship Management; module to manage customer lifecycle, interactions, and history. |
+| **Lead** | A potential customer captured via campaigns, website, or external source. |
+| **Pipeline** | The structured sales process from lead capture to closing a sale. |
+| **Edge Functions** | Serverless functions executed close to the user or cloud edge for low latency. |
+| **SLA** | Service Level Agreement; defines expected system uptime, performance, and response times. |
+| **Workflow** | Sequence of tasks assigned to employees, partners, or system modules to complete business processes. |
+| **Partner Company** | External company collaborating or providing services integrated within Bassan.os. |
+| **Notifications System** | Module for delivering alerts via email, WhatsApp, Telegram, or in-app channels. |
+
+---
+
+## 12.2 Diagram Placeholders
+
+- **High-Level Architecture Diagram:**  
+  `[Frontend ↔ Backend APIs ↔ Database ↔ Edge Functions ↔ Notifications ↔ External Integrations]`
+
+- **Module Interaction Diagram:**  
+  `[CRM ↔ Sales ↔ Marketing ↔ Operations ↔ HR ↔ Finance ↔ Analytics ↔ Notifications]`
+
+- **Employee Workflow Diagram:**  
+  `[Task Assignment → Execution → Tracking → Completion → Notification]`
+
+- **Client Workflow Diagram:**  
+  `[Client Request → CRM → Sales → Operations → Support → Notification]`
+
+- **Database ERD Diagram:**  
+  `[Tenants, Users, Roles, Customers, Leads, Campaigns, Tasks, Transactions, Notifications]`
+
+- **Integration Architecture Diagram:**  
+  `[WhatsApp Business, Telegram Bot, Resend Email, Partner Companies, External Systems]`
+
+- **Deployment & Infrastructure Diagram:**  
+  `[Cloud Provider, Vercel Hosting, Supabase DB, Edge Functions, CDN, Load Balancers, Monitoring Tools]`
+
+---
+
+## 12.3 References
+
+1. Business Requirements Document (BRD) – Bassan.os  
+2. SaaS Multi-Tenant Architecture Best Practices – Gartner & AWS Whitepapers  
+3. PostgreSQL Performance & Scaling Guidelines – Supabase Documentation  
+4. Vercel Serverless Functions & Deployment Reference  
+5. Cloud Security and Compliance Standards – ISO 27001, GDPR  
+6. Notifications API Documentation – WhatsApp Business API, Telegram Bot API, Resend Email  
+
+---
+
+# Section 1: Introduction
+
+## 1.1 Purpose
+
+The purpose of this Architecture Design Document (ADD) is to provide a **comprehensive blueprint** for the design and implementation of **Bassan.os**, an enterprise-grade SaaS platform.  
+Bassan.os is intended to support **multi-company, multi-tenant operations**, enabling companies to manage internal processes, remote employees, and inter-company collaboration while maintaining **scalable, secure, and flexible workflows**.  
+
+This document serves as a **technical reference** for:
+
+- Developers and DevOps teams for implementation.
+- Product and project managers for feature planning.
+- QA teams for testing and validation.
+- Investors and executives for understanding architecture alignment with business goals.
+
+The architecture described herein is **modular, extensible, and designed for customization**, allowing additional modules to be added or removed without impacting existing system functionality.
+
+---
+
+## 1.2 Scope
+
+Bassan.os is designed to support:
+
+1. **Internal Company Operations**  
+   - Manage employees (onsite and remote), departments, tasks, workflows, and KPIs.
+   - Enable role-based access control for all users.
+   - Provide real-time dashboards and analytics for decision-making.
+2. **Client Relationship Management (CRM)**  
+   - Track customer lifecycle (new, active, inactive).
+   - Map campaigns and sales to specific clients.
+   - Maintain interaction history and client feedback.
+3. **Sales and Marketing Automation**  
+   - Lead management and pipeline tracking.
+   - Campaign creation, monitoring, and ROI analysis.
+   - Automated commission calculation and performance reports.
+4. **Operations and Service Delivery**  
+   - Task assignment and routing (internal or via partner companies).
+   - SLA monitoring and exception management.
+   - Workflow automation across multiple departments.
+5. **Remote Workforce Integration**  
+   - Onboard remote employees or freelancers linked via LinkedIn.
+   - Track performance, task completion, and compensation (salary or commission-based).
+6. **Inter-Company Collaboration**  
+   - Share tasks with partner companies.
+   - Monitor partner performance and deliverables.
+   - Maintain cross-company workflow traceability.
+7. **Notifications and Communication**  
+   - Multi-channel notifications: in-app, email (Resend), WhatsApp, Telegram.
+   - SLA alerts, escalations, and task updates.
+8. **Analytics and Reporting**  
+   - Real-time dashboards per department.
+   - Customizable reports and KPIs.
+   - Module-level and tenant-level analytics.
+
+The system is **cloud-native**, built on **Supabase (PostgreSQL + Auth + Storage + Edge Functions)** and **Next.js** for frontend and backend, with integrations for messaging, email, and external partner systems.
+
+---
+
+## 1.3 References
+
+- BRD for Bassan.os (complete business requirements and functional mapping)  
+- Supabase Documentation: PostgreSQL, Auth, Realtime, Edge Functions  
+- Next.js Documentation: App Router, Server Components, API Routes  
+- WhatsApp Business API, Telegram Bot API, Resend Email API  
+- Multi-Tenant SaaS Architecture Best Practices (Global Enterprise Standards)  
+- RBAC Security and GDPR Compliance Guidelines  
+
+---
+
+## 1.4 Document Overview
+
+This Architecture Design Document is organized as follows:
+
+| Section | Description |
+|---------|------------|
+| 1. Introduction | Purpose, Scope, References, Document Overview |
+| 2. System Overview | High-level architecture, modules, user roles, interactions |
+| 3. Application Architecture | Detailed modules, features, workflows, inter-module communication |
+| 4. Data Architecture | Database schema, ERD placeholders, data flow, backup strategy |
+| 5. Integration Architecture | API design, external integrations, communication protocols |
+| 6. Infrastructure & Deployment | Cloud architecture, scaling, CI/CD, monitoring |
+| 7. Security Architecture | Authentication, authorization, data encryption, compliance |
+| 8. Performance & Scalability | Load planning, caching, horizontal/vertical scaling |
+| 9. Risk Analysis & Assumptions | Technical risks, operational risks, dependencies, mitigation |
+| 10. Appendices | Glossary, diagram placeholders, references |
+
+> 📌 **Diagram Placeholder 1.4:** High-level conceptual overview of Bassan.os multi-tenant SaaS system including all modules, users, and integrations.
+
+                     +----------------------+
+                     |      Bassan.os       |
+                     | Multi-Tenant SaaS    |
+                     +----------------------+
+                               |
+   -----------------------------------------------------------------
+   |               |               |                 |             |
+ CRM Module   Sales Module     Marketing Module  Operations   Notifications
+   |               |               |                 |             |
+Clients <------> Users & Employees <--------> Partner Companies <----|
+
+يوضح كيف الـ modules الأساسية متصلة بالنظام، والـ tenants، والـ remote staff، والـ clients.
+---
+
+# Section 2: System Overview
+
+This section provides a **high-level view** of Bassan.os architecture, including **modules, components, multi-user interactions, and system context**. It is intended to give stakeholders and developers a **comprehensive understanding of how the system is structured and how users interact with it**.
+
+---
+
+## 2.1 High-Level Architecture Overview
+
+Bassan.os is designed as a **multi-tenant, cloud-native SaaS platform**. Its architecture allows **flexible module addition/removal**, **inter-company collaboration**, and **remote workforce integration**.  
+
+**Key Architectural Principles:**
+
+- **Modularity:** Each module (Sales, Marketing, Operations, etc.) is self-contained but can communicate with others via APIs and workflow engine.  
+- **Multi-Tenancy:** Each tenant (company) operates in **isolated data environments**, ensuring security and compliance.  
+- **Role-Based Access:** Fine-grained RBAC ensures users only see and modify what their role permits.  
+- **Workflow-Driven:** Centralized workflow engine routes tasks, escalations, and notifications.  
+- **Extensible Integrations:** Supports external APIs (LinkedIn, WhatsApp, Telegram, Resend, partner systems).  
+- **Cloud-Native Deployment:** Initially using Supabase + Vercel for backend and hosting, allowing horizontal scaling.  
+
+> 📌 **Diagram Placeholder 2.1:** High-level system architecture showing modules, tenants, workflow engine, remote staff, clients, and external integrations.
++------------------------------------------------------+
+|                   Bassan.os System                  |
++------------------------------------------------------+
+| Modules: CRM | Sales | Marketing | Operations | HR |
+| Modules: Finance (Optional) | Analytics | Notifications |
++--------------------+-------------------------------+
+        | Workflow Engine (Task Routing, SLA, Escalations)
+        |
+  -------------------------------------------------------
+  |                   Multi-Tenant Layer               |
+  | Company A | Company B | Company C | ...            |
+  -------------------------------------------------------
+        |                    |
+ Remote Staff            Partner Companies
+        |                    |
+     Clients (Portal View / Feedback)
+
+يوضح الـ modules الرئيسية، workflow engine، tenants، remote staff، partners، وclients.
+
+
+---
+
+## 2.2 Modules / Components Overview
+
+| Module ID | Module Name | Purpose | Key Features | Dependencies |
+|-----------|------------|--------|--------------|-------------|
+| M-01 | Customer Management (CRM) | Manage customer lifecycle | Client onboarding, interaction history, campaign mapping | Sales, Marketing, Notifications |
+| M-02 | Sales Management | Track leads and sales pipeline | Lead tracking, pipeline management, commission calculation | CRM, Analytics, Finance |
+| M-03 | Marketing | Campaign creation and ROI tracking | Campaign planner, performance dashboards | CRM, Sales, Analytics, Notifications |
+| M-04 | Operations / Service Delivery | Task routing & SLA monitoring | Task assignment, workflow automation, exception handling | CRM, HR, Notifications |
+| M-05 | Customer Support | Support ticketing and escalation | Ticket creation, SLA alerts, feedback tracking | CRM, Operations, Notifications |
+| M-06 | HR & Workforce Management | Employee management | Internal & remote staff tracking, KPIs, LinkedIn integration | Operations, Payroll/Finance |
+| M-07 | Finance / Accounting (Optional) | Financial tracking & reporting | Invoices, commissions, departmental budgets | Sales, HR, Analytics |
+| M-08 | Inter-Company Collaboration | Partner task & workflow management | Task sharing, performance monitoring, SLA enforcement | Operations, Notifications, Analytics |
+| M-09 | Analytics & Reporting | Dashboards & KPIs | Real-time dashboards, custom reports, cross-module analytics | All modules |
+| M-10 | Notifications System | Multi-channel notifications | Email, WhatsApp, Telegram, in-app alerts | All modules |
+
+---
+
+## 2.3 User Roles & Multi-User Interactions
+
+| User Class | Access Scope | Interaction Patterns | Key Responsibilities |
+|------------|-------------|--------------------|--------------------|
+| Company Owner / CEO | Full tenant-level access | Monitor KPIs, approve workflows, manage modules | Strategic oversight, approvals, inter-company collaborations |
+| Department Head | Module-specific access | Assign tasks, approve escalations, monitor team performance | Ensure departmental KPIs, track employee productivity |
+| Internal Employee | Task-level access | Receive tasks, update status, communicate with colleagues | Complete assigned tasks, update CRM entries, submit reports |
+| Remote Staff / Freelancers | Task-level access | Receive tasks, submit deliverables, log time/effort | Execute assigned work remotely, participate in workflows |
+| Partner Companies | Partner module access | Receive delegated tasks, provide updates, submit deliverables | Collaborate with tenant companies on shared projects, track performance |
+| Clients | Limited portal access | View service/product status, submit feedback | Monitor engagement, provide inputs, request support |
+
+**Interaction Highlights:**
+
+- **Workflows** route tasks automatically based on **role, SLA, and department**.  
+- **Notifications** inform each user of task assignments, updates, escalations, and deadlines.  
+- **Analytics** provide role-specific dashboards, KPIs, and performance insights.  
+- **Inter-company collaboration** allows partners to be treated as virtual departments with restricted access.  
+
+> 📌 **Diagram Placeholder 2.3:** User-role interaction diagram showing internal employees, remote staff, partner companies, and clients with access boundaries and workflows.
++-----------------+
+| Company Owner   |
+| / CEO           |
++-----------------+
+        |
+        v
++---------------------+      +----------------------+
+| Department Heads    | ---> | Approve Tasks/Workflow|
++---------------------+      +----------------------+
+        |
+        v
++----------------+     +----------------+     +----------------+
+| Internal Emp.  |     | Remote Staff   |     | Partner Co.    |
+| (Tasks, CRM)   |     | (Tasks Remote) |     | (Tasks Shared) |
++----------------+     +----------------+     +----------------+
+        \                 |                     /
+         \----------------+-------------------/
+                           |
+                        Analytics & Notifications
+
+يوضح من له صلاحية الوصول للـ modules وكيف تتفاعل الأدوار معًا.
+
+---
+
+## 2.4 System Context
+
+Bassan.os interacts with **internal modules** and **external systems**:
+
+**Internal:**  
+- CRM ↔ Sales, Marketing  
+- Operations ↔ HR, Finance  
+- Notifications ↔ All modules  
+- Analytics ↔ All modules  
+
+**External:**  
+- LinkedIn API (employee verification & onboarding)  
+- WhatsApp / Telegram APIs (notifications)  
+- Resend (email communications)  
+- Partner company systems (task handoff, performance tracking)  
+
+> 📌 **Diagram Placeholder 2.4:** System context diagram illustrating internal module connections and external integrations.
+**Diagram 2.4: System Context Diagram – Bassan.os**
+
+[ External Users & Systems ]
++----------------------+        +-----------------------+
+| Clients             |        | Partner Companies     |
+| (Portal Access)     |        | (Task Execution &     |
+| - View Status       |        |  Collaboration)      |
+| - Submit Feedback   |        | - Task Updates       |
++----------------------+        +-----------------------+
+          |                                |
+          |                                |
+          v                                v
++-------------------------------------------------------+
+|                   Bassan.os SaaS Platform            |
+|-------------------------------------------------------|
+| [CRM / Customer Management] <----------------> [Sales Module]         |
+| - Client lifecycle         - Lead & pipeline mgmt    |
+| - Interaction history      - Commission tracking     |
+| - Campaign mapping         - Sales reports           |
+|                                                       |
+| [Marketing Module] <----------------> [Analytics & Reporting]        |
+| - Campaign creation        - Dashboards & KPIs       |
+| - Campaign tracking        - Departmental insights  |
+| - ROI analysis                                        |
+|                                                       |
+| [Operations / Service Delivery] <-------> [HR & Workforce Mgmt]     |
+| - Task assignment           - Employee profiles     |
+| - Workflow automation       - Performance tracking  |
+| - SLA monitoring            - Remote staff mgmt     |
+|                                                       |
+| [Customer Support] <----------------> [Notifications System]         |
+| - Ticketing                 - Email (Resend)       |
+| - SLA escalation            - WhatsApp/Telegram    |
+| - Feedback                  - In-app alerts        |
+|                                                       |
+| [Finance / Accounting] (Optional) <--> [Sales & HR]                  |
+| - Budget tracking            - Commission mgmt      |
+| - Invoice tracking                                       |
++-------------------------------------------------------+
+          ^                                ^
+          |                                |
+          |                                |
++----------------------+        +-----------------------+
+| LinkedIn API         |        | External Messaging    |
+| - Employee verification|       | APIs (WhatsApp, TG) |
++----------------------+        +-----------------------+
+
+Legend:
+- Solid arrows: Direct data/functional interaction
+- Dashed arrows: Optional/indirect integration
+
+    +-------------------+          +----------------+
+      |  Bassan.os        |          | External APIs  |
+      | Internal Modules  |<-------->| LinkedIn      |
+      | CRM, Sales, Ops, |          | WhatsApp API   |
+      | Marketing, HR    |<-------->| Telegram API   |
+      +-------------------+          | Resend API    |
+             |                        +----------------+
+             |
+   -----------------------------
+   | Internal Users / Employees |
+   -----------------------------
+             |
+   -----------------------------
+   | Remote Staff / Freelancers |
+   -----------------------------
+             |
+   -----------------------------
+   | Clients (Portal Access)    |
+   -----------------------------
+             |
+   -----------------------------
+   | Partner Companies          |
+   -----------------------------
+يوضح كل التواصل بين النظام الداخلي والخارجي، المستخدمين، والعملاء.
+
+---
+# Section 3: Application Architecture
+
+This section provides a **detailed technical view of each module**, their features, inter-module communication, and workflow behavior for Bassan.os.  
+It serves as a **blueprint for developers, QA, and architects**, mapping business requirements to system responsibilities.
+
+---
+
+## 3.1 Module Architecture Overview
+
+Bassan.os is designed using a **modular architecture**, where each module is **loosely coupled** but communicates through the **central workflow engine** and APIs.  
+Modules can be **enabled/disabled per tenant**, and **custom modules** can be added seamlessly.
+
+| Module ID | Module Name | Core Responsibilities | Workflow Role | Dependencies |
+|-----------|------------|--------------------|---------------|-------------|
+| M-01 | Customer Management (CRM) | Manage full customer lifecycle, track interactions, link campaigns | Central repository for client info | Sales, Marketing, Operations, Notifications |
+| M-02 | Sales Management | Lead management, pipeline tracking, commission calculation | Receives leads from CRM, reports to Analytics | CRM, Finance, Notifications |
+| M-03 | Marketing | Campaign creation, execution, and ROI tracking | Feeds campaign results to CRM and Sales | CRM, Analytics, Notifications |
+| M-04 | Operations / Service Delivery | Task assignment, workflow routing, SLA monitoring | Automates task flows between employees, departments, and partners | HR, CRM, Notifications, Analytics |
+| M-05 | Customer Support | Ticketing, escalations, SLA alerts, client feedback | Receives input from CRM and clients, escalates via workflow engine | CRM, Operations, Notifications |
+| M-06 | HR & Workforce Management | Employee onboarding, remote staff tracking, KPI monitoring | Supplies staff availability and performance metrics | Operations, Finance, Notifications |
+| M-07 | Finance / Accounting | Invoices, departmental budgets, payroll, commissions | Integrates with Sales and HR for financial tracking | Sales, HR, Analytics |
+| M-08 | Inter-Company Collaboration | Partner company task delegation and tracking | Bridges internal workflows to partner companies | Operations, Notifications, Analytics |
+| M-09 | Analytics & Reporting | Real-time dashboards, KPIs, custom reports | Consolidates data from all modules | All modules |
+| M-10 | Notifications System | Multi-channel notifications (Email, WhatsApp, Telegram, In-App) | Distributes workflow updates, SLA alerts, escalations | All modules |
+
+> 📌 **Diagram Placeholder 3.1:** Module interaction diagram showing data flow, dependencies, and communication channels.
+
++--------+       +--------+       +--------+
+|  CRM   | <---> | Sales  | <---> |Finance |
++--------+       +--------+       +--------+
+     ^               ^               ^
+     |               |               |
+     v               v               v
++--------+       +--------+       +--------+
+|Marketing| <--->|Operations| <--->|HR    |
++--------+       +--------+       +--------+
+     |                |
+     v                v
++-------------------------------+
+|     Notifications & Analytics |
++-------------------------------+
+
+
+يوضح تبادل البيانات بين الـ modules الأساسية والعلاقات بينهم.
+---
+
+## 3.2 Module Features & Functional Requirements
+
+### M-01: Customer Management (CRM)
+- **Features:**
+  - Client onboarding (manual & automated)
+  - Customer lifecycle tracking (new, active, inactive)
+  - Interaction logging (emails, calls, meetings)
+  - Linking customers to campaigns and sales reps
+- **Functional Requirements:**
+  - FR-CRM-001: Create, read, update, delete client records
+  - FR-CRM-002: Track status changes with timestamp & responsible user
+  - FR-CRM-003: Associate campaigns, leads, and sales records to a client
+- **Non-Functional:**
+  - Data encryption at rest
+  - 99.9% availability for CRM module
+- **Priority:** Must-have
+
+### M-02: Sales Management
+- **Features:**
+  - Lead capture & management
+  - Pipeline visualization & stage tracking
+  - Commission calculation & reporting
+- **Functional Requirements:**
+  - FR-SALES-001: Assign leads to sales reps automatically or manually
+  - FR-SALES-002: Track lead status and expected close date
+  - FR-SALES-003: Generate commission reports for each sales rep
+- **Priority:** Must-have
+
+### M-03: Marketing
+- **Features:**
+  - Campaign creation & scheduling
+  - Performance tracking (ROI, conversions)
+  - Linking results to Sales & CRM
+- **Functional Requirements:**
+  - FR-MKT-001: Create marketing campaigns with start/end dates
+  - FR-MKT-002: Track conversions and ROI per campaign
+  - FR-MKT-003: Feed results to CRM and Sales
+- **Priority:** Must-have
+
+### M-04: Operations / Service Delivery
+- **Features:**
+  - Task assignment (internal or partner)
+  - Workflow routing & exception handling
+  - SLA tracking
+- **Functional Requirements:**
+  - FR-OPS-001: Assign tasks based on role, department, availability
+  - FR-OPS-002: Route tasks to internal employees or partner companies
+  - FR-OPS-003: Generate SLA alerts for delayed tasks
+- **Priority:** Must-have
+
+### M-05: Customer Support
+- **Features:**
+  - Ticket creation & tracking
+  - Automated escalations
+  - Client satisfaction reporting
+- **Functional Requirements:**
+  - FR-CS-001: Create tickets from clients or employees
+  - FR-CS-002: Escalate unresolved tickets automatically
+  - FR-CS-003: Generate CSAT reports per department
+- **Priority:** Must-have
+
+### M-06: HR & Workforce Management
+- **Features:**
+  - Employee onboarding/offboarding
+  - Performance tracking (KPI)
+  - Remote employee management
+- **Functional Requirements:**
+  - FR-HR-001: Manage employee profiles & roles
+  - FR-HR-002: Track performance metrics & KPIs
+  - FR-HR-003: Link employees to LinkedIn for verification
+- **Priority:** Must-have
+
+### M-07: Finance / Accounting (Optional)
+- **Features:**
+  - Invoice & budget tracking
+  - Payroll & commission calculations
+- **Functional Requirements:**
+  - FR-FIN-001: Generate invoices linked to sales
+  - FR-FIN-002: Track departmental budgets
+  - FR-FIN-003: Automate payroll & commissions
+- **Priority:** Should-have
+
+### M-08: Inter-Company Collaboration
+- **Features:**
+  - Task delegation to partner companies
+  - Partner performance tracking
+- **Functional Requirements:**
+  - FR-ICC-001: Assign tasks to partner companies
+  - FR-ICC-002: Track task progress & SLA compliance
+  - FR-ICC-003: Maintain audit trail of task handoffs
+- **Priority:** Should-have
+
+### M-09: Analytics & Reporting
+- **Features:**
+  - Departmental dashboards
+  - KPI reporting
+  - Cross-module insights
+- **Functional Requirements:**
+  - FR-AN-001: Real-time dashboards for all modules
+  - FR-AN-002: Exportable custom reports
+  - FR-AN-003: Drill-down analytics per employee, department, tenant
+- **Priority:** Must-have
+
+### M-10: Notifications System
+- **Features:**
+  - Multi-channel alerts (Email, WhatsApp, Telegram, In-App)
+  - SLA & escalation notifications
+- **Functional Requirements:**
+  - FR-NT-001: Trigger notifications based on workflow events
+  - FR-NT-002: Priority-based alerting
+  - FR-NT-003: Integration with external messaging APIs
+- **Priority:** Must-have
+
+---
+
+## 3.3 Workflows & Inter-Module Communication
+
+- **Lead-to-Sale Workflow:**
+  1. Marketing creates campaign → CRM receives leads → Sales assigned lead → Sales updates pipeline → Analytics tracks conversion → Finance calculates commission.
+- **Service Delivery Workflow:**
+  1. Client request → CRM logs → Operations assigns task → Internal/Remote employee completes task → Partner company notified if applicable → Customer Support closes ticket → Notifications triggered.
+- **Remote Workforce Workflow:**
+  1. Task assignment → Remote staff receives task via portal → Updates status → KPI tracked → Analytics updates dashboard.
+- **Inter-Company Workflow:**
+  1. Task delegated → Partner company accepts → Progress updates → SLA monitored → Completion logged → Analytics & reporting updated.
+
+> 📌 **Diagram Placeholder 3.3:** End-to-end workflow diagram showing task flow across modules, users, internal vs partner execution, and notifications.
+New Lead / Client Request
+        |
+        v
++-------------------+
+| CRM Module        |
+| Assign to Dept.   |
++-------------------+
+        |
+        v
++-------------------+        +--------------------+
+| Operations / Tasks| -----> | Partner Company    |
++-------------------+        +--------------------+
+        |
+        v
++-------------------+
+| Assigned Employee |
+| (Internal/Remote) |
++-------------------+
+        |
+        v
++-------------------+
+| Completion / SLA  |
+| Updates           |
++-------------------+
+        |
+        v
++-------------------+
+| Notifications     |
+| Clients / Dept    |
++-------------------+
+        |
+        v
++-------------------+
+| Analytics & KPIs  |
++-------------------+
+
+
+يوضح مسار المهمة من العميل أو lead، مرورًا بكل الأقسام، وصولًا للإشعارات وتحليل الأداء.
+---
+
+## 3.4 Dependencies & Assumptions
+
+- All modules depend on **CRM as central customer repository**.  
+- Notifications module depends on external messaging APIs.  
+- Inter-company collaboration requires **partner API access and SLAs**.  
+- Analytics requires **real-time data aggregation from all active modules**.  
+- Optional modules (Finance/Accounting) can be integrated post-MVP.  
+
+
+
+---
+
+Section 4: Data Architecture
+4.1 Database Overview
+
+Database Type: PostgreSQL (multi-tenant, relational)
+Hosting: Supabase (cloud-managed)
+Design Principles:
+Multi-Tenant: كل شركة (tenant) معزولة عن الأخرى عبر schema أو tenant_id
+Normalized: تجنب التكرار (3NF)
+Auditability: تسجيل كل العمليات مع timestamps و user_id
+Extensibility: القدرة على إضافة أي module أو قسم جديد بسهولة
+Remote Staff Integration: Employee profiles مع روابط LinkedIn و role-based permissions
+Core Schemas / Tables Overview:
+Schema	Tables	Purpose
+tenant_management	tenants, tenant_settings	إدارة الشركات / العملاء الداخليين للنظام
+crm	clients, client_interactions, campaigns, client_status	إدارة العملاء وربطهم بالحملات والمبيعات
+sales	leads, opportunities, sales_pipeline, commissions	إدارة العملاء المحتملين، خط المبيعات وحساب العمولات
+marketing	campaigns, campaign_metrics, campaign_tasks	تخطيط وتتبع الحملات التسويقية وربطها بالمبيعات
+operations	tasks, task_assignments, workflows, exceptions	إدارة سير العمل الداخلي والمهام
+hr	employees, roles, performance_metrics, remote_profiles	إدارة الموظفين داخليين وعن بعد وربطهم بالمهام
+finance	invoices, payments, budgets, commissions_history	إدارة الفواتير، المدفوعات، الميزانيات وحساب العمولات
+support	tickets, escalations, client_feedback	إدارة تذاكر الدعم ورضا العملاء
+intercompany	partner_tasks, partner_performance	تبادل المهام مع شركات شريكة وتتبع الأداء
+analytics	dashboards, kpi_metrics, reports	تخزين البيانات التحليلية لكل قسم
+notifications	notifications_log, channels	سجل الإشعارات لكل قناة (Email, WhatsApp, Telegram, In-App)
+
+📌 Diagram Placeholder 4.1: ERD high-level view – shows all main tables, relationships, and multi-tenant linkage.
+
+4.2 ERD / Relationships
+
+High-Level Relationships:
+
+Tenants
+   |
+   +--> Employees
+   |        |
+   |        +--> Tasks
+   |
+   +--> Clients
+   |       |
+   |       +--> Interactions
+   |       +--> Tickets
+   |
+   +--> Leads / Opportunities
+   |       |
+   |       +--> Campaigns
+   |
+   +--> Partner Companies
+           |
+           +--> Partner Tasks
+
+
+Notes:
+
+كل جدول مرتبط بـ tenant_id لضمان الفصل بين الشركات.
+
+Employee ↔ Tasks ↔ CRM ↔ Sales ↔ Marketing ↔ Operations ↔ Analytics (Data Flow Chain)
+Partner Companies treated as "virtual department" linked to tenant_id but with restricted access.
+
+4.3 Data Flow
+
+1. Client Lifecycle Flow:
+
+Client Signup --> CRM --> Lead Generation --> Sales Pipeline --> Task Assignment --> Employee/Partner Execution --> Notifications --> Analytics Dashboard
+
+2. Marketing Campaign Flow:
+
+Campaign Creation --> Target Clients (CRM) --> Employee/Partner Tasks --> Campaign Metrics Logging --> Analytics --> ROI Reports
+
+3. Operations & Workflow Flow:
+
+Task Creation --> Task Assignment --> SLA Tracking & Escalation --> Completion --> Analytics & Notifications
+
+4. Finance Flow (Optional):
+
+Sales Completed --> Commissions Calculated --> Invoice Generation --> Payment Logging --> Budget Reporting
+
+
+📌 Diagram Placeholder 4.3: Data flow diagram illustrating client lifecycle, marketing, operations, and finance integration.
+
+4.4 Backup & Disaster Recovery (DR)
+
+Backup Strategy:
+
+Full Backups: Weekly full dump of all tenant schemas (Supabase managed or pg_dump)
+
+Incremental Backups: Daily backups of changed rows (using triggers or WAL shipping)
+
+Storage: Encrypted backups in multi-region cloud storage (S3 / Supabase Storage)
+
+Retention: 90 days (configurable per tenant)
+
+Disaster Recovery Plan:
+
+RPO (Recovery Point Objective): ≤ 1 hour
+
+RTO (Recovery Time Objective): ≤ 2 hours
+
+Failover: Multi-region deployment on Vercel/Supabase
+
+Testing: Quarterly DR drills, restore from backups to staging environment
+
+Monitoring: Automated alerts on backup failures, replication lag, and storage issues
+
+Security Measures:
+
+Data encryption at rest (PostgreSQL + Supabase)
+
+Data encryption in transit (TLS 1.2+)
+
+Audit logs for all database modifications
+
+4.5 Assumptions & Dependencies
+
+Supabase will handle authentication, multi-tenant isolation, and Realtime updates
+
+Vercel + Supabase Edge Functions handle business logic and workflow triggers
+
+External APIs (LinkedIn, WhatsApp, Telegram, Resend) have predictable latency and uptime
+
+Tenant schema design allows module addition/removal without schema rewrite
+
+Remote staff and partner companies access data via secure RBAC permissions
+
+📌 Diagram Placeholder 4.5: Disaster Recovery & Backup architecture – showing primary DB, replicas, cloud storage, failover paths, and monitoring alerts.
+# Section 4: Data Architecture
+
+This section defines the **data structures, relationships, storage patterns, and data flow** for Bassan.os.  
+It also specifies **backup, disaster recovery, and data governance strategies** for enterprise-grade SaaS operations.
+
+---
+
+## 4.1 Database Design Overview
+
+**Database Type:** PostgreSQL (via Supabase)  
+**Design Principles:**
+- **Multi-Tenant Support:** Each company (tenant) has **isolated logical schemas** to maintain data privacy.  
+- **Normalization:** Core entities normalized to reduce redundancy, with denormalized reporting tables for Analytics.  
+- **Auditability:** All transactions include **created_by, created_at, updated_by, updated_at** for traceability.  
+- **Extensibility:** Additional fields/modules can be added without schema redesign (JSONB columns).  
+
+**Core Entities:**
+
+| Entity | Description | Key Attributes | Relationships |
+|--------|------------|---------------|---------------|
+| Tenant | Represents a company using the system | tenant_id, name, industry, subscription_plan | One-to-many with Users, Departments, CRM, Partners |
+| User | Internal or remote employee | user_id, role_id, tenant_id, name, email, LinkedIn | Belongs to Tenant, assigned Tasks, linked to HR |
+| Role | Defines permissions & access | role_id, name, permissions | Linked to Users |
+| Customer | Client or prospect | customer_id, tenant_id, status, contact_info | Linked to Campaigns, Leads, Support Tickets |
+| Campaign | Marketing campaign | campaign_id, tenant_id, name, start_date, end_date | Linked to CRM, Sales Leads |
+| Lead | Potential customer | lead_id, customer_id, campaign_id, status, assigned_to | Linked to Sales, CRM |
+| Task | Operational or service delivery task | task_id, assigned_to, status, due_date, type | Linked to Operations, Users, Partner Companies |
+| Ticket | Support case | ticket_id, customer_id, status, priority | Linked to Customer Support, CRM |
+| Partner | Partner company | partner_id, tenant_id, service_type, SLA | Linked to Tasks, Inter-Company Collaboration |
+| Finance_Record | Invoice, budget, commission | finance_id, tenant_id, amount, type, status | Linked to Sales, HR |
+| Notification | Alerts for users | notification_id, user_id, type, channel, status | Linked to Tasks, Tickets, Workflow Events |
+| Analytics_Log | Aggregated metrics | log_id, module_id, tenant_id, metric_type, value, timestamp | Populated from all modules |
+
+> 📌 **Diagram Placeholder 4.1:** ERD showing relationships between Tenant, Users, Roles, Customers, Campaigns, Leads, Tasks, Tickets, Partner Companies, Finance, and Notifications.
+
+---
+
+## 4.2 Data Flow Patterns
+
+**1. Lead-to-Sale Flow**
+- Campaign generates leads → CRM stores lead → Sales assigned → Lead status updated → Analytics collects conversion metrics → Finance calculates commission
+
+**2. Task Flow**
+- Operations assigns task → User/Partner receives task → Updates status → Workflow engine triggers notifications → Analytics updates KPI dashboards
+
+**3. Support Flow**
+- Customer submits ticket → CRM links ticket → Support resolves → SLA monitored → Customer satisfaction recorded → Analytics aggregates
+
+**4. Remote Workforce Flow**
+- Tasks assigned → Remote staff updates progress → Workflow engine tracks SLA & exceptions → Analytics monitors performance
+
+**5. Inter-Company Flow**
+- Task delegated → Partner company updates status → SLA monitored → Analytics consolidates partner performance
+
+> 📌 **Diagram Placeholder 4.2:** Data flow diagram showing how data moves from module to module and between users, including remote staff and partners.
+
+---
+
+## 4.3 Data Storage & Retrieval
+
+- **Primary Storage:** PostgreSQL via Supabase (multi-tenant logical schemas)
+- **Secondary / Optional Storage:** JSONB for unstructured fields (custom module data)
+- **Indexing:** Frequently queried fields (user_id, customer_id, status, dates) indexed
+- **Caching Layer:** Optional Redis or Supabase edge caching for high-frequency read operations
+- **Data Retrieval:** Standardized API endpoints via Next.js API Routes; workflow engine can trigger queries for routing, dashboards, and notifications
+
+---
+
+## 4.4 Backup & Disaster Recovery
+
+**Backup Strategy:**
+- Full database snapshot daily
+- Incremental backups every 15 minutes (for high-value tenants)
+- Offsite storage in multiple regions via Supabase backup facilities
+
+**Disaster Recovery Plan:**
+- **RTO (Recovery Time Objective):** < 2 hours for critical modules (CRM, Sales, Operations)
+- **RPO (Recovery Point Objective):** 15 minutes for critical modules, 24 hours for non-critical modules
+- **Failover:** Multi-region support; in case of region failure, traffic rerouted to secondary region
+- **Test Frequency:** Quarterly DR drills
+
+---
+
+## 4.5 Data Governance & Security
+
+- **Tenant Isolation:** Logical separation at schema level; role-based access controls
+- **Audit Trails:** All create/update/delete operations logged with user ID, timestamp, and changes
+- **Data Retention Policy:** Configurable per tenant (default 7 years for finance, 3 years for operations)
+- **Sensitive Data Protection:** Encrypt at rest (AES-256) and in transit (TLS 1.3)
+- **GDPR / Local Compliance:** Mechanisms for right-to-access, right-to-delete, and data portability
+
+---
+
+# Section 5: Integration Architecture
+
+This section defines how **Bassan.os modules communicate internally and externally**, the **APIs, external services, and protocols** used, and the **integration patterns** that ensure multi-tenant SaaS scalability and extensibility.
+
+---
+
+## 5.1 API Design Overview
+
+Bassan.os uses **RESTful APIs** with optional **GraphQL endpoints** for analytics and reporting.  
+All APIs are **tenant-aware**, **role-based**, and support **multi-user concurrency**.
+
+| API Layer | Purpose | Authentication | Rate Limits | Response Format |
+|-----------|--------|----------------|------------|----------------|
+| Internal Module API | Module-to-module communication | JWT + RBAC | 1000 req/min/module | JSON |
+| Public Tenant API | Expose selected functionality to tenant apps | OAuth 2.0 | 500 req/min/client | JSON |
+| Analytics API | Real-time KPIs and metrics | JWT + RBAC | 200 req/min/tenant | JSON / CSV |
+| Notifications API | Trigger notifications externally | API Key + JWT | 100 req/min | JSON |
+
+> 📌 **Diagram Placeholder 5.1:** API communication diagram showing inter-module calls and tenant isolation.
+
+---
+
+## 5.2 Internal Module Integration
+
+- **CRM ↔ Sales:**  
+  Leads captured in CRM automatically assigned to Sales via API. Lead status updates propagate back to CRM.
+- **CRM ↔ Marketing:**  
+  Campaign outcomes pushed from Marketing → CRM → Analytics.
+- **Operations ↔ HR:**  
+  Employee availability and role data shared with Operations for task assignment.
+- **Sales ↔ Finance:**  
+  Closed deals trigger automatic commission calculations and invoices.
+- **All Modules ↔ Notifications:**  
+  Workflow events trigger notifications (email, WhatsApp, Telegram, in-app).
+
+**Communication Pattern:**  
+- All module-to-module communication is **event-driven** with a **workflow engine orchestrator**.  
+- **Event Bus / Pub-Sub** handles asynchronous updates to prevent module blocking.
+
+---
+
+## 5.3 External Integrations
+
+| Integration | Purpose | Direction | Notes |
+|------------|--------|-----------|-------|
+| WhatsApp Business API | Notifications to clients & employees | Outbound | Limited free tier for 1000 messages/month, scalable |
+| Telegram Bot API | Notifications & workflow alerts | Outbound | Supports internal group notifications for teams |
+| LinkedIn API | Employee profile verification | Inbound | Fetch professional data for remote staff onboarding |
+| Email Service (Resend) | Multi-tenant email notifications | Outbound | Free 3000 emails/month, supports templates |
+| Accounting Software (Optional) | Finance sync | Bi-directional | e.g., QuickBooks, Xero (future integration) |
+| Partner Company APIs | Task assignment & progress tracking | Bi-directional | Optional, each partner may expose different endpoints |
+
+> 📌 **Diagram Placeholder 5.3:** External integration architecture showing API flows between Bassan.os and external systems.
+
+---
+
+## 5.4 Communication Protocols
+
+- **HTTPS / TLS 1.3:** All internal and external API communication
+- **WebSockets / Realtime API:** For live dashboard updates and notifications
+- **REST / JSON:** Standard API format for CRUD operations
+- **OAuth 2.0 / JWT:** Secure authentication for APIs, tenant-specific access tokens
+- **Optional GraphQL:** For analytics and reporting endpoints where multi-dimensional queries are required
+
+---
+
+## 5.5 Integration Patterns
+
+1. **Event-Driven Architecture:**  
+   - Workflow engine emits events (task assigned, lead updated, ticket escalated)  
+   - Subscriber modules consume events asynchronously  
+   - Reduces coupling and increases scalability
+
+2. **Multi-Tenant Awareness:**  
+   - Each API call includes `tenant_id` for isolation  
+   - Data segregation enforced at DB and API layer
+
+3. **Extensibility:**  
+   - Plug-and-play modules and integrations  
+   - Adding a new partner or external service requires registering endpoint + events
+
+4. **Failover & Retry:**  
+   - External API calls include automatic retries with exponential backoff  
+   - Failed events logged for audit & manual reconciliation
+
+---
+
+## 5.6 Dependencies & Assumptions
+
+- All internal APIs depend on **workflow engine availability**  
+- External integrations require **valid API keys and network access**  
+- Partner APIs may have **variable SLAs**, requiring retry queues  
+- Notifications reliability depends on **third-party messaging services**  
+
+---
+
+# Section 6: Infrastructure & Deployment Architecture
+
+This section defines the **cloud infrastructure, deployment strategy, load management, CI/CD pipelines, monitoring, and observability** for Bassan.os.  
+The architecture ensures **scalability, reliability, fault-tolerance, and multi-tenant performance** for enterprise SaaS.
+
+---
+
+## 6.1 Cloud Infrastructure Overview
+
+**Cloud Provider:**  
+- Phase 1 (Free / MVP): **Vercel + Supabase** (serverless, managed hosting & DB)  
+- Phase 2 (Enterprise-scale): AWS / GCP / Azure optional for multi-region deployment
+
+**Architecture Style:**  
+- **Serverless / Edge-first:** Lightweight, horizontally scalable, auto-scaling on demand  
+- **Multi-tenant:** Logical separation of tenants in Supabase (schemas), routing via Vercel
+
+**Core Components:**
+
+| Layer | Component | Purpose |
+|-------|----------|--------|
+| Frontend | Next.js 14 + React + TailwindCSS | User interfaces (internal & external portals) |
+| Backend | API Routes (Vercel) | CRUD operations, workflow triggers, module logic |
+| Edge Functions | Supabase Edge Functions | Task automation, real-time event handling |
+| Database | Supabase PostgreSQL | Multi-tenant, normalized data storage, analytics tables |
+| Messaging | WhatsApp API / Telegram Bot / Email | Notifications & alerts |
+| Monitoring | Supabase Logs + Vercel Analytics | Health & performance tracking |
+
+> 📌 **Diagram Placeholder 6.1:** Cloud architecture showing Frontend, Backend, Edge Functions, DB, and external integrations.
+
+---
+
+## 6.2 Load Balancing & Auto-Scaling
+
+- **Frontend & API:**  
+  - Auto-scaling on Vercel for concurrent user traffic  
+  - Static assets served via CDN (Vercel / Cloudflare)  
+- **Database:**  
+  - Read replicas for analytics-heavy queries  
+  - Connection pooling with PgBouncer (for high concurrency)  
+- **Workflow Engine / Edge Functions:**  
+  - Serverless scaling for asynchronous events (task updates, notifications)  
+
+**Performance Targets:**  
+- Concurrent users per tenant: 500+  
+- Event processing latency: <200ms for real-time updates  
+- SLA uptime: 99.95%  
+
+---
+
+## 6.3 CI/CD Pipeline
+
+| Stage | Tools | Description |
+|-------|-------|-------------|
+| Version Control | GitHub | Source code management |
+| Continuous Integration | GitHub Actions / Vercel Previews | Run unit tests, type checks, and linting |
+| Build & Test | Next.js + Jest + Cypress | Automated testing for frontend & backend |
+| Deployment | Vercel Production | One-click deployment to production environment |
+| Monitoring Post-Deploy | Supabase Logs + Vercel Analytics | Verify deployment health and performance |
+
+**Phase-wise CI/CD Flow:**  
+1. Developer pushes code → CI runs automated tests  
+2. If tests pass → Code deployed to Preview environment for QA  
+3. QA signs off → Code merges to main → Auto-deployment to Production  
+4. Rollback available via Vercel deployment history  
+
+---
+
+## 6.4 Monitoring & Observability
+
+**Monitoring Layers:**
+
+| Layer | Tool / Feature | Purpose |
+|-------|----------------|--------|
+| Application | Supabase Logs + Vercel Analytics | Track API usage, error rates, latency |
+| Database | Supabase Metrics | Monitor query performance, deadlocks, slow queries |
+| Workflow | Edge Function logs | Track task assignment, notification dispatch, SLA breaches |
+| Notifications | Delivery reports | WhatsApp, Telegram, Email success/failure |
+| Security | Auth logs | Track login attempts, MFA usage, suspicious access |
+
+**Alerting & Incident Management:**  
+- Critical alerts via Telegram / WhatsApp / Email  
+- SLA violations trigger immediate notifications to Department Heads  
+- Incident logs automatically captured for post-mortem analysis  
+
+---
+
+## 6.5 Disaster Recovery & High Availability
+
+- **Multi-Region Deployments (Future Phase):** Database replicas in different regions  
+- **Automated Backups:** Supabase daily full + incremental every 15 minutes  
+- **Failover Strategy:** Auto DNS failover using Cloudflare  
+- **Recovery Objectives:**  
+  - RTO (Recovery Time Objective): <2 hours for critical modules  
+  - RPO (Recovery Point Objective): 15 minutes for critical modules  
+
+---
+
+## 6.6 Security in Infrastructure
+
+- Encrypted communication (HTTPS/TLS) between all components  
+- Role-based access to deployments, logs, and databases  
+- Secrets management via environment variables in Vercel & Supabase  
+- Audit logs for all infrastructure changes  
+
+---
+
+# Section 7: Security Architecture
+
+This section defines the **security principles, authentication, authorization, data protection, compliance, and threat mitigation strategies** for Bassan.os.  
+It ensures enterprise-grade protection for **multi-tenant SaaS environments**, safeguarding internal data, remote users, partner companies, and client information.
+
+---
+
+## 7.1 Authentication & Authorization
+
+| Feature | Description | Implementation |
+|---------|------------|----------------|
+| Authentication | Verify identity of users, employees, remote staff, and partner companies | **Supabase Auth** (supports Email, OAuth2, Social login – Google/GitHub) |
+| Multi-Factor Authentication (MFA) | Additional security layer for sensitive roles (CEO, Finance, Admins) | TOTP / Email OTP via Supabase |
+| Single Sign-On (SSO) | Enterprise customers can use existing SSO | Optional integration with SAML / OpenID Connect |
+| Authorization | Role-based access control (RBAC) for modules, features, and data | Roles defined per Tenant: Admin, Manager, Employee, Remote Staff, Partner, Client |
+| Session Management | Limit concurrent sessions; enforce timeout | Configurable by tenant (default: 30 min inactivity) |
+
+**Flow Example:**
+1. User logs in → Auth service validates credentials → JWT issued → Access token includes tenant_id, role, permissions  
+2. API & frontend verify JWT → enforce module-level permissions  
+
+---
+
+## 7.2 Data Encryption
+
+| Data Type | Encryption at Rest | Encryption in Transit |
+|-----------|-----------------|--------------------|
+| Database (PostgreSQL / Supabase) | AES-256 | TLS 1.3 |
+| Backup Storage | AES-256 | TLS 1.3 |
+| Messaging & Notifications | Not stored; encrypted transport | TLS / HTTPS |
+| Files / Attachments | AES-256 per tenant | HTTPS |
+
+**Notes:**
+- Sensitive fields (SSNs, financial data) stored in encrypted JSONB columns  
+- Full audit trail ensures accountability of data access  
+
+---
+
+## 7.3 Compliance Requirements
+
+- **GDPR / CCPA:**  
+  - Right-to-access, right-to-delete, data portability  
+  - Tenant-level consent management for customer data  
+- **ISO 27001 (Future Enterprise Phase):**  
+  - Formal information security management system (ISMS)  
+- **Local Regulations:**  
+  - Country-specific data residency rules enforced (via tenant region selection)  
+
+**Audit Logs:**  
+- Every action logged with timestamp, user, IP address, and operation  
+- Logs stored in immutable format for regulatory audits  
+
+---
+
+## 7.4 Threat Modeling & Mitigation
+
+| Threat | Impact | Mitigation |
+|--------|--------|------------|
+| Unauthorized access (internal/external) | High | MFA, RBAC, tenant isolation, IP monitoring |
+| Data leakage between tenants | Critical | Logical schema separation, encrypted storage, strict access checks |
+| Remote staff misbehavior / malicious insiders | Medium | Activity logging, task-level audit trail, alerting on unusual activity |
+| API abuse / DDoS | Medium | Rate limiting, throttling, WAF via Cloudflare, Edge caching |
+| Man-in-the-middle (MITM) attacks | High | TLS 1.3 for all communication, certificate pinning for external integrations |
+| Partner API compromise | Medium | Signed requests, retry & validation, event audit logs |
+| Phishing / Social Engineering | Medium | Employee security training, MFA, alerts for suspicious login |
+
+**Security Reviews & Testing:**
+- Quarterly penetration testing  
+- Automated vulnerability scanning on frontend, backend, and APIs  
+- Monitoring of failed logins, unusual API calls, and partner integration anomalies  
+
+---
+
+## 7.5 Multi-Tenant Security Considerations
+
+- **Data Isolation:** Each tenant’s data exists in separate logical schema; no direct access across tenants  
+- **Module-Level Permissioning:** Even Admins of one tenant cannot access other tenants  
+- **Tenant Configuration:** Tenant admins can enforce their own password policies, session duration, and MFA requirements  
+
+---
+# Section 8: Performance & Scalability Architecture
+
+This section defines the **expected system performance, scalability strategies, caching mechanisms, and capacity planning** for Bassan.os, ensuring the platform can handle **multi-tenant, enterprise-scale workloads** efficiently.
+
+---
+
+## 8.1 Performance Goals
+
+| Metric | Target | Notes |
+|--------|--------|------|
+| API Response Time | <200ms for 95% of requests | Measured at the application layer |
+| Frontend Page Load | <2s | For dashboards and portal pages |
+| Real-Time Updates | <250ms latency | Includes notifications, task updates, and analytics |
+| Workflow Event Processing | <500ms per event | For task assignment, escalation, and notifications |
+| Concurrent Users | 500+ per tenant (Phase 1) | Scale plan included for 5000+ in Phase 2 |
+| SLA | 99.95% uptime | Across frontend, API, DB, and notifications |
+
+---
+
+## 8.2 Load Management
+
+- **Application Layer:**  
+  - Serverless API Routes (Vercel) auto-scale horizontally  
+  - Rate-limiting per tenant to prevent abuse  
+  - Load balancing across edge functions and regions
+
+- **Database Layer:**  
+  - PostgreSQL read replicas for analytics-heavy queries  
+  - Connection pooling (PgBouncer) for high concurrency  
+  - Query optimization and indexing for performance-critical tables
+
+- **Notification & Workflow Engine:**  
+  - Event-driven architecture for async processing  
+  - Task queue (Supabase Edge Functions) handles bursts in workload  
+
+> 📌 **Diagram Placeholder 8.2:** Load distribution across modules and event-driven workflow.
+
+---
+
+## 8.3 Caching Strategy
+
+| Layer | Cache Type | Purpose | Expiry |
+|-------|-----------|---------|-------|
+| Frontend | Browser / CDN | Static assets (JS, CSS, images) | 1 day |
+| Backend | In-memory (Edge Functions) | Frequently accessed config, tenant settings | 5 min |
+| Database | Redis (optional, future phase) | Analytics queries, dashboard KPIs | 60s |
+| API Responses | Edge caching (Vercel) | Reduce redundant calls for high-traffic endpoints | 30s - 5 min |
+
+---
+
+## 8.4 Horizontal & Vertical Scaling
+
+| Component | Scaling Type | Trigger |
+|-----------|-------------|--------|
+| Frontend & API | Horizontal | Auto-scale on concurrent user spike |
+| Edge Functions | Horizontal | Auto-scale for workflow/event load |
+| Database | Vertical + Horizontal | Add read replicas, increase CPU/memory for write-heavy tenants |
+| Notification Service | Horizontal | Scale for bulk messaging (WhatsApp, Email, Telegram) |
+
+**Notes:**  
+- Horizontal scaling preferred for elastic SaaS  
+- Vertical scaling applied for critical DB nodes during heavy writes  
+
+---
+
+## 8.5 Performance Monitoring & Alerts
+
+- **Metrics to Track:**  
+  - API latency per endpoint  
+  - DB query performance (slow queries >100ms)  
+  - Event processing queue length  
+  - Notification delivery success rate  
+- **Alerting:**  
+  - Thresholds trigger notifications via Telegram / Email  
+  - SLA breaches logged for post-mortem  
+
+---
+
+## 8.6 Multi-Tenant Performance Considerations
+
+- **Tenant Isolation:** Each tenant’s requests and data flows are logically separated to prevent resource contention  
+- **Priority Queues:** Critical workflows (Finance, Operations) can bypass lower-priority queues (Marketing, Analytics)  
+- **Dynamic Resource Allocation:** Auto-scale based on tenant load patterns  
+
+---
+
+## 8.7 Future Scalability Plans
+
+- Multi-region deployment for global tenants  
+- Redis / in-memory caching for high-frequency analytics dashboards  
+- Advanced workflow orchestration with distributed queues (e.g., RabbitMQ / Kafka)  
+- Partner API load balancing and throttling for high-volume integrations  
+
+---
+
+# Section 9: Risk Analysis & Assumptions
+
+This section identifies the **technical, operational, and business risks** associated with Bassan.os, along with mitigation strategies and assumptions underlying the architecture and implementation.
+
+---
+
+## 9.1 Technical Risks
+
+| Risk | Impact | Likelihood | Mitigation Strategy |
+|------|--------|------------|-------------------|
+| **Database Performance Bottlenecks** | High | Medium | - Read replicas for analytics-heavy queries <br> - Connection pooling (PgBouncer) <br> - Index optimization and query tuning |
+| **API Rate Limit / DDoS** | High | Medium | - Rate limiting per tenant <br> - Edge caching for repeated requests <br> - Cloudflare WAF for protection |
+| **Edge Function Failure / Task Queue Backlog** | Medium | Medium | - Retry mechanisms for failed tasks <br> - Dead-letter queues for persistent failures <br> - Monitoring & alerting for SLA breaches |
+| **Multi-Tenant Data Leakage** | Critical | Low | - Strict RBAC enforcement <br> - Logical tenant isolation in DB <br> - Audit logs of access attempts |
+| **Integration Failure (WhatsApp, Telegram, Resend, Partner APIs)** | Medium | Medium | - Retry & fallback mechanisms <br> - Signed & validated requests <br> - Error alerting and partner communication protocols |
+| **Frontend/Backend Deployment Bugs** | Medium | Medium | - CI/CD pipeline with automated tests <br> - Preview deployments for QA <br> - Rollback strategy in Vercel |
+
+---
+
+## 9.2 Operational Risks
+
+| Risk | Impact | Likelihood | Mitigation Strategy |
+|------|--------|------------|-------------------|
+| **Employee / Remote Staff Misuse** | Medium | Medium | - Audit logs per action <br> - Task-level tracking <br> - Role-based permissions & alerts for unusual activity |
+| **Tenant Misconfiguration** | Medium | Medium | - Onboarding wizards with validation <br> - Default safe configurations <br> - Admin training & documentation |
+| **Notification Delivery Failures** | Medium | Medium | - Retry mechanisms for WhatsApp, Telegram, Email <br> - Alternate channel routing <br> - Delivery reporting dashboards |
+| **Data Loss or Corruption** | High | Low | - Automated backups (daily full, 15-min incremental) <br> - DR strategy with RTO <2hrs and RPO 15min <br> - Immutable audit logs |
+| **Scaling Issues During Peak Load** | High | Medium | - Auto-scaling rules for API & Edge Functions <br> - Load testing for planned growth <br> - Prioritized queues for critical workflows |
+
+---
+
+## 9.3 Market & Business Risks
+
+| Risk | Impact | Likelihood | Mitigation Strategy |
+|------|--------|------------|-------------------|
+| **Low adoption by target users** | High | Medium | - Conduct pilot deployments <br> - Iterative feedback loops <br> - Flexible module configuration to fit any company size |
+| **Partner company non-compliance** | Medium | Medium | - SLAs and clear contract definitions <br> - System-level tracking of task completion <br> - Reporting dashboards for accountability |
+| **Competitive SaaS solutions** | Medium | High | - Differentiation via flexible internal/external workflow support <br> - Real-time analytics & automation <br> - Modular design enabling rapid feature addition |
+
+---
+
+## 9.4 Assumptions
+
+- Users will provide accurate tenant, employee, and client data during onboarding  
+- Internet connectivity is stable for remote staff & partner companies  
+- Supabase free-tier scaling is sufficient for MVP; enterprise scaling will transition to paid tiers  
+- External integrations (WhatsApp, Telegram, Resend) maintain availability & documented APIs  
+- Companies will assign responsible admins to configure workflows and roles  
+
+---
+
+## 9.5 Dependencies
+
+- **Infrastructure:** Vercel + Supabase availability  
+- **Third-Party Services:** WhatsApp Business API, Telegram Bot API, Resend  
+- **Tenant Configurations:** Correct RBAC, workflow setup, and module enablement  
+- **Cloud Services:** Cloudflare DNS & WAF services for SLA adherence  
+- **Team Competency:** Internal IT & operations staff must understand system workflows  
+
+---
+
+# Section 10: Appendices
+
+This section includes a **glossary of terms, diagram placeholders, and references** to ensure clarity, traceability, and a common understanding for all stakeholders.
+
+---
+
+## 10.1 Glossary of Terms
+
+| Term | Definition |
+|------|-----------|
+| **Tenant** | A separate company or organization using Bassan.os. Each tenant has isolated data and configuration. |
+| **RBAC** | Role-Based Access Control, defines which users can access which modules or perform certain actions. |
+| **MFA** | Multi-Factor Authentication, an additional security layer for verifying user identity. |
+| **Workflow** | Sequence of tasks and processes executed within the system for operations, sales, or partner interactions. |
+| **Lead / Client** | A potential or existing customer tracked in the CRM module. |
+| **Partner Company** | An external company collaborating on tasks, services, or campaigns via the system. |
+| **Remote Staff / Freelancer** | Employees or contractors working outside the company premises, tracked and managed via Bassan.os. |
+| **Module** | A functional component of Bassan.os (CRM, Sales, Marketing, etc.) |
+| **Edge Function** | Supabase serverless function used for processing asynchronous tasks, workflows, and events. |
+| **SLA** | Service Level Agreement; uptime and performance commitment for the SaaS platform. |
+| **RTO / RPO** | Recovery Time Objective / Recovery Point Objective for backups and disaster recovery. |
+
+---
+
+## 10.2 Diagram Placeholders
+
+**1. High-Level Architecture Diagram**  
+[Placeholder for SaaS multi-tenant architecture showing Frontend, Backend/API, DB, Edge Functions, Notification Systems, and External Integrations]
+
+markdown
+Copy code
+
+**2. Module Interaction Diagram**  
+[Placeholder showing CRM ↔ Sales ↔ Marketing ↔ Operations ↔ HR ↔ Finance ↔ Analytics ↔ Notifications]
+
+arduino
+Copy code
+
+**3. Workflow Diagram - Internal Employee Task Flow**  
+[Placeholder for step-by-step employee workflow: Task Assignment → Execution → Tracking → Completion → Notification]
+
+arduino
+Copy code
+
+**4. Workflow Diagram - Client Interaction Flow**  
+[Placeholder for client onboarding, service request → CRM → Sales → Operations → Support → Notification]
+
+markdown
+Copy code
+
+**5. ERD (Entity-Relationship Diagram)**  
+[Placeholder for database schema: Tenants, Users, Roles, Clients, Leads, Campaigns, Tasks, Transactions, Notifications]
+
+markdown
+Copy code
+
+**6. Integration Diagram**  
+[Placeholder showing External APIs: WhatsApp Business, Telegram Bot, Resend Email, Partner Companies, External Systems]
+
+markdown
+Copy code
+
+**7. Deployment & Infrastructure Diagram**  
+[Placeholder showing Cloud Provider, Vercel hosting, Supabase DB, Edge Functions, CDN, Load Balancers, Monitoring Tools]
+
+yaml
+Copy code
+
+---
+
+## 10.3 References
+
+1. **BRD – Bassan.os** (complete business requirements document, generated from prior analysis)  
+2. **Supabase Documentation** – https://supabase.com/docs  
+3. **Next.js 14 Documentation** – https://nextjs.org/docs  
+4. **Vercel Documentation** – https://vercel.com/docs  
+5. **WhatsApp Business API Guide** – https://developers.facebook.com/docs/whatsapp  
+6. **Telegram Bot API** – https://core.telegram.org/bots/api  
+7. **GDPR Compliance Guidelines** – https://gdpr-info.eu  
+8. **ISO 27001 Security Standard** – https://www.iso.org/isoiec-27001-information-security.html  
+
+---
+
+**Section 10: Appendices complete.** ✅  
+
+This concludes the **Architecture Design Document for Bassan.os** at an enterprise-grade level. All sections are traceable back to the BRD and SRS, providing a complete blueprint for developers, DevOps, product owners, and stakeholders.

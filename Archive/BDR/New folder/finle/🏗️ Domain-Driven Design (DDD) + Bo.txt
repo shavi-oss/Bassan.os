@@ -1,0 +1,890 @@
+🏗️ Domain-Driven Design (DDD) + Bounded Contexts لنظام "باسان"
+🎯 تحليل النطاقات الرئيسية (Core Domain Analysis)
+النطاقات الأساسية التي تحقق القيمة الفريدة:
+text
+┌─────────────────────────────────────────────────────┐
+│              Core Domain - النطاق الأساسي            │
+│              "العدالة الرقمية في بيئة العمل"         │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  ⚖️ 1. نطاق الحقوق (Rights Domain)                 │
+│     "تحديد وتوثيق الحقوق المستحقة"                  │
+│                                                     │
+│  🏆 2. نطاق الإنجاز (Achievement Domain)            │
+│     "توثيق وتحقق الإنجازات الفعلية"                 │
+│                                                     │
+│  🔍 3. نطاق التحقق (Verification Domain)            │
+│     "التحقق من تنفيذ الحقوق والالتزامات"            │
+│                                                     │
+│  🤝 4. نطاق التسوية (Settlement Domain)            │
+│     "حل النزاعات وبناء السمعة"                    │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+🗺️ خريطة النطاقات (Domain Map)
+السياقات المحددة (Bounded Contexts) والتكامل بينها:
+text
+┌─────────────────────────────────────────────────────────────────┐
+│                   نظام "باسان" - Bounded Contexts Map           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  [1. Rights & Commission Context]    [2. Achievement & Task Context] │
+│  ⚖️ "ما يستحقه الموظف"               🏆 "ما أنجزه الموظف"        │
+│  • Commission Rules                • Tasks & Projects          │
+│  • Rights Calculations             • Deliverables              │
+│  • Payment Expectations            • Evidence Management       │
+│  • Financial Transparency          • Quality Assessment        │
+│                                                                 │
+│  ┌─────────────┴─────────────┐    ┌─────────────┴─────────────┐ │
+│  │                           │    │                           │ │
+│  ▼                           ▼    ▼                           ▼ │
+│                                                                 │
+│  [3. Verification & Proof Context]  [4. Settlement & Reputation Context] │
+│  🔍 "هل تم الالتزام؟"               🤝 "كيف نحل الخلافات؟"    │
+│  • Payment Verification            • Dispute Resolution       │
+│  • Achievement Verification        • Reputation Scoring       │
+│  • Evidence Validation             • Arbitration System       │
+│  • Trust Scoring                  • Penalty Enforcement      │
+│                                                                 │
+│  [5. Identity & Access Context]    [6. Integration & Ecosystem Context] │
+│  👤 "من يمكنه فعل ماذا؟"           🔗 "كيف يتصل النظام بالعالم؟" │
+│  • User Management                • External API Gateways     │
+│  • Role-Based Access              • Webhook Handlers          │
+│  • Permission Matrix              • Data Transformations      │
+│  • Audit Trails                   • Ecosystem Mapping         │
+│                                                                 │
+│  [7. Analytics & Insight Context]  [8. Compliance & Audit Context] │
+│  📊 "ماذا نستنتج من البيانات؟"     📜 "هل نلتزم بالقوانين؟"    │
+│  • Performance Analytics          • Regulatory Compliance     │
+│  • Trend Analysis                 • Audit Logging             │
+│  • Predictive Modeling            • Legal Proof Generation    │
+│  • Business Intelligence          • Immutable Records         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+⚖️ 1. نطاق الحقوق والعمولات (Rights & Commission Context)
+النموذج المتعارف عليه (Ubiquitous Language):
+text
+• Commission (عمولة) - مبلغ مالي مستحق للموظف مقابل إنجاز
+• Right (حق) - استحقاق مؤكد للموظف بناءً على قواعد
+• Rule (قاعدة) - معيار يحدد متى وكيف يستحق العمولة
+• Entitlement (استحقاق) - الحالة التي يكون فيها الحق مؤكداً
+• Calculation (حساب) - عملية تحديد قيمة الحق
+الكيانات المجمعة (Aggregates):
+1.1 تجميع الشركة (Company Aggregate)
+yaml
+Company (Aggregate Root):
+  • company_id (UUID)
+  • name
+  • industry
+  • settings
+  • subscription_plan
+
+قيمة الكيان (Value Objects):
+  • CompanySettings
+  • SubscriptionPlan
+  • IndustryClassification
+
+المسارات (Entities):
+  • Department
+  • CommissionPolicy
+  • BudgetAllocation
+
+القواعد المجمعة (Aggregate Rules):
+  • يجب أن يكون لكل شركة خطة اشتراك صالحة
+  • لا يمكن تعديل سياسات العمولات إلا من قبل المالك
+  • يجب أن تكون جميع الأقسام تابعة للشركة
+1.2 تجميع الموظف (Employee Aggregate)
+yaml
+Employee (Aggregate Root):
+  • employee_id (UUID)
+  • company_id
+  • personal_info
+  • contract_details
+  • current_rights
+
+قيمة الكيان:
+  • PersonalInfo
+  • ContractDetails
+  • EmploymentStatus
+  • CompensationStructure
+
+المسارات:
+  • CommissionProfile
+  • PerformanceRecord
+  • SkillSet
+
+القواعد المجمعة:
+  • لا يمكن أن يكون الموظف في شركتين في نفس الوقت
+  • يجب أن يكون لكل موظف عقد ساري
+  • الحقوق المستحقة مرتبطة بحالة العقد
+1.3 تجميع العمولة (Commission Aggregate)
+yaml
+Commission (Aggregate Root):
+  • commission_id (UUID)
+  • employee_id
+  • amount
+  • status
+  • calculation_details
+
+قيمة الكيان:
+  • CommissionAmount
+  • CommissionStatus
+  • CalculationBreakdown
+  • PaymentExpectation
+
+المسارات:
+  • CommissionRuleApplied
+  • AdjustmentRecord
+  • VerificationReference
+
+القواعد المجمعة:
+  • لا يمكن تعديل العمولة بعد التثبيت
+  • يجب أن يكون لكل عمولة قاعدة مطبقة
+  • حالة العمولة تتغير فقط عبر سير عمل محدد
+خدمات المجال (Domain Services):
+1. CommissionCalculatorService
+yaml
+المسؤولية: تطبيق قواعد العمولات
+واجهة الخدمة:
+  calculateCommission(saleData, employee, rules) → CalculatedCommission
+
+قواعد المجال:
+  • تطبيق القواعد حسب الأولوية
+  • التعامل مع التداخلات والتناقضات
+  • حساب النسخ الاحتياطي في حالة عدم التطبيق
+2. RightsEntitlementService
+yaml
+المسؤولية: تحديد الاستحقاقات
+واجهة الخدمة:
+  determineEntitlement(achievement, contract, history) → RightsEntitlement
+
+قواعد المجال:
+  • تحديد ما إذا كان الإنجاز يخلق حقاً
+  • حساب قيمة الحق بناءً على السياق
+  • التحقق من حدود الاستحقاق
+أحداث المجال (Domain Events):
+أحداث نطاق الحقوق:
+yaml
+1. CommissionRuleDefined
+   • rule_id
+   • company_id
+   • rule_definition
+   • effective_from
+
+2. CommissionCalculated
+   • commission_id
+   • employee_id
+   • amount
+   • calculation_details
+
+3. RightEstablished
+   • right_id
+   • employee_id
+   • entitlement_details
+   • establishment_date
+
+4. PaymentExpected
+   • expected_payment_id
+   • company_id
+   • total_amount
+   • due_date
+🏆 2. نطاق الإنجاز والمهام (Achievement & Task Context)
+النموذج المتعارف عليه:
+text
+• Task (مهمة) - عمل يجب إنجازه
+• Achievement (إنجاز) - مهمة مكتملة مع أدلة
+• Deliverable (تسليم) - نتيجة ملموسة للمهمة
+• Evidence (دليل) - إثبات على الإنجاز
+• Quality (جودة) - تقييم مستوى الإنجاز
+الكيانات المجمعة:
+2.1 تجميع المهمة (Task Aggregate)
+yaml
+Task (Aggregate Root):
+  • task_id (UUID)
+  • assigned_to (employee_id)
+  • requirements
+  • deadline
+  • status
+
+قيمة الكيان:
+  • TaskRequirements
+  • DeadlineConstraint
+  • PriorityLevel
+  • ComplexityScore
+
+المسارات:
+  • Subtask
+  • Dependency
+  • ProgressUpdate
+
+القواعد المجمعة:
+  • لا يمكن أن تكون المهمة مكتملة بدون أدلة
+  • يجب أن يكون للمهمة موظف مسؤول
+  • الحالة تتغير فقط عبر سير عمل محدد
+2.2 تجميع الإنجاز (Achievement Aggregate)
+yaml
+Achievement (Aggregate Root):
+  • achievement_id (UUID)
+  • task_id
+  • completion_details
+  • evidence_collection
+  • quality_assessment
+
+قيمة الكيان:
+  • CompletionDetails
+  • EvidencePackage
+  • QualityScore
+  • CompletionTimestamp
+
+المسارات:
+  • EvidenceItem
+  • ReviewerComment
+  • QualityMetric
+
+القواعد المجمعة:
+  • لا يمكن تأكيد الإنجاز بدون مراجعة الجودة
+  • الأدلة يجب أن تكون قابلة للتحقق
+  • الجودة تقاس بمقاييس موحدة
+خدمات المجال:
+1. TaskAssignmentService
+yaml
+المسؤولية: توزيع المهام الذكي
+واجهة الخدمة:
+  assignTask(task, available_employees, context) → AssignmentResult
+
+قواعد المجال:
+  • مطابقة المهارات مع متطلبات المهمة
+  • مراعاة حمل العمل الحالي
+  • تحسين توزيع المهام حسب الاستراتيجية
+2. AchievementValidationService
+yaml
+المسؤولية: التحقق من صحة الإنجاز
+واجهة الخدمة:
+  validateAchievement(achievement, criteria) → ValidationResult
+
+قواعد المجال:
+  • التحقق من اكتمال جميع المتطلبات
+  • تقييم جودة الأدلة
+  • تحديد مستوى الثقة في الإنجاز
+أحداث المجال:
+yaml
+1. TaskCreated
+   • task_id
+   • requirements
+   • assigned_to
+   • created_by
+
+2. TaskCompleted
+   • task_id
+   • completion_timestamp
+   • evidence_references
+   • completed_by
+
+3. AchievementRecorded
+   • achievement_id
+   • task_id
+   • quality_score
+   • recorded_by
+
+4. QualityAssessed
+   • assessment_id
+   • achievement_id
+   • quality_metrics
+   • assessor_id
+🔍 3. نطاق التحقق والإثبات (Verification & Proof Context)
+النموذج المتعارف عليه:
+text
+• Verification (تحقق) - عملية التأكد من صحة شيء ما
+• Proof (إثبات) - دليل ملموس على صحة ادعاء
+• Trust (ثقة) - درجة اليقين في صحة شيء ما
+• Evidence (دليل) - معلومات تدعم إثباتاً
+• Validation (تصديق) - التأكد من مطابقة المعايير
+الكيانات المجمعة:
+3.1 تجميع التحقق (Verification Aggregate)
+yaml
+Verification (Aggregate Root):
+  • verification_id (UUID)
+  • target_entity
+  • verification_method
+  • result
+  • confidence_score
+
+قيمة الكيان:
+  • VerificationTarget
+  • VerificationMethod
+  • VerificationResult
+  • ConfidenceLevel
+
+المسارات:
+  • EvidenceReference
+  • ValidatorInfo
+  • TimestampRecord
+
+القواعد المجمعة:
+  • كل تحقق يجب أن يكون له طريقة واضحة
+  • النتيجة تعتمد على معايير موضوعية
+  • درجة الثقة تحسب بناءً على جودة الأدلة
+3.2 تجميع الإثبات (Proof Aggregate)
+yaml
+Proof (Aggregate Root):
+  • proof_id (UUID)
+  • claim
+  • supporting_evidence
+  • validity_period
+  • cryptographic_signature
+
+قيمة الكيان:
+  • ClaimStatement
+  • EvidenceCollection
+  • ValidityWindow
+  • DigitalSignature
+
+المسارات:
+  • EvidenceChain
+  • WitnessRecord
+  • Notarization
+
+القواعد المجمعة:
+  • الإثبات غير صالح خارج فترة الصلاحية
+  • يجب أن يكون للإثبات توقيع رقمي
+  • سلسلة الأدلة يجب أن تكون متصلة
+خدمات المجال:
+1. PaymentVerificationService
+yaml
+المسؤولية: التحقق من المدفوعات الخارجية
+واجهة الخدمة:
+  verifyPayment(expected_payment, external_data) → VerificationResult
+
+قواعد المجال:
+  • مطابقة المبالغ والتفاصيل
+  • التحقق من صحة المصادر الخارجية
+  • حساب درجة الثقة في التحقق
+2. EvidenceChainService
+yaml
+المسؤولية: بناء سلاسل الأدلة
+واجهة الخدمة:
+  buildEvidenceChain(evidence_items, relationships) → EvidenceChain
+
+قواعد المجال:
+  • التأكد من اتصال سلسلة الأدلة
+  • التحقق من صحة كل رابط في السلسلة
+  • حساب قوة السلسلة الإثباتية
+أحداث المجال:
+yaml
+1. PaymentVerified
+   • verification_id
+   • payment_reference
+   • verification_result
+   • confidence_score
+
+2. EvidenceCollected
+   • evidence_id
+   • source
+   • collection_method
+   • collected_by
+
+3. ProofEstablished
+   • proof_id
+   • claim
+   • supporting_evidence
+   • established_by
+
+4. TrustScoreUpdated
+   • entity_id
+   • trust_score
+   • reason
+   • updated_by
+🤝 4. نطاق التسوية والسمعة (Settlement & Reputation Context)
+النموذج المتعارف عليه:
+text
+• Dispute (نزاع) - خلاف على حق أو ادعاء
+• Arbitration (تحكيم) - عملية حل النزاع
+• Reputation (سمعة) - تصور الجمهور لسلوك الكيان
+• Resolution (تسوية) - نتيجة عملية الحل
+• Penalty (عقوبة) - جزاء على مخالفة
+الكيانات المجمعة:
+4.1 تجميع النزاع (Dispute Aggregate)
+yaml
+Dispute (Aggregate Root):
+  • dispute_id (UUID)
+  • parties_involved
+  • subject_matter
+  • status
+  • timeline
+
+قيمة الكيان:
+  • DisputeParties
+  • DisputeSubject
+  • DisputeStatus
+  • Timeline
+
+المسارات:
+  • Claim
+  • CounterClaim
+  • EvidenceSubmission
+
+القواعد المجمعة:
+  • لا يمكن فتح نزاع بدون سبب مبرر
+  • جميع الأطراف يجب أن تشارك في العملية
+  • الحالة تتغير فقط عبر سير عمل محدد
+4.2 تجميع السمعة (Reputation Aggregate)
+yaml
+Reputation (Aggregate Root):
+  • reputation_id (UUID)
+  • entity_id
+  • score
+  • factors
+  • history
+
+قيمة الكيان:
+  • ReputationScore
+  • ScoringFactors
+  • TrendAnalysis
+  • ReputationTier
+
+المسارات:
+  • ReputationEvent
+  • ImpactAssessment
+  • RecoveryPlan
+
+القواعد المجمعة:
+  • السمعة تُحسب بناءً على الأحداث الموثقة
+  • الأحداث الحديثة تؤثر أكثر من القديمة
+  • السمعة قابلة للإصلاح مع الوقت والسلوك
+خدمات المجال:
+1. DisputeResolutionService
+yaml
+المسؤولية: إدارة حل النزاعات
+واجهة الخدمة:
+  resolveDispute(dispute, evidence, rules) → Resolution
+
+قواعد المجال:
+  • تقييم الأدلة بشكل موضوعي
+  • تطبيق قواعد التحكيم المناسبة
+  • تحديد نتيجة عادلة بناءً على الأدلة
+2. ReputationScoringService
+yaml
+المسؤولية: حساب وتحديث السمعة
+واجهة الخدمة:
+  calculateReputation(entity_id, events, context) → ReputationScore
+
+قواعد المجال:
+  • وزن الأحداث حسب أهميتها
+  • حساب الاتجاهات والتغيرات
+  • تطبيق معايير العدالة في التقييم
+أحداث المجال:
+yaml
+1. DisputeOpened
+   • dispute_id
+   • opening_party
+   • subject
+   • opening_reason
+
+2. ArbitrationCompleted
+   • arbitration_id
+   • dispute_id
+   • resolution
+   • arbitrator_id
+
+3. ReputationUpdated
+   • entity_id
+   • new_score
+   • reason
+   • impact_factor
+
+4. PenaltyApplied
+   • penalty_id
+   • entity_id
+   • penalty_type
+   • enforcement_details
+🔗 5. التكامل بين السياقات المحددة (Context Mapping)
+علاقات السياقات:
+text
+┌─────────────────────────────────────────────────────────────┐
+│                   Context Mapping Relationships              │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Rights Context           ↔           Achievement Context   │
+│  (ما يستحقه)            ┌─────────────┐ (ما أنجزه)         │
+│                         │  Partnership  │                   │
+│                         │   (شراكة)    │                   │
+│                         └───────┬───────┘                   │
+│                                 │                           │
+│                         ┌───────▼───────┐                   │
+│                         │ Shared Kernel │                   │
+│                         │ (نواة مشتركة) │                   │
+│                         └───────┬───────┘                   │
+│                                 │                           │
+│  Verification Context    ↔      Settlement Context          │
+│  (هل تم الالتزام؟)      ┌─────────────┐ (كيف نحل؟)        │
+│                         │  Customer/   │                   │
+│                         │  Supplier    │                   │
+│                         │ (مستهلك/مورد)│                   │
+│                         └───────┬───────┘                   │
+│                                 │                           │
+│                         ┌───────▼───────┐                   │
+│                         │  Conformist   │                   │
+│                         │ (ممتثل)       │                   │
+│                         └───────────────┘                   │
+│                                                             │
+│  Identity Context       →      All Other Contexts          │
+│  (من يمكنه؟)           ┌─────────────────┐                 │
+│                         │  Published     │                 │
+│                         │  Language      │                 │
+│                         │ (لغة منشورة)   │                 │
+│                         └─────────────────┘                 │
+│                                                             │
+│  Integration Context    ←      All External Systems        │
+│  (كيف نتصل؟)           ┌─────────────────┐                 │
+│                         │   Anti-        │                 │
+│                         │   Corruption   │                 │
+│                         │   Layer        │                 │
+│                         │ (طبقة مضادة للفساد)│               │
+│                         └─────────────────┘                 │
+└─────────────────────────────────────────────────────────────┘
+1. العلاقة بين Rights و Achievement Contexts:
+التكامل عبر Shared Kernel:
+yaml
+النواة المشتركة:
+• EmployeeIdentity (هوية الموظف)
+• TimeReference (مرجع زمني)
+• MonetaryValue (قيمة نقدية)
+
+نماذج التكامل:
+• Achievement → CommissionTrigger (حدث)
+• Right → AchievementReference (مرجع)
+• QualityScore → CommissionMultiplier (معامل)
+Anti-Corruption Layer:
+typescript
+// في Rights Context
+class AchievementAdapter {
+  convertToCommissionTrigger(achievement: Achievement): CommissionTrigger {
+    return {
+      employeeId: achievement.employeeId,
+      achievementType: achievement.type,
+      timestamp: achievement.completionTime,
+      evidence: achievement.evidenceReferences
+    };
+  }
+}
+
+// في Achievement Context  
+class RightsAdapter {
+  convertToAchievementReference(right: Right): AchievementReference {
+    return {
+      rightId: right.id,
+      expectedValue: right.amount,
+      status: right.status,
+      calculationBasis: right.calculationDetails
+    };
+  }
+}
+2. العلاقة بين Verification و Settlement Contexts:
+نمط Customer/Supplier:
+yaml
+Verification Context (المورد):
+• يوفر: VerificationResults
+• يتوقع: VerificationRequests
+• يلتزم: بمعايير التحقق
+
+Settlement Context (المستهلك):
+• يستهلك: VerificationResults للنزاعات
+• يطلب: تحقيقات إضافية عند الحاجة
+• يعتمد: على دقة التحقق في القرارات
+Published Language:
+json
+{
+  "verification_result": {
+    "entity_id": "emp_123",
+    "verification_type": "payment",
+    "result": "verified",
+    "confidence_score": 95,
+    "evidence_references": ["ev_456", "ev_789"],
+    "timestamp": "2024-01-15T10:30:00Z",
+    "signed_by": "system"
+  }
+}
+3. العلاقة مع السياقات الخارجية:
+Anti-Corruption Layer للتكاملات:
+yaml
+Shopify Integration:
+• النموذج الخارجي: Shopify Order
+• النموذج الداخلي: SaleEvent
+• المحول: ShopifyToSaleAdapter
+• القواعد: التحقق من HMAC، تطبيع البيانات
+
+Payment Platform Integration:
+• النموذج الخارجي: PaymentTransaction
+• النموذج الداخلي: PaymentVerification
+• المحول: PaymentToVerificationAdapter
+• القواعد: التحقق من التوقيع، مطابقة المعاملات
+🏗️ 6. تصميم السياقات المحددة (Bounded Context Design)
+تصميم كل سياق بشكل مستقل:
+1. Rights Context Design:
+yaml
+النمط المعماري: Domain Model مع CQRS
+التخزين: Event Sourcing للعمليات المالية
+الاستعلامات: Materialized Views للأداء
+
+المكونات:
+• Command Handlers (تغيير الحالة)
+• Query Handlers (قراءة البيانات)
+• Event Handlers (معالجة الأحداث)
+• Saga Orchestrators (سير العمل الطويلة)
+2. Achievement Context Design:
+yaml
+النمط المعماري: Task-Based UI مع Workflow Engine
+التخزين: Document Database للأدلة
+الاستعلامات: Full-Text Search للمحتوى
+
+المكونات:
+• Workflow Engine (إدارة سير العمل)
+• Document Processor (معالجة المستندات)
+• Quality Assessor (تقييم الجودة)
+• Collaboration Hub (التعاون بين المستخدمين)
+3. Verification Context Design:
+yaml
+النمط المعماري: Hexagonal Architecture مع Ports/Adapters
+التخزين: Immutable Log للتحقق
+الاستعلامات: Audit Trail للتدقيق
+
+المكونات:
+• Verification Engine (محرك التحقق)
+• Evidence Validator (مدقق الأدلة)
+• Trust Calculator (حاسب الثقة)
+• Proof Generator (مولد الإثباتات)
+4. Settlement Context Design:
+yaml
+النمط المعماري: Event-Driven مع State Machines
+التخزين: Graph Database للعلاقات
+الاستعلامات: Real-time Analytics للسمعة
+
+المكونات:
+• Dispute Resolver (حلال النزاعات)
+• Reputation Engine (محرك السمعة)
+• Penalty Enforcer (منفذ العقوبات)
+• Resolution Tracker (متتبع التسويات)
+🔄 7. تدفق الأحداث عبر السياقات
+مثال: دورة حياة العمولة الكاملة:
+الخطوة 1: Achievement Context
+text
+1. Employee completes task → TaskCompleted event
+2. Achievement recorded → AchievementRecorded event
+3. Quality assessed → QualityAssessed event
+4. Achievement validated → AchievementValidated event
+الخطوة 2: Rights Context (يستمع للأحداث)
+text
+1. يتلقى AchievementValidated event
+2. يحسب الحقوق → CommissionCalculated event
+3. يسجل الاستحقاق → RightEstablished event
+4. يخطر بالدفع المتوقع → PaymentExpected event
+الخطوة 3: Verification Context (مستقل)
+text
+1. يتلقى PaymentExpected event
+2. يبدأ مراقبة الدفع
+3. عند الدفع → PaymentVerified event
+4. عند عدم الدفع → PaymentMissing event
+الخطوة 4: Settlement Context (يستمع للأحداث)
+text
+1. يتلقى PaymentVerified → يرفع السمعة
+2. يتلقى PaymentMissing → يفتح نزاع
+3. يحل النزاع → ArbitrationCompleted event
+4. يطبق النتيجة → ReputationUpdated event
+Event Storming النتائج:
+الأحداث الرئيسية:
+yaml
+1. TaskAssigned (Achievement)
+2. TaskCompleted (Achievement)
+3. AchievementValidated (Achievement)
+4. CommissionCalculated (Rights)
+5. PaymentExpected (Rights)
+6. PaymentVerified (Verification)
+7. PaymentMissing (Verification)
+8. DisputeOpened (Settlement)
+9. ArbitrationCompleted (Settlement)
+10. ReputationUpdated (Settlement)
+الأوامر الرئيسية:
+yaml
+1. CreateTaskCommand (Achievement)
+2. CompleteTaskCommand (Achievement)
+3. ValidateAchievementCommand (Achievement)
+4. CalculateCommissionCommand (Rights)
+5. VerifyPaymentCommand (Verification)
+6. OpenDisputeCommand (Settlement)
+7. ResolveDisputeCommand (Settlement)
+القراءات الرئيسية:
+yaml
+1. GetEmployeeTasks (Achievement)
+2. GetPendingCommissions (Rights)
+3. GetVerificationStatus (Verification)
+4. GetReputationScore (Settlement)
+5. GetDisputeHistory (Settlement)
+🛡️ 8. إستراتيجيات الاتساق (Consistency Strategies)
+الاتساق داخل السياقات:
+Strong Consistency (اتساق قوي):
+yaml
+في Rights Context:
+• العمليات المالية: ACID transactions
+• الحسابات: Immediate consistency
+• القواعد: Serializable isolation
+
+في Settlement Context:
+• قرارات التحكيم: Immediate consistency
+• درجات السمعة: Eventual consistency مع تعويض
+Eventual Consistency (اتساق نهائي):
+yaml
+بين السياقات:
+• Achievement → Rights: Event-driven eventual consistency
+• Rights → Verification: Eventual consistency مع تعويض
+• Verification → Settlement: Eventual consistency
+نماذج الاتساق عبر السياقات:
+Saga Pattern لإدارة المعاملات الطويلة:
+yaml
+معاملة "من الإنجاز إلى الدفع":
+1. Achievement Saga:
+   - Start: Task completed
+   - Step 1: Validate achievement → إذا فشل: Compensate
+   - Step 2: Calculate rights → إذا فشل: Compensate
+   - Step 3: Expect payment → إذا فشل: Compensate
+   - End: Payment expected
+
+2. Verification Saga:
+   - Start: Payment expected
+   - Step 1: Monitor payment → إذا لم يدفع: Open dispute
+   - Step 2: Verify payment → إذا فشل التحقق: Investigate
+   - End: Payment verified or dispute opened
+
+3. Settlement Saga:
+   - Start: Dispute opened
+   - Step 1: Gather evidence → إذا تعذر: Extend timeline
+   - Step 2: Arbitrate dispute → إذا تعذر: Escalate
+   - Step 3: Enforce resolution → إذا تعذر: Compensate
+   - End: Dispute resolved
+📊 9. عمليات الاستعلام عبر السياقات
+CQRS لكل سياق:
+1. Rights Context - نموذج الاستعلام:
+yaml
+قراءات سريعة:
+• EmployeeCommissionSummaryView
+• CompanyPayoutForecastView
+• PendingApprovalsDashboard
+
+محدثات المواد:
+• يتلقى RightsEstablished events
+• يحسب الإجماليات
+• يحدث الآفاق الزمنية
+2. Achievement Context - نموذج الاستعلام:
+yaml
+قراءات معقدة:
+• EmployeePerformanceView
+• ProjectProgressView
+• QualityMetricsDashboard
+
+محدثات المواد:
+• يتلقى TaskCompleted events
+• يحسب المقاييس
+• يحدث التقدم
+3. Cross-Context Queries:
+yaml
+نمط API Composition:
+• GetEmployeeFullProfile:
+  1. Identity Context: بيانات أساسية
+  2. Achievement Context: أداء ومهارات
+  3. Rights Context: حقوق ومدفوعات
+  4. Settlement Context: سمعة وتاريخ
+
+نمط CQRS View:
+• CompanyHealthDashboard:
+  - يجمع البيانات من جميع السياقات
+  - يحسب مؤشرات الصحة
+  - يعرض في واجهة موحدة
+🚀 10. فوائد تصميم DDD + Bounded Contexts
+المزايا التقنية:
+1. قابلية الصيانة:
+yaml
+• كل سياق مستقل في الصيانة
+• تغييرات في سياق لا تؤثر على الآخرين
+• اختبارات موجهة للسياق
+2. قابلية التوسع:
+yaml
+• كل سياق يمكن توسعته بشكل مستقل
+• تقنيات تخزين مناسبة لكل سياق
+• نماذج اتصال مخصصة
+3. المرونة:
+yaml
+• تغيير نماذج كل سياق بشكل مستقل
+• تكاملات جديدة دون تعقيد النظام
+• تطور كل سياق حسب احتياجاته
+المزايا التجارية:
+1. وضوح النموذج:
+yaml
+• لغة موحدة داخل كل سياق
+• نماذج تعكس الواقع التجاري
+• اتصال أفضل بين المطورين وأصحاب المصلحة
+2. التركيز على القيمة:
+yaml
+• كل سياق يركز على قيمة تجارية محددة
+• تطوير الميزات حسب الأولوية التجارية
+• قياس القيمة بشكل منفصل لكل سياق
+3. تقليل التعقيد:
+yaml
+• تقسيم النظام المعقد إلى أجزاء بسيطة
+• كل فريق يركز على سياق محدد
+• قرارات تصميمية محلية لكل سياق
+المزايا التنظيمية:
+1. هيكل الفرق:
+yaml
+• كل سياق يمكن تطويره بواسطة فريق مستقل
+• اتخاذ قرارات محلية
+• سرعة في التطوير والنشر
+2. حدود المسؤولية:
+yaml
+• كل فريق مسؤول عن سياق محدد
+• حدود واضحة للمسؤولية
+• تقليل الاعتماديات بين الفرق
+3. قياس الأداء:
+yaml
+• أداء كل سياق يقاس بشكل منفصل
+• تحسينات مستهدفة لكل سياق
+• تقارير أداء مفصلة
+✅ الخلاصة: لماذا DDD + Bounded Contexts هو الخيار الصحيح
+لنظام "باسان":
+1. تعقيد المجال العالي:
+text
+✅ نظام متعدد المستخدمين بأدوار مختلفة
+✅ قواعد أعمال معقدة ومتغيرة
+✅ تكاملات خارجية متعددة
+✅ متطلبات أمان وامتثال عالية
+2. متطلبات الاتساق المختلفة:
+text
+✅ بيانات مالية تحتاج اتساق قوي
+✅ بيانات إشعارات يمكن أن تكون نهائية الاتساق
+✅ بيانات سمعة تتطور مع الوقت
+✅ بيانات تحقق يجب أن تكون غير قابلة للتغيير
+3. مسارات التطور المختلفة:
+text
+✅ نطاق الحقوق: استقرار عالي، تغييرات قليلة
+✅ نطاق الإنجاز: تطور سريع، ميزات جديدة
+✅ نطاق التحقق: توسع في التكاملات
+✅ نطاق التسوية: تعقيد في القواعد والامتثال
+التوصية النهائية:
+text
+استخدم DDD + Bounded Contexts لأن:
+1. النظام معقد بدرجة تبرر هذا النهج
+2. المجالات مختلفة بما يكفي لتكون سياقات منفصلة
+3. الفرق يمكن تنظيمها حول السياقات
+4. متطلبات الأمان والامتثال تختلف بين السياقات
+5. النظام سينمو ويتطور بمرور الوقت
+
+بدء بـ 4 سياقات أساسية:
+1. Rights & Commission Context
+2. Achievement & Task Context  
+3. Verification & Proof Context
+4. Settlement & Reputation Context
+
+وإضافة السياقات الداعمة مع النمو:
+5. Identity & Access Context
+6. Integration & Ecosystem Context
+7. Analytics & Insight Context
+8. Compliance & Audit Context
+نتيجة: نظام قابل للصيانة، قابل للتوسع، مرن، ويركز على القيمة التجارية، مع قدرة على التطور والنمو مع احتياجات السوق العربي.
+

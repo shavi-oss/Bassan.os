@@ -1,0 +1,258 @@
+
+// Bassan.os Prisma Schema with RLS
+// Phase 0: Multi-Tenancy Foundation
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================
+// MULTI-TENANCY & IDENTITY
+// ============================================================
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+  roles Role[]
+  leads Lead[]
+  tasks Task[]
+
+  @@map("organizations")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String
+  firstName      String?
+  lastName       String?
+  isActive       Boolean   @default(true)
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  roles          UserRole[]
+  refreshTokens  RefreshToken[]
+  leadsOwned     Lead[]         @relation("LeadOwner")
+  tasksAssigned  Task[]         @relation("TaskAssignee")
+  tasksCreated   Task[]         @relation("TaskCreator")
+
+  @@index([organizationId])
+  @@map("users")
+}
+
+model Role {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  users        UserRole[]
+  permissions  Permission[]
+
+  @@unique([organizationId, name])
+  @@map("roles")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model Permission {
+  id       String @id @default(uuid())
+  action   String // e.g., "leads:read", "leads:write"
+  resource String // e.g., "leads", "tasks"
+  roleId   String
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@map("permissions")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ============================================================
+// LEADS (Sales)
+// ============================================================
+
+model Lead {
+  id             String     @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  company        String?
+  status         LeadStatus @default(NEW)
+  source         String?
+  notes          String?
+  organizationId String
+  ownerId        String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  owner        User?        @relation("LeadOwner", fields: [ownerId], references: [id])
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("leads")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  UNQUALIFIED
+  CONVERTED
+}
+
+// ============================================================
+// TASKS (Operations)
+// ============================================================
+
+model Task {
+  id             String       @id @default(uuid())
+  title          String
+  description    String?
+  status         TaskStatus   @default(PENDING)
+  priority       TaskPriority @default(MEDIUM)
+  dueDate        DateTime?
+  organizationId String
+  assigneeId     String?
+  createdById    String
+  completedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  createdBy    User         @relation("TaskCreator", fields: [createdById], references: [id])
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([assigneeId])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ============================================================
+// RLS POLICIES (To be applied via migration)
+// ============================================================
+
+// Note: RLS policies will be applied via SQL migration
+// Example policies for each table:
+
+/*
+-- Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE permissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for users
+CREATE POLICY user_isolation ON users
+  FOR ALL
+  USING (organization_id = current_setting('app.current_tenant'));
+
+-- Create policy for roles
+CREATE POLICY role_isolation ON roles
+  FOR ALL
+  USING (organization_id = current_setting('app.current_tenant'));
+
+-- Create policy for leads
+CREATE POLICY lead_isolation ON leads
+  FOR ALL
+  USING (organization_id = current_setting('app.current_tenant'));
+
+-- Create policy for tasks
+CREATE POLICY task_isolation ON tasks
+  FOR ALL
+  USING (organization_id = current_setting('app.current_tenant'));
+
+-- Create policy for organizations
+CREATE POLICY organization_isolation ON organizations
+  FOR ALL
+  USING (id = current_setting('app.current_tenant'));
+
+-- Create policy for user_roles
+CREATE POLICY user_role_isolation ON user_roles
+  FOR ALL
+  USING (
+    user_id IN (
+      SELECT id FROM users 
+      WHERE organization_id = current_setting('app.current_tenant')
+    )
+  );
+
+-- Create policy for permissions
+CREATE POLICY permission_isolation ON permissions
+  FOR ALL
+  USING (
+    role_id IN (
+      SELECT id FROM roles 
+      WHERE organization_id = current_setting('app.current_tenant')
+    )
+  );
+
+-- Create policy for refresh_tokens
+CREATE POLICY refresh_token_isolation ON refresh_tokens
+  FOR ALL
+  USING (
+    user_id IN (
+      SELECT id FROM users 
+      WHERE organization_id = current_setting('app.current_tenant')
+    )
+  );
+*/

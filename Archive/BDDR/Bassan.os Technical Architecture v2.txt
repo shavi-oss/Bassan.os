@@ -1,0 +1,379 @@
+Bassan.os Technical Architecture v2.0
+Document Control
+Document Title: Bassan.os Technical Architecture
+Version: 2.0
+Status: Approved for Implementation
+Date: 2024-01-20
+Author: Principal Software Architect
+Reviewers: Architecture Board, Security Team, DevOps Team
+Next Review: 2024-04-20
+1. Architectural Vision & Principles
+1.1 Vision Statement
+Bassan.os is a cloud-native, multi-tenant SaaS platform designed as a Business Operating System for service-driven organizations. The architecture enables:
+
+Seamless scalability from single-tenant startups to enterprise multi-entity organizations
+Real-time business intelligence and decision support
+Flexible workflow orchestration without code changes
+Secure, isolated multi-tenant operations
+Rapid feature delivery through modular, domain-aligned services
+1.2 Architectural Principles
+1.2.1 Business-Aligned Boundaries
+Domain-Driven Design (DDD): Services organized around business domains, not technical layers
+Bounded Contexts: Each service has clear responsibility boundaries
+Ubiquitous Language: Service boundaries match business terminology
+1.2.2 Multi-Tenancy by Design
+Tenant Isolation: Complete data separation at database and application levels
+Tenant Context: Every request carries tenant context for security and routing
+Tenant Customization: Configurable workflows and business rules per tenant
+1.2.3 Cloud-Native & Scalable
+Horizontal Scaling: Stateless services scale horizontally based on load
+Elastic Resources: Infrastructure scales automatically with demand
+Fault Isolation: Service failures don't cascade across domains
+1.2.4 Security by Default
+Zero Trust: Every request authenticated and authorized
+Least Privilege: Users have minimum required access
+Defense in Depth: Multiple security layers at infrastructure, service, and data levels
+1.2.5 Observability First
+Instrument Everything: All services emit metrics, logs, and traces
+Actionable Insights: Monitoring data drives automated responses
+Root Cause Analysis: Distributed tracing enables rapid problem resolution
+1.2.6 API-First Integration
+Contract-Driven: API contracts defined before implementation
+Versioned APIs: Multiple API versions supported simultaneously
+Developer Experience: Comprehensive API documentation and tooling
+2. Key Architectural Decisions (ADRs)
+ADR-001: Microservices Architecture
+Status: Accepted
+Context: Platform must support multiple business domains with different evolution rates
+Decision: Implement microservices architecture with domain-aligned service boundaries
+Consequences:
+
+Independent deployment per domain
+Technology flexibility per service
+Clear ownership boundaries
+Increased operational complexity
+Distributed data consistency challenges
+ADR-002: Multi-Tenant Database Strategy
+Status: Accepted
+Context: Platform must support complete tenant isolation while maintaining operational efficiency
+Decision: Implement schema-per-tenant pattern with connection pooling
+Consequences:
+
+Complete tenant data isolation
+Tenant-specific optimizations possible
+Easier tenant migration and backup
+Increased database connection overhead
+Cross-tenant queries not possible
+ADR-003: Event-Driven Communication
+Status: Accepted
+Context: Services need to communicate without tight coupling
+Decision: Implement event-driven architecture using message broker (Kafka)
+Consequences:
+
+Loose coupling between services
+Better scalability through async processing
+Natural audit trail through event log
+Eventual consistency challenges
+Complex debugging across services
+ADR-004: API Gateway Pattern
+Status: Accepted
+Context: Need unified entry point with cross-cutting concerns
+Decision: Implement API Gateway with separate edge and API management concerns
+Consequences:
+
+Centralized authentication and authorization
+Consistent API policies across services
+Simplified client integration
+Gateway as potential bottleneck
+Additional infrastructure complexity
+ADR-005: CQRS Pattern for Analytics
+Status: Accepted
+Context: Analytical queries have different patterns than transactional operations
+Decision: Implement Command Query Responsibility Segregation for analytics workloads
+Consequences:
+
+Optimized read models for analytics
+Separate scaling for reads and writes
+Complex analytical queries don't impact transactions
+Eventual consistency for analytics
+Increased system complexity
+ADR-006: Multi-Frontend Strategy
+Status: Accepted
+Context: Different user types have distinct needs and security requirements
+Decision: Implement separate frontend applications for admin, business users, clients, and partners
+Consequences:
+
+Tailored UX for each user type
+Independent deployment and scaling
+Separate security boundaries
+Increased development overhead
+Duplicate UI components across apps
+3. C4 Model Overview
+3.1 System Context
+The Bassan.os system sits at the center of a business ecosystem:
+
+External Actors:
+
+Internal Users: Company Owners, Executives, Department Heads, Staff
+External Users: Partners, Freelancers, Customers
+External Systems: Email providers, Messaging platforms, Payment processors, Accounting systems, CRMs, HRIS systems
+Core System: Bassan.os Platform (multi-tenant SaaS Business Operating System)
+
+3.2 Container Architecture
+The platform consists of 23 containers organized into 6 groups:
+
+Frontend Applications (4 containers)
+Admin Dashboard Application
+Business User Application
+Client Portal Application
+Partner Portal Application
+API & Gateway Layer (2 containers)
+Edge Gateway
+API Management Service
+Core Business Services (8 containers)
+Workflow Orchestration Service
+Task Management Service
+Customer Service
+Sales & Pipeline Service
+Marketing Automation Service
+Commission Management Service
+Billing & Invoicing Service
+Credit & Collections Service
+Support & Collaboration Services (3 containers)
+Customer Support Service
+Partner Collaboration Service
+Human Resources Service
+Analytics & Intelligence Services (2 containers)
+Business Intelligence Service
+System Monitoring Service
+Platform & Infrastructure Services (4 containers)
+Identity & Access Service
+Tenant Management Service
+Observability Service
+Security Policy Service
+3.3 Component Architecture
+Each container contains 4-8 components implementing specific business capabilities. Total components: 127
+
+4. Technology Stack
+4.1 Frontend Stack
+Frameworks: React 18+ with TypeScript
+State Management: Redux Toolkit with RTK Query
+UI Components: Material-UI v5 with custom theme system
+Build Tools: Vite for optimized builds
+Testing: React Testing Library, Jest, Playwright for E2E
+Performance: Code splitting, lazy loading, service workers
+4.2 Backend Stack
+Languages: Node.js 20+ (TypeScript) for services, Go for high-performance components
+Frameworks: NestJS for Node.js services, Gin framework for Go services
+APIs: REST (OpenAPI 3.0) + GraphQL (Apollo Server)
+Authentication: OAuth 2.0 / OpenID Connect with JWT
+Message Broker: Apache Kafka 3.6+ with Schema Registry
+Caching: Redis 7+ with clustering
+4.3 Database Stack
+Primary Database: PostgreSQL 16+ with schema-per-tenant
+Analytical Database: ClickHouse 23+ for time-series analytics
+Document Database: MongoDB 7+ for flexible schema data
+Caching: Redis 7+ with persistence
+Search: Elasticsearch 8+ with multi-tenant indices
+4.4 Infrastructure Stack
+Cloud Provider: AWS (primary) with multi-region deployment
+Container Orchestration: Kubernetes 1.28+ with EKS
+Service Mesh: Istio 1.19+ for traffic management
+Infrastructure as Code: Terraform 1.5+ with modules
+CI/CD: GitHub Actions with ArgoCD for GitOps
+Monitoring: Prometheus + Grafana + Loki
+Tracing: Jaeger for distributed tracing
+Secrets Management: AWS Secrets Manager with automatic rotation
+5. Database Design
+5.1 Multi-Tenant Strategy
+Isolation Level: Schema-per-tenant for complete data separation
+Connection Management: PgBouncer with connection pooling
+Tenant Resolution: Tenant ID extracted from JWT and applied to all queries
+Performance: Query optimization with tenant-specific indexes
+5.2 Core Database Schema
+[Detailed ERD in separate document - Bassan.os Database ERD v2.0]
+
+5.3 Data Partitioning Strategy
+Transactional Data: Partitioned by tenant_id and created_at
+Time-Series Data: Partitioned by date ranges
+High-Volume Tables: Sharded by hash(tenant_id, id)
+5.4 Audit Trail Design
+Audit Table: Separate audit_logs table with triggers
+Change Capture: CDC (Change Data Capture) for critical tables
+Retention: Configurable retention period per tenant
+Query Performance: Partitioned by date with indexes on tenant_id
+6. API Design
+6.1 API Architecture
+REST APIs: CRUD operations and simple queries
+GraphQL APIs: Complex aggregations and dashboard queries
+WebSocket APIs: Real-time updates and notifications
+Webhooks: External system notifications
+6.2 Authentication & Authorization
+OAuth 2.0 / OpenID Connect: Standard authentication flow
+JWT Tokens: Access tokens (15min) + Refresh tokens (7 days)
+Role-Based Access Control: RBAC with hierarchical permissions
+Tenant Context: Tenant ID embedded in JWT claims
+MFA: Optional MFA with TOTP and SMS backup
+6.3 API Versioning Strategy
+URL Versioning: /api/v1/, /api/v2/ for breaking changes
+Backward Compatibility: Maintain 2 previous versions
+Deprecation Policy: 6-month deprecation notice for old versions
+6.4 Rate Limiting
+Per-Tenant Limits: Configurable limits per tenant tier
+Per-User Limits: Additional limits per user role
+Burst Handling: Token bucket algorithm for burst capacity
+Response Headers: X-RateLimit-Limit, X-RateLimit-Remaining
+7. Security Architecture
+7.1 Security Layers
+Network Security: VPC, Security Groups, WAF
+Application Security: API Gateway authentication, RBAC
+Data Security: Encryption at rest and in transit, tenant isolation
+Operational Security: Audit logging, secret management
+7.2 Encryption Strategy
+At Rest: AES-256 for all stored data
+In Transit: TLS 1.3 for all communications
+Key Management: AWS KMS with automatic rotation
+7.3 Compliance Readiness
+Data Residency: Tenant data stored in configured region
+Audit Trail: Complete audit log for all actions
+Data Retention: Configurable retention per data type
+Right to Erasure: Tenant data deletion process
+8. Deployment Architecture
+8.1 Infrastructure Overview
+Regions: Multi-region deployment (US-East, EU-West, APAC)
+Availability Zones: 3 AZs per region
+High Availability: Active-active with automatic failover
+Disaster Recovery: Point-in-time recovery with 15-minute RPO
+8.2 Container Orchestration
+Kubernetes Clusters: Separate clusters per environment (dev, staging, prod)
+Service Mesh: Istio for traffic management, security, observability
+Auto-scaling: HPA (Horizontal Pod Autoscaler) based on metrics
+Resource Quotas: Per-tenant resource limits
+8.3 CI/CD Pipeline
+Source Control: GitHub with branch protection rules
+Build Pipeline: GitHub Actions with Docker build
+Test Pipeline: Automated testing (unit, integration, E2E)
+Deployment Pipeline: ArgoCD with GitOps for progressive delivery
+Rollback Strategy: Automatic rollback on health check failures
+8.4 Monitoring Strategy
+Metrics: Prometheus for application and infrastructure metrics
+Logging: Loki for centralized log aggregation
+Tracing: Jaeger for distributed tracing
+Alerting: AlertManager with PagerDuty integration
+Dashboards: Grafana dashboards for all services
+9. Scalability & Growth
+9.1 Horizontal Scaling Strategy
+Stateless Services: All business services designed as stateless
+Load Balancing: Application load balancer with health checks
+Database Scaling: Read replicas for analytical queries
+Caching Strategy: Multi-level caching (CDN, application, database)
+9.2 Performance Targets
+API Response Time: P95 < 200ms for simple queries
+Page Load Time: P95 < 2s for initial page load
+Workflow Execution: < 1s for state transitions
+Dashboard Refresh: < 5s for complex dashboards
+9.3 Growth Planning
+Tenant Capacity: 10,000 tenants per region
+User Capacity: 1,000,000 users per region
+Data Volume: 100TB per region with growth to 1PB
+Transaction Volume: 10,000 TPS per region
+10. Monitoring & Maintenance
+10.1 Observability Stack
+Metrics Collection: Prometheus with custom exporters
+Log Aggregation: Loki with structured logging
+Distributed Tracing: Jaeger with trace sampling
+Synthetic Monitoring: Playwright-based synthetic transactions
+10.2 Alerting Strategy
+Critical Alerts: Immediate notification (PagerDuty)
+Warning Alerts: Email notification during business hours
+Info Alerts: Daily digest email
+Alert Suppression: Maintenance mode with alert suppression
+10.3 Maintenance Windows
+Scheduled Maintenance: Monthly maintenance windows
+Zero-Downtime Deployments: Blue-green deployments
+Database Maintenance: Online schema changes
+Backup Verification: Daily backup integrity checks
+11. Architecture Evolution Roadmap
+Phase 1: Foundation (Months 1-6)
+Core platform infrastructure
+Essential business services
+Basic monitoring and observability
+Phase 2: Core Capabilities (Months 7-12)
+All business services implemented
+Advanced analytics and reporting
+Integration framework
+Phase 3: Advanced Features (Months 13-18)
+AI-powered insights
+Advanced workflow automation
+Mobile applications
+Phase 4: Ecosystem (Months 19-24)
+Partner marketplace
+Industry-specific modules
+Global expansion
+12. Critical Gaps & Action Items
+G-001: Industry-Specific Workflow Templates
+Status: [NEEDS_CLARIFICATION]
+Owner: Product Team
+Priority: High
+Action: Conduct workshops with industry experts to define workflow templates for medical, educational, and marketing sectors
+
+G-002: Commission Calculation Rules
+Status: [NEEDS_CLARIFICATION]
+Owner: Finance Team
+Priority: High
+Action: Define detailed commission calculation rules and formulas for different compensation models
+
+G-003: Data Migration Strategy
+Status: [NEEDS_DESIGN]
+Owner: Data Engineering Team
+Priority: Medium
+Action: Design data migration strategy for onboarding customers from legacy systems
+
+G-004: API Rate Limiting Policies
+Status: [NEEDS_DEFINITION]
+Owner: Product Team
+Priority: Medium
+Action: Define rate limiting policies per tenant tier and user role
+
+G-005: Disaster Recovery Testing
+Status: [NEEDS_PROCEDURE]
+Owner: DevOps Team
+Priority: High
+Action: Define disaster recovery testing procedures and schedule regular drills
+
+13. Architecture Review Checklist
+ All BRD requirements (BR-01 to BR-22) supported by architecture
+ All User Stories (US-EXEC-001 to US-PART-002) mapped to components
+ No God Containers identified
+ No overloaded API Gateway
+ Clear multi-tenant strategy defined
+ Security architecture comprehensive
+ Scalability targets defined
+ Monitoring strategy complete
+ Deployment architecture realistic
+ Database design supports all requirements
+ API specifications complete
+ Critical gaps identified with action plans
+14. Appendix
+14.1 Glossary
+Bounded Context: A distinct part of the domain logic with clear boundaries
+CQRS: Command Query Responsibility Segregation - separating read and write operations
+DDD: Domain-Driven Design - aligning software design with business domains
+Multi-tenancy: Software architecture where a single instance serves multiple customers
+SaaS: Software as a Service - software licensing and delivery model
+14.2 References
+BRD v2.0
+User Stories Catalog v2.0
+Legacy C4 Model v1.0
+Architecture Decision Records (ADRs)
+14.3 Related Documents
+Bassan.os C4 Model v2.0
+Bassan.os Database ERD v2.0
+Bassan.os API Specifications v2.0
+Bassan.os Deployment Architecture v2.0
+End of Document
+
+This Technical Architecture v2.0 provides a comprehensive blueprint for implementing the Bassan.os platform. It addresses the legacy architectural issues while establishing a clear path for development teams to build a scalable, secure, and maintainable multi-tenant SaaS platform.
+
+The next step is to create the detailed C4 Model v2.0 with complete diagrams showing system context, containers, components, and their interactions.
+

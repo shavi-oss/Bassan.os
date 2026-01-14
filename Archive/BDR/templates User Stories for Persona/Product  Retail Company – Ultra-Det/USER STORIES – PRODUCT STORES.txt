@@ -1,0 +1,729 @@
+Personas – Product Stores
+
+Context:
+تشمل متاجر:
+
+ملابس
+
+إلكترونيات
+
+مستحضرات تجميل
+
+منتجات طبية
+
+بيع أونلاين / أوفلاين / Hybrid
+
+Persona 1: Store Owner / Business Owner
+الاسم (افتراضي)
+
+Ahmed Hassan – Store Owner
+
+العمر
+
+35–50 سنة
+
+الخلفية والخبرة
+
+صاحب متجر منتجات (أونلاين أو محل فعلي)
+
+بدأ المشروع بنفسه أو ورثه
+
+خبرة عملية في البيع، أقل خبرة في الأنظمة
+
+يعتمد على WhatsApp / Excel / Facebook بشكل أساسي
+
+الأهداف (Goals)
+
+يعرف هو بيكسب ولا بيخسر
+
+يشوف المبيعات يوميًا/شهريًا
+
+يقلل السرقة والأخطاء
+
+يربط التسويق بالمبيعات
+
+يسيطر على الموظفين من غير ما يقف فوق دماغهم
+
+التحديات (Pain Points)
+
+أرقام متلخبطة
+
+الموظف بيبيع غلط أو بينسى يسجل
+
+مش فاهم الحملات جابت نتيجة ولا لا
+
+فقدان منتجات أو أخطاء مخزون
+
+صعوبة متابعة الفروع أو البيع أونلاين
+
+معايير النجاح (Success Criteria)
+
+Dashboard واضح: مبيعات، مخزون، أرباح
+
+تقارير حقيقية مش تقديرية
+
+كل عملية بيع متسجلة
+
+يعرف أفضل منتج وأسوأ منتج
+
+يقدر يتدخل بسرعة لو في مشكلة
+
+Persona 2: Store Manager / Branch Manager
+الاسم
+
+Mona Adel – Store Manager
+
+العمر
+
+28–40 سنة
+
+الخلفية والخبرة
+
+مسؤولة عن فرع أو أكتر
+
+خبرة تشغيلية قوية
+
+بتدير فريق مبيعات ومخزون
+
+بتشتغل تحت ضغط
+
+الأهداف
+
+تشغيل الفرع بسلاسة
+
+تحقيق التارجت
+
+تقليل المرتجعات
+
+تسليم تقارير مظبوطة للإدارة
+
+حل مشاكل العملاء بسرعة
+
+التحديات
+
+موظفين بيغلطوا في التسجيل
+
+اختلاف المخزون الفعلي عن السيستم
+
+ضغط العملاء
+
+صعوبة المتابعة اليدوية
+
+مشاكل في التسليم أو المرتجعات
+
+معايير النجاح
+
+كل عملية بيع متسجلة صح
+
+مخزون محدث
+
+تقارير يومية تلقائية
+
+عدد شكاوى أقل
+
+التزام الفريق بالتعليمات
+
+Persona 3: Sales Representative / Store Staff
+الاسم
+
+Youssef Ali – Sales Rep
+
+العمر
+
+20–30 سنة
+
+الخلفية
+
+موظف مبيعات
+
+بيشتغل شيفتات
+
+خبرة محدودة بالأنظمة
+
+همه الأساسي المرتب/العمولة
+
+الأهداف
+
+يبيع بسرعة
+
+يحسب السعر صح
+
+يخلص العميل من غير مشاكل
+
+يعرف عمولته كام
+
+التحديات
+
+أنظمة معقدة
+
+تسجيل يدوي ممل
+
+نسيان تسجيل خصم أو عرض
+
+ضغط العملاء
+
+معايير النجاح
+
+تسجيل بيع في أقل من دقيقة
+
+معرفة العمولة فورًا
+
+عدم رجوع العميل بشكوى
+
+النظام يشتغل بسرعة
+
+Persona 4: Inventory / Warehouse Officer
+الاسم
+
+Khaled Mahmoud – Inventory Officer
+
+العمر
+
+25–45 سنة
+
+الخلفية
+
+مسؤول مخزن أو جرد
+
+خبرة في الاستلام والتسليم
+
+بيعتمد على دفاتر أو Excel
+
+الأهداف
+
+مخزون مظبوط
+
+مفيش عجز
+
+معرفة الداخل والخارج
+
+جرد سريع
+
+التحديات
+
+اختلاف الجرد
+
+بيع بدون خصم من المخزون
+
+تلف أو انتهاء صلاحية
+
+ضغط وقت
+
+معايير النجاح
+
+تطابق الجرد الفعلي والسيستم
+
+تنبيهات قبل نفاذ المنتج
+
+تقارير واضحة
+
+تقليل الفقد
+
+Persona 5: Marketing Specialist (للمتاجر)
+الاسم
+
+Sara Mohamed – Marketing Specialist
+
+العمر
+
+23–35 سنة
+
+الخلفية
+
+مسؤولة عن إعلانات Facebook / Instagram / TikTok
+
+بتشتغل أحيانًا Freelance
+
+بتقيس النجاح بالـ Leads أو Messages
+
+الأهداف
+
+تعرف الحملة جابت مبيعات ولا لا
+
+تربط الإعلان بالمنتج
+
+تحسن ROI
+
+تقدم تقارير حقيقية
+
+التحديات
+
+الإدارة بتسأل: الإعلان جاب كام؟
+
+مفيش ربط بين الإعلان والبيع
+
+بيانات ناقصة
+
+لوم دايمًا على التسويق
+
+معايير النجاح
+
+رؤية واضحة: Campaign → Sales
+
+تقارير تلقائية
+
+إثبات قيمة شغلها
+
+تحسين الأداء
+
+Persona 6: Customer (End Buyer)
+الاسم
+
+Nour Ahmed – Customer
+
+العمر
+
+18–45 سنة
+
+الخلفية
+
+عميل أونلاين أو داخل المتجر
+
+بيشتري حسب السعر والتجربة
+
+سريع الملل
+
+الأهداف
+
+شراء سريع
+
+سعر واضح
+
+توصيل في الوقت
+
+خدمة محترمة
+
+التحديات
+
+تأخير الطلب
+
+سعر غلط
+
+عدم وضوح الحالة
+
+تجاهل الشكوى
+
+معايير النجاح
+
+تأكيد الطلب فورًا
+
+معرفة حالة الطلب
+
+دعم سريع
+
+تجربة كويسة
+
+Persona 7: Accountant / Finance Officer (اختياري)
+الاسم
+
+Hany Mostafa – Accountant
+
+العمر
+
+30–55 سنة
+
+الخلفية
+
+محاسب داخلي أو خارجي
+
+شغال على تقارير شهرية
+
+همه الأرقام والالتزام
+
+الأهداف
+
+حساب أرباح وخسائر
+
+متابعة الفواتير
+
+حساب العمولات
+
+تقارير دقيقة
+
+التحديات
+
+بيانات ناقصة
+
+عمليات مش متسجلة
+
+اختلاف أرقام
+
+ضغط نهاية الشهر
+
+معايير النجاح
+
+تقارير جاهزة
+
+بيانات موحدة
+
+تقليل الأخطاء
+
+سرعة المراجعة
+
+ملحوظة مهمة (Design Insight)
+
+كل Persona دي:
+
+هتتعامل مع نفس النظام
+
+لكن:
+
+أدوات مختلفة
+
+صلاحيات مختلفة
+
+Dashboards مختلفة
+
+Workflows مختلفة
+
+وده أساس:
+
+Templates جاهزة للـ Product Stores
+
+قابلة للتخصيص (إضافة/إزالة أقسام)
+
+----------
+
+USER STORIES – PRODUCT STORES (Bassan OS)
+1️⃣ Persona: Store Owner / Business Owner
+US-01: رؤية شاملة للمبيعات
+
+As a Store Owner,
+I want to view a real-time dashboard of sales, profits, and stock,
+so that I can make fast and informed business decisions.
+
+Acceptance Criteria
+
+Dashboard يعرض:
+
+إجمالي المبيعات (يومي / شهري)
+
+صافي الربح
+
+أفضل وأسوأ المنتجات
+
+إمكانية التصفية حسب:
+
+فرع
+
+قناة بيع (أونلاين / أوفلاين)
+
+البيانات تتحدث تلقائيًا
+
+Priority: High
+Module: Analytics & Reporting
+
+US-02: التحكم في الصلاحيات
+
+As a Store Owner,
+I want to control what each employee can see or do,
+so that I prevent mistakes and fraud.
+
+Acceptance Criteria
+
+إنشاء Roles مخصصة
+
+تحديد:
+
+من يبيع
+
+من يعدل السعر
+
+من يرى التقارير
+
+سجل تغييرات (Audit Log)
+
+Priority: High
+Module: User Management / Security
+
+US-03: متابعة التسويق وتأثيره على المبيعات
+
+As a Store Owner,
+I want to see which marketing campaigns generated real sales,
+so that I invest only in profitable channels.
+
+Acceptance Criteria
+
+ربط كل Sale بحملة (إن وُجد)
+
+تقرير ROI لكل حملة
+
+مقارنة بين الحملات
+
+Priority: Medium
+Module: Marketing + Sales + Analytics
+
+US-04: التنبيه بالمشاكل الحرجة
+
+As a Store Owner,
+I want to receive alerts for critical issues,
+so that I intervene before losses happen.
+
+Acceptance Criteria
+
+تنبيهات عند:
+
+نفاذ منتج
+
+هبوط مبيعات مفاجئ
+
+عجز مخزون
+
+إشعار عبر:
+
+App
+
+WhatsApp / Email
+
+Priority: High
+Module: Notifications + Inventory
+
+2️⃣ Persona: Store Manager / Branch Manager
+US-05: إدارة المبيعات اليومية
+
+As a Store Manager,
+I want to track daily sales per employee,
+so that I ensure targets are met.
+
+Acceptance Criteria
+
+تقرير مبيعات يومي
+
+تصنيف حسب الموظف
+
+مقارنة بالتارجت
+
+Priority: High
+Module: Sales Management
+
+US-06: إدارة المرتجعات
+
+As a Store Manager,
+I want to process returns easily,
+so that customers are satisfied and inventory stays accurate.
+
+Acceptance Criteria
+
+تسجيل سبب المرتجع
+
+تحديث المخزون تلقائيًا
+
+ربط المرتجع بالبيع الأصلي
+
+Priority: High
+Module: Sales + Inventory
+
+US-07: مراقبة المخزون
+
+As a Store Manager,
+I want to monitor stock levels in real time,
+so that I avoid out-of-stock situations.
+
+Acceptance Criteria
+
+عرض المخزون الحالي
+
+تنبيهات قبل النفاذ
+
+طلب إعادة توريد
+
+Priority: High
+Module: Inventory Management
+
+3️⃣ Persona: Sales Representative / Store Staff
+US-08: تسجيل عملية بيع بسرعة
+
+As a Sales Rep,
+I want to register a sale in under one minute,
+so that I serve customers faster.
+
+Acceptance Criteria
+
+اختيار المنتج
+
+تطبيق الخصم (إن وجد)
+
+طباعة / إرسال إيصال
+
+خصم تلقائي من المخزون
+
+Priority: High
+Module: POS / Sales
+
+US-09: معرفة العمولة
+
+As a Sales Rep,
+I want to see my commission instantly,
+so that I know how much I earned.
+
+Acceptance Criteria
+
+حساب العمولة تلقائيًا
+
+عرض العمولة اليومية / الشهرية
+
+عدم التعديل اليدوي
+
+Priority: Medium
+Module: Sales + Finance
+
+US-10: تقليل الأخطاء
+
+As a Sales Rep,
+I want the system to prevent wrong pricing,
+so that I don’t cause issues.
+
+Acceptance Criteria
+
+منع البيع بسعر خاطئ
+
+تنبيه عند خصم غير مسموح
+
+Validation تلقائي
+
+Priority: High
+Module: Sales Rules Engine
+
+4️⃣ Persona: Inventory / Warehouse Officer
+US-11: استلام منتجات
+
+As an Inventory Officer,
+I want to record incoming stock easily,
+so that inventory is always accurate.
+
+Acceptance Criteria
+
+تسجيل كميات + مورد
+
+تحديث المخزون فورًا
+
+سجل حركات
+
+Priority: High
+Module: Inventory
+
+US-12: الجرد
+
+As an Inventory Officer,
+I want to perform inventory audits,
+so that discrepancies are detected.
+
+Acceptance Criteria
+
+جرد دوري
+
+مقارنة فعلي vs سيستم
+
+تسجيل العجز
+
+Priority: Medium
+Module: Inventory + Reports
+
+5️⃣ Persona: Marketing Specialist
+US-13: إنشاء حملة
+
+As a Marketing Specialist,
+I want to create marketing campaigns inside the system,
+so that results are trackable.
+
+Acceptance Criteria
+
+إدخال:
+
+القناة
+
+الميزانية
+
+المنتجات
+
+حالة الحملة
+
+Priority: Medium
+Module: Marketing
+
+US-14: ربط الحملة بالمبيعات
+
+As a Marketing Specialist,
+I want to link sales to campaigns,
+so that my performance is measurable.
+
+Acceptance Criteria
+
+Tag لكل Sale
+
+تقرير Conversion
+
+ROI تلقائي
+
+Priority: High
+Module: Marketing + Analytics
+
+6️⃣ Persona: Customer (End Buyer)
+US-15: متابعة الطلب
+
+As a Customer,
+I want to track my order status,
+so that I feel confident.
+
+Acceptance Criteria
+
+Portal للعميل
+
+حالات واضحة
+
+إشعارات تلقائية
+
+Priority: High
+Module: Client Portal + Notifications
+
+US-16: التواصل مع الدعم
+
+As a Customer,
+I want to submit a complaint easily,
+so that my issue is resolved fast.
+
+Acceptance Criteria
+
+إنشاء Ticket
+
+متابعة الحالة
+
+رد خلال SLA
+
+Priority: Medium
+Module: Support
+
+7️⃣ Persona: Accountant / Finance Officer
+US-17: تقارير مالية
+
+As an Accountant,
+I want ready-made financial reports,
+so that I close accounts faster.
+
+Acceptance Criteria
+
+Profit & Loss
+
+Sales vs Expenses
+
+تصدير Excel / PDF
+
+Priority: High
+Module: Finance + Reports
+
+US-18: حساب العمولات
+
+As an Accountant,
+I want commissions calculated automatically,
+so that payroll is accurate.
+
+Acceptance Criteria
+
+قواعد عمولات
+
+عدم التعديل اليدوي
+
+تقارير جاهزة
+
+Priority: High
+Module: Finance

@@ -1,0 +1,651 @@
+🎓 Ready-Made Customization Template
+Educational Center / المدارس والمراكز التعليمية
+
+هذا القالب يُستخدم عند أول دخول للعميل، ويُنشئ له نظامًا كاملًا جاهزًا قابل للتخصيص بدون افتراضات نظرية.
+
+أولًا: التقسيم الرئيسي للأقسام (Main Business Sectors)
+
+القالب مبني على 9 قطاعات أساسية (واقعية 100%):
+
+Academic Management (الإدارة الأكاديمية)
+
+Students & Guardians Management (الطلاب وأولياء الأمور)
+
+Courses & Programs (الكورسات والبرامج)
+
+Instructors & Staff (المدرسين والموظفين)
+
+Scheduling & Class Management (الجداول والحصص)
+
+Attendance & Performance Tracking (الحضور والتقييم)
+
+Financial Management (الإدارة المالية)
+
+Marketing & Admissions (التسويق والقبول)
+
+Reports & Compliance (التقارير والالتزام)
+
+1️⃣ Academic Management
+الإدارة الأكاديمية
+الوظيفة الواقعية
+
+إدارة كل ما يخص المنهج، النظام التعليمي، السياسات الأكاديمية.
+
+الوحدات الفرعية
+
+Academic Structure
+
+مستويات (KG / Primary / Secondary / Adults)
+
+أقسام تعليمية (لغات – علوم – برمجة – مهارات)
+
+Curriculum Mapping
+
+ربط المنهج بالكورسات
+
+مخرجات التعلم (Learning Outcomes)
+
+Academic Policies
+
+سياسة الغياب
+
+سياسة النجاح والرسوب
+
+سياسة إعادة الامتحان
+
+بيانات حقيقية داخل النظام
+
+Academic Year
+
+Term / Semester
+
+Level → Program → Course → Class
+
+2️⃣ Students & Guardians Management
+إدارة الطلاب وأولياء الأمور
+Personas المرتبطة
+
+Student
+
+Parent / Guardian
+
+Student Affairs Officer
+
+وحدات واقعية
+
+Student Profile
+
+بيانات شخصية
+
+مستوى تعليمي
+
+تاريخ الالتحاق
+
+Guardian Profiles
+
+ربط أكثر من طالب بولي أمر واحد
+
+Enrollment Status
+
+Active / Suspended / Graduated / Dropped
+
+حالات حقيقية
+
+طالب متأخر في الدفع
+
+ولي أمر يطلب تقرير
+
+طالب محول من مستوى لمستوى
+
+3️⃣ Courses & Programs
+الكورسات والبرامج التعليمية
+التقسيم الواقعي
+
+Programs
+
+دبلومة
+
+برنامج سنوي
+
+برنامج مكثف
+
+Courses
+
+مادة واحدة
+
+كورس قصير
+
+Course Components
+
+محاضرات
+
+تدريبات
+
+امتحانات
+
+مشاريع
+
+خصائص مهمة
+
+مدة الكورس
+
+السعر
+
+الحد الأقصى للطلاب
+
+نوع التدريس (حضوري / أونلاين / هجين)
+
+4️⃣ Instructors & Staff
+المدرسين والموظفين
+Personas
+
+Instructor
+
+Academic Coordinator
+
+HR Officer
+
+وحدات النظام
+
+Instructor Profile
+
+تخصص
+
+ساعات العمل
+
+الأجر (ثابت / بالساعة)
+
+Staff Roles
+
+شؤون طلاب
+
+استقبال
+
+إدارة
+
+واقع عملي
+
+مدرس يدرّس أكثر من كورس
+
+مدرس بنظام أجر الحصة
+
+خصومات تأخير
+
+5️⃣ Scheduling & Class Management
+الجداول والحصص
+وحدات
+
+Class Scheduling
+
+اليوم
+
+الوقت
+
+القاعة / Zoom
+
+Room Management
+
+سعة القاعات
+
+تعارض الجداول
+
+Instructor Availability
+
+سيناريوهات حقيقية
+
+تعارض مدرس في نفس التوقيت
+
+تغيير موعد حصة
+
+إضافة حصة تعويضية
+
+6️⃣ Attendance & Performance Tracking
+الحضور والتقييم
+وحدات
+
+Attendance
+
+حضور / غياب / تأخير
+
+Exams & Quizzes
+
+Assignments
+
+Final Grades
+
+واقعية عالية
+
+خصم درجات بسبب الغياب
+
+تقارير أداء شهرية
+
+تنبيه ولي الأمر تلقائيًا
+
+7️⃣ Financial Management
+الإدارة المالية
+Personas
+
+Accountant
+
+Financial Manager
+
+وحدات حقيقية
+
+Fees Structure
+
+اشتراك شهري
+
+كورس واحد
+
+دفعات
+
+Payments
+
+كاش
+
+تحويل
+
+Online
+
+Discounts
+
+أشقاء
+
+عروض موسمية
+
+Debts & Installments
+
+تقارير واقعية
+
+Outstanding Payments
+
+Revenue per Course
+
+Instructor Cost vs Revenue
+
+8️⃣ Marketing & Admissions
+التسويق والقبول
+وحدات
+
+Leads Management
+
+Channels
+
+Facebook
+
+WhatsApp
+
+Walk-in
+
+Admissions Funnel
+
+Lead → Contacted → Enrolled
+
+واقعية السوق
+
+متابعة موظف القبول
+
+حساب تكلفة الطالب الواحد
+
+تحويل Lead لطالب مسجل
+
+9️⃣ Reports & Compliance
+التقارير والالتزام
+أنواع التقارير
+
+Academic Reports
+
+Financial Reports
+
+Attendance Reports
+
+Instructor Performance
+
+Compliance
+
+تقارير مطلوبة للجهات الرسمية
+
+حفظ السجلات
+
+صلاحيات الوصول (RBAC)
+
+🔑 Ready-Made Roles (جاهزة في النظام)
+
+Super Admin (مالك المركز)
+
+Academic Manager
+
+Student Affairs
+
+Instructor
+
+Accountant
+
+Marketing Officer
+
+Parent (Read-only)
+----------
+
+Section 2: User Stories
+Educational Center – Detailed User Stories
+
+سأغطي 7 Personas أساسيين فعليًا موجودين في أي مركز تعليمي ناجح:
+
+Owner / Super Admin
+
+Academic Manager
+
+Student Affairs Officer
+
+Instructor
+
+Accountant / Financial Manager
+
+Marketing & Admissions Officer
+
+Parent / Guardian
+
+1️⃣ Persona: Owner / Super Admin (مالك المركز)
+Profile
+Attribute	Details
+Background	صاحب مركز تعليمي / مستثمر
+Experience	5–20 سنة
+Goals	رؤية شاملة – نمو – سيطرة كاملة
+Pain Points	فقدان السيطرة، تقارير غير دقيقة
+Success Criteria	أرقام واضحة + نمو مستقر
+User Stories – Owner
+Story 1
+
+As an Owner, I want to see a real-time dashboard of the entire center, so that I can make fast strategic decisions.
+
+Acceptance Criteria
+
+Dashboard يعرض:
+
+إجمالي الطلاب
+
+الإيرادات
+
+المتأخرات
+
+نسب الحضور
+
+تحديث لحظي
+
+إمكانية تصفية حسب الفترة
+
+Priority: High
+Module: Analytics / Dashboard
+
+Story 2
+
+As an Owner, I want to control roles and permissions, so that no employee can access unauthorized data.
+
+Acceptance Criteria
+
+RBAC كامل
+
+تخصيص صلاحيات لكل دور
+
+Audit Log لأي تعديل
+
+Priority: High
+Module: Security / RBAC
+
+Story 3
+
+As an Owner, I want to analyze profitability per course, so that I can expand or cancel programs intelligently.
+
+Acceptance Criteria
+
+ربط الإيرادات بتكلفة المدرس
+
+صافي الربح لكل كورس
+
+تقارير قابلة للتصدير
+
+Priority: High
+Module: Financial Reports
+
+2️⃣ Persona: Academic Manager (المدير الأكاديمي)
+Profile
+Attribute	Details
+Background	إدارة تعليمية
+Goals	جودة تعليم – انتظام
+Pain Points	فوضى الجداول – غياب المدرسين
+Success Criteria	انتظام الحصص – نتائج طلاب
+User Stories – Academic Manager
+Story 1
+
+As an Academic Manager, I want to structure programs into levels and courses, so that learning paths are clear.
+
+Acceptance Criteria
+
+Program → Course → Class hierarchy
+
+تحديد مخرجات تعلم
+
+ربط المدرسين
+
+Priority: High
+Module: Academic Management
+
+Story 2
+
+As an Academic Manager, I want to manage class schedules without conflicts, so that instructors and rooms are optimized.
+
+Acceptance Criteria
+
+منع تعارض المدرس
+
+منع تعارض القاعات
+
+تنبيهات تلقائية
+
+Priority: High
+Module: Scheduling
+
+Story 3
+
+As an Academic Manager, I want to monitor instructor performance, so that teaching quality remains high.
+
+Acceptance Criteria
+
+تقارير حضور
+
+تقييم الطلاب
+
+مقارنة أداء
+
+Priority: Medium
+Module: Performance Tracking
+
+3️⃣ Persona: Student Affairs Officer (شؤون الطلاب)
+Profile
+Attribute	Details
+Background	إدارة طلاب
+Goals	تنظيم – خدمة الطلاب
+Pain Points	بيانات غير مكتملة
+Success Criteria	تسجيل منظم وسريع
+User Stories – Student Affairs
+Story 1
+
+As a Student Affairs Officer, I want to register students and assign them to programs, so that enrollment is accurate.
+
+Acceptance Criteria
+
+ملف طالب كامل
+
+ربط ولي أمر
+
+حالة التسجيل واضحة
+
+Priority: High
+Module: Student Management
+
+Story 2
+
+As a Student Affairs Officer, I want to track student status changes, so that administration stays updated.
+
+Acceptance Criteria
+
+Active / Suspended / Graduated
+
+سجل تغييرات
+
+إشعارات داخلية
+
+Priority: Medium
+Module: Student Lifecycle
+
+4️⃣ Persona: Instructor (المدرس)
+Profile
+Attribute	Details
+Background	مدرس / مدرب
+Goals	تدريس منظم
+Pain Points	عدم وضوح الجداول
+Success Criteria	التزام الطلاب
+User Stories – Instructor
+Story 1
+
+As an Instructor, I want to view my teaching schedule, so that I can plan my time efficiently.
+
+Acceptance Criteria
+
+جدول أسبوعي
+
+تنبيهات تغييرات
+
+تفاصيل الحصة
+
+Priority: High
+Module: Instructor Portal
+
+Story 2
+
+As an Instructor, I want to record attendance and grades, so that student performance is tracked accurately.
+
+Acceptance Criteria
+
+تسجيل حضور سريع
+
+إدخال درجات
+
+حفظ تلقائي
+
+Priority: High
+Module: Attendance & Grading
+
+5️⃣ Persona: Accountant / Financial Manager
+Profile
+Attribute	Details
+Background	محاسبة
+Goals	ضبط مالي
+Pain Points	دفعات ناقصة
+Success Criteria	تقارير دقيقة
+User Stories – Accountant
+Story 1
+
+As an Accountant, I want to manage student payments and installments, so that cash flow is controlled.
+
+Acceptance Criteria
+
+تسجيل دفعات
+
+تتبع أقساط
+
+تنبيهات تأخير
+
+Priority: High
+Module: Finance
+
+Story 2
+
+As an Accountant, I want to generate financial reports, so that management can review performance.
+
+Acceptance Criteria
+
+تقارير شهرية
+
+تصدير Excel/PDF
+
+فلترة زمنية
+
+Priority: High
+Module: Financial Reports
+
+6️⃣ Persona: Marketing & Admissions Officer
+Profile
+Attribute	Details
+Background	تسويق
+Goals	زيادة التسجيل
+Pain Points	Leads ضايعة
+Success Criteria	Conversion عالي
+User Stories – Marketing
+Story 1
+
+As a Marketing Officer, I want to track leads from different channels, so that I know which channels perform best.
+
+Acceptance Criteria
+
+مصدر Lead
+
+حالة Lead
+
+تقارير تحويل
+
+Priority: High
+Module: CRM / Marketing
+
+Story 2
+
+As a Marketing Officer, I want to convert leads into enrolled students, so that enrollment grows.
+
+Acceptance Criteria
+
+ربط Lead بالطالب
+
+سجل تواصل
+
+حالة القبول
+
+Priority: High
+Module: Admissions
+
+7️⃣ Persona: Parent / Guardian (ولي الأمر)
+Profile
+Attribute	Details
+Background	ولي أمر
+Goals	متابعة ابنه
+Pain Points	نقص الشفافية
+Success Criteria	تقارير واضحة
+User Stories – Parent
+Story 1
+
+As a Parent, I want to view my child’s attendance and performance, so that I can support them academically.
+
+Acceptance Criteria
+
+لوحة متابعة
+
+تقارير دورية
+
+تنبيهات غياب
+
+Priority: Medium
+Module: Parent Portal
+
+Story 2
+
+As a Parent, I want to receive payment notifications, so that I never miss deadlines.
+
+Acceptance Criteria
+
+إشعارات تلقائية
+
+حالة المدفوعات
+
+سجل تاريخي
+
+Priority: Medium
+Module: Notifications

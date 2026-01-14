@@ -1,0 +1,302 @@
+Marketing Company – Ultra-Detailed Personas & User Stories
+Personas / User Roles – تفصيل كامل
+1️⃣ CEO / Owner – Sara Hossam
+
+Age: 45
+
+Background: مؤسس شركة تسويق رقمية، خبرة 20 سنة في التسويق والإدارة
+
+Goals / Objectives:
+
+متابعة أداء جميع الحملات والمشاريع
+
+ضمان تحقيق الإيرادات والأهداف التسويقية للعملاء
+
+رؤية شاملة لكل الفرق: المبيعات، التسويق، الإبداع، التنفيذ
+
+تحسين تجربة العملاء وزيادة ولائهم
+
+Pain Points / Challenges:
+
+صعوبة متابعة الحملات المتزامنة للعملاء المختلفين
+
+نقص الرؤية اللحظية لأداء الفرق
+
+صعوبة قياس العائد على الاستثمار (ROI) لكل حملة
+
+Tools / Modules Used:
+
+Analytics & Reporting Module: KPIs لحملات العملاء
+
+CRM Module: بيانات العملاء والمبيعات
+
+Operations Module: متابعة المشاريع والمهام
+
+Notifications Module: تنبيهات عند تأخر الحملات أو تجاوز الميزانيات
+
+Inputs / Outputs:
+
+Inputs: بيانات الحملات، تقارير الأداء، ميزانيات العملاء
+
+Outputs: تقارير يومية/أسبوعية، مؤشرات الأداء، تنبيهات حية
+
+Interactions / Integrations:
+
+مع Marketing Managers لمتابعة الخطط والحملات
+
+مع Finance Team لمراجعة الميزانيات والفواتير
+
+مع Clients للاطلاع على نتائج الحملات
+
+Success Criteria:
+
+متابعة جميع الحملات بدقة
+
+تحسين ROI لكل حملة ≥ 20%
+
+رضا العملاء ≥ 90%
+
+2️⃣ Marketing Manager – Omar Fathy
+
+Age: 35
+
+Background: مدير قسم التسويق، خبرة 10 سنوات في التسويق الرقمي والإعلانات
+
+Goals / Objectives:
+
+تصميم وتنفيذ الحملات الإعلانية للعملاء
+
+متابعة نتائج الحملات عبر القنوات المختلفة (Facebook, Instagram, Google Ads)
+
+تخصيص الميزانيات بشكل فعال لكل حملة
+
+تحسين معدلات التحويل (Conversion Rates)
+
+Pain Points / Challenges:
+
+صعوبة تتبع أداء الحملات المتعددة لحظة بلحظة
+
+مشاكل في التنسيق بين فرق الإبداع، التنفيذ، والمبيعات
+
+صعوبة ربط البيانات بين الحملات والمبيعات
+
+Tools / Modules Used:
+
+Marketing Module: لإنشاء الحملات وتتبع الأداء
+
+CRM Module: ربط العملاء بالحملات
+
+Analytics & Reporting Module: متابعة KPIs
+
+Notifications Module: للتنبيهات عند أي مشكلة أو تجاوز ميزانية
+
+Inputs / Outputs:
+
+Inputs: خطط الحملات، ميزانيات، بيانات العملاء
+
+Outputs: تقارير الأداء، ROI لكل حملة، تحديثات على المشاريع
+
+Interactions / Integrations:
+
+مع Creative Team لإنشاء محتوى الحملات
+
+مع Sales Team لمتابعة العملاء المحتملين
+
+مع CEO / Director لتقديم تقارير الأداء
+
+Success Criteria:
+
+الحملات تحقق أهداف العملاء
+
+تحسين معدل التحويل بنسبة محددة
+
+تقارير دقيقة للحملات يوميًا وأسبوعيًا
+
+3️⃣ Creative Team / Designers & Content Creators – Yara Adel
+
+Age: 28–35
+
+Background: فريق تصميم ومحتوى رقمي، خبرة 3–7 سنوات
+
+Goals / Objectives:
+
+تصميم إعلانات جذابة للعميل
+
+إعداد محتوى رقمي (صور، فيديوهات، نصوص)
+
+التأكد من مطابقة التصميم لهوية العميل
+
+Pain Points / Challenges:
+
+صعوبة معرفة المواعيد النهائية للحملات
+
+مشاكل تنسيق المحتوى مع فريق التسويق والمبيعات
+
+تحديثات مستمرة من العميل تؤثر على الجدول
+
+Tools / Modules Used:
+
+Operations Module: لمتابعة المهام والجدول
+
+Marketing Module: الاطلاع على محتوى الحملات والتعديلات
+
+Notifications Module: للتنبيهات بالمهام الجديدة
+
+Inputs / Outputs:
+
+Inputs: متطلبات الحملة، الخطط، ملاحظات العميل
+
+Outputs: محتوى رقمي جاهز للنشر، تحديثات على الحملة
+
+Interactions / Integrations:
+
+مع Marketing Manager لتأكيد المتطلبات
+
+مع CRM Module لضمان توافق المحتوى مع العملاء
+
+مع External Tools مثل Canva, Photoshop, Video Editors
+
+Success Criteria:
+
+تسليم المحتوى في الوقت المحدد
+
+محتوى متوافق مع أهداف العميل
+
+رضا العميل ≥ 90%
+
+4️⃣ Sales Executive / Account Manager – Ahmed Sherif
+
+Age: 32
+
+Background: مندوب مبيعات وتسويق B2B، خبرة 7 سنوات
+
+Goals / Objectives:
+
+جذب العملاء الجدد
+
+متابعة العملاء الحاليين وتقديم الحلول المناسبة
+
+ربط العملاء بالحملات وتحديث الحالة في النظام
+
+Pain Points / Challenges:
+
+صعوبة معرفة حالة كل عميل في الوقت الفعلي
+
+نقص البيانات المحدثة عن الحملات
+
+صعوبة متابعة المدفوعات والفواتير
+
+Tools / Modules Used:
+
+CRM Module: بيانات العملاء، الحالة، سجل التفاعل
+
+Sales Module: تتبع العملاء المحتملين والصفقات
+
+Notifications Module: تذكيرات بالمكالمات والاجتماعات
+
+Inputs / Outputs:
+
+Inputs: بيانات العملاء، تفاصيل الحملات، نتائج المبيعات
+
+Outputs: تحديث حالة العملاء، تقارير المبيعات، إشعارات للمدير
+
+Interactions / Integrations:
+
+مع Marketing Manager لربط العملاء بالحملات
+
+مع Finance Module لمتابعة المدفوعات
+
+مع Creative Team لتأكيد طلبات العميل
+
+Success Criteria:
+
+زيادة العملاء الجدد بنسبة ≥ 15% شهريًا
+
+تحديث البيانات بدقة في النظام
+
+رضا العملاء ≥ 90%
+
+5️⃣ Client / Marketing Client – Rania Khaled
+
+Age: 30–50
+
+Background: صاحب مشروع، يريد خدمات تسويقية رقمية
+
+Goals / Objectives:
+
+متابعة أداء الحملات الخاصة بمشروعه
+
+الحصول على تقارير مفصلة لحظة بلحظة
+
+التواصل السريع مع فريق الشركة
+
+Pain Points / Challenges:
+
+صعوبة معرفة أداء الحملات بدقة
+
+تحديثات بطيئة أو غير دقيقة من الشركة
+
+صعوبة في التواصل المباشر مع الفريق المسؤول
+
+Tools / Modules Used:
+
+Client Portal (CRM Module): متابعة الحملات والتقارير
+
+Notifications Module: تنبيهات حول أي تغييرات أو مشاكل
+
+Customer Support Module: للتواصل وحل المشاكل
+
+Inputs / Outputs:
+
+Inputs: بيانات المشروع، أهداف الحملات
+
+Outputs: تقارير مفصلة، إشعارات، تحديثات
+
+Interactions / Integrations:
+
+مع Marketing Manager لمتابعة الأداء
+
+مع Creative Team لمراجعة المحتوى
+
+مع Account Manager لتنسيق المتطلبات
+
+Success Criteria:
+
+متابعة دقيقة لجميع الحملات
+
+الوصول لتقارير دقيقة وشفافة
+
+رضا العميل ≥ 95%
+-------
+
+Marketing Company – User Stories
+1️⃣ CEO / Owner – Sara Hossam
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+CEO-US-01	As a CEO, I want to see a real-time dashboard of all active campaigns, so that I can monitor performance and ROI instantly.	Dashboard shows live data for all campaigns, revenue, engagement metrics; updates every 5 minutes; filters by client, campaign type, region.	High	Analytics & Reporting, Marketing
+CEO-US-02	As a CEO, I want to receive alerts for campaigns exceeding budget or delayed, so that I can intervene timely.	Alerts sent via email, in-app, and WhatsApp; threshold set for budget overshoot or deadline delay; log maintained.	High	Notifications, Marketing, Finance
+CEO-US-03	As a CEO, I want to approve major campaigns before launch, so that the quality and branding are ensured.	Campaign cannot go live without CEO approval; system logs approval timestamp; notifications to Marketing Manager.	High	Marketing Module, Operations
+CEO-US-04	As a CEO, I want to generate client-level financial reports, so that I can track revenue and profitability per client.	Reports available weekly/monthly; exportable in PDF/Excel; metrics include revenue, costs, and ROI per client.	High	Finance, Analytics & Reporting
+2️⃣ Marketing Manager – Omar Fathy
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+MM-US-01	As a Marketing Manager, I want to create new marketing campaigns with start/end dates and budgets, so that the campaigns are structured and tracked.	Campaign creation form includes client selection, start/end dates, budget, target metrics; saved in system; visible in dashboard.	High	Marketing, Operations
+MM-US-02	As a Marketing Manager, I want to link campaigns to leads and sales pipelines, so that I can measure conversion impact.	Each campaign linked to specific leads/customers; ROI automatically calculated; system shows funnel progression.	High	CRM, Sales, Marketing
+MM-US-03	As a Marketing Manager, I want to assign tasks to Creative Team members, so that content is ready on schedule.	Tasks assigned with deadlines; team receives notifications; progress tracked; overdue tasks flagged.	High	Operations, Marketing
+MM-US-04	As a Marketing Manager, I want to receive performance reports per campaign, so that I can adjust strategies in real-time.	Reports show impressions, clicks, conversions, revenue; alerts for underperforming campaigns; exportable.	High	Analytics & Reporting, Marketing
+3️⃣ Creative Team / Designers – Yara Adel
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+CT-US-01	As a designer, I want to view assigned campaign tasks with deadlines, so that I can prioritize my work.	Task list shows campaign, task description, due date; notifications for new assignments; overdue tasks highlighted.	High	Operations
+CT-US-02	As a designer, I want to upload completed creative assets to the system, so that the Marketing Manager can review and approve them.	Uploaded files linked to the campaign; notifications sent to Marketing Manager; version history maintained.	High	Marketing, Operations
+CT-US-03	As a designer, I want to communicate feedback with Marketing Manager, so that I can clarify requirements quickly.	Commenting/chat feature available per task; history logged; alerts for responses.	Medium	Operations, Notifications
+CT-US-04	As a designer, I want to track the status of my tasks (Pending, In Progress, Completed), so that I know my workload.	Status visible in task dashboard; automatic updates when task completed; overdue notifications.	High	Operations
+4️⃣ Sales Executive / Account Manager – Ahmed Sherif
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+SE-US-01	As a Sales Executive, I want to view a list of all leads assigned to me, so that I can follow up efficiently.	Leads show client info, source campaign, contact details, lead score; sortable by priority.	High	CRM, Sales
+SE-US-02	As a Sales Executive, I want to update the status of each lead (Interested, Negotiating, Won, Lost), so that the CRM reflects reality.	Status updates visible in dashboard; triggers notifications to Marketing Manager and CEO; history logged.	High	CRM, Sales
+SE-US-03	As a Sales Executive, I want to record client communications (calls, emails, meetings), so that the team has a full interaction history.	All entries timestamped; linked to client record; searchable; exportable.	High	CRM
+SE-US-04	As a Sales Executive, I want to see which campaigns are linked to each client, so that I can tailor follow-ups.	Client page lists active and past campaigns; shows metrics and assigned Marketing Manager.	High	CRM, Marketing
+5️⃣ Client / Marketing Client – Rania Khaled
+User Story ID	User Story	Acceptance Criteria	Priority	Module Mapping
+CL-US-01	As a client, I want to view the performance of my campaigns in real-time, so that I can monitor ROI.	Dashboard shows live metrics for impressions, clicks, conversions, revenue; accessible via portal.	High	Client Portal, Analytics & Reporting
+CL-US-02	As a client, I want to receive notifications for important updates (campaign launched, problem detected), so that I am always informed.	Notifications delivered via email, WhatsApp, in-app; configurable preferences.	High	Notifications, Marketing
+CL-US-03	As a client, I want to provide feedback on creative assets or campaign performance, so that improvements can be made quickly.	Feedback submitted via portal; visible to Marketing Manager; timestamped; history maintained.	Medium	Client Portal, Operations
+CL-US-04	As a client, I want access to invoices and payment status for campaigns, so that I can manage my budget efficiently.	Portal shows paid/unpaid invoices; downloadable PDF; triggers alerts for overdue payments.	High	Finance, Client Portal

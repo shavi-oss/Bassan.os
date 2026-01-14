@@ -1,0 +1,714 @@
+نظام "باسان" - نموذج البيانات الكامل (Data Model & ERD)
+تحليل الملفات لإشارات البيانات
+ملخص تحليل الملفات:
+الملف	الكيانات المستنتجة	العلاقات	العمليات الحساسة
+مواصفات UI/UX	employees, companies, commissions, tasks	employees → commissions, employees → tasks	عرض البيانات المالية
+User Stories	companies, employees, departments, commissions, tasks, disputes	company → departments → employees	حساب العمولات، حل النزاعات
+الهيكل التقني	companies, employees, commissions, tasks, sales, integrations	company → employees → commissions → sales	معالجة الأحداث المالية
+الأقسام	departments, companies, employees	company → departments → employees	توزيع المهام والعمولات
+التفاعل بين الأقسام	tasks, departments, communications	department ↔ department عبر tasks	تتبع التعاون
+متطلبات الأعمال	companies, employees, commissions, audit_logs	company → financial transactions	عمليات مالية، تدقيق
+خرائط سير العمل	commissions, tasks, employees, sales, notifications	sales → commissions → notifications	سلسلة العمليات المالية
+مواصفات API	companies, employees, commissions, tasks, webhooks	جميع العلاقات الأساسية	API للبيانات الحساسة
+تعريف الكيانات (Entities)
+1. companies (الشركات)
+الغرض: تخزين بيانات الشركات المشتركة
+
+المسؤولية: وحدة إدارة الشركات
+
+دورة الحياة: إنشاء → تفعيل → تحديث → إلغاء (نادر)
+
+حساسية البيانات: متوسطة (بيانات أعمال)
+
+2. employees (الموظفين)
+الغرض: بيانات الموظفين الشخصية والتعاقدية
+
+المسؤولية: وحدة إدارة الموظفين
+
+دورة الحياة: توظيف → تحديث → ترقية → مغادرة
+
+حساسية البيانات: عالية (PII، بيانات مالية)
+
+3. departments (الأقسام)
+الغرض: الهيكل التنظيمي للشركة
+
+المسؤولية: وحدة إدارة الأقسام
+
+دورة الحياة: إنشاء → تعديل → دمج → إلغاء
+
+حساسية البيانات: منخفضة
+
+4. commissions (العمولات)
+الغرض: سجلات العمولات المحسوبة والمدفوعة
+
+المسؤولية: محرك العمولات
+
+دورة الحياة: حساب → مراجعة → موافقة → دفع → أرشفة
+
+حساسية البيانات: عالية جداً (بيانات مالية)
+
+5. commission_rules (قواعد العمولات)
+الغرض: قواعد حساب العمولات القابلة للتخصيص
+
+المسؤولية: محرك العمولات
+
+دورة الحياة: تعريف → تفعيل → تعديل → تعطيل (لا حذف)
+
+حساسية البيانات: عالية (تؤثر على حسابات مالية)
+
+6. tasks (المهام)
+الغرض: إدارة المهام والمشاريع
+
+المسؤولية: نظام إدارة المهام
+
+دورة الحياة: إنشاء → توزيع → تنفيذ → مراجعة → إغلاق
+
+حساسية البيانات: متوسطة
+
+7. sales (المبيعات)
+الغرض: سجلات عمليات البيع من مصادر خارجية
+
+المسؤولية: وحدة التكاملات
+
+دورة الحياة: استقبال → معالجة → ربط → أرشفة
+
+حساسية البيانات: عالية (بيانات مالية)
+
+8. notifications (الإشعارات)
+الغرض: سجلات الإشعارات المرسلة
+
+المسؤولية: نظام الإشعارات
+
+دورة الحياة: إنشاء → إرسال → تتبع → أرشفة
+
+حساسية البيانات: متوسطة
+
+9. audit_logs (سجلات التدقيق)
+الغرض: تتبع جميع التغييرات على البيانات الحساسة
+
+المسؤولية: جميع الوحدات (مركزي)
+
+دورة الحياة: تسجيل → تخزين → مراجعة → أرشفة (طويلة الأمد)
+
+حساسية البيانات: عالية (سجلات أمنية)
+
+10. integrations (التكاملات)
+الغرض: إعدادات التكامل مع الأنظمة الخارجية
+
+المسؤولية: وحدة التكاملات
+
+دورة الحياة: إعداد → تفعيل → مراقبة → تعطيل
+
+حساسية البيانات: عالية (مفاتيح API)
+
+11. files (الملفات)
+الغرض: تخزين الملفات المرفقة
+
+المسؤولية: وحدة التخزين
+
+دورة الحياة: رفع → تخزين → مشاركة → أرشفة
+
+حساسية البيانات: متفاوتة
+
+تعريف الجداول والحقول
+1. جدول companies
+text
+companies:
+  id: VARCHAR(50) [PK] - معرف فريد للشركة (مثل: COMP_xxx)
+  name: VARCHAR(255) - اسم الشركة الرسمي
+  legal_name: VARCHAR(255) - الاسم القانوني
+  tax_id: VARCHAR(50) - الرقم الضريبي (حساس)
+  country_code: CHAR(2) - رمز الدولة (SA, EG, AE...)
+  currency: CHAR(3) - العملة الأساسية (SAR, EGP...)
+  timezone: VARCHAR(50) - المنطقة الزمنية
+  plan: VARCHAR(20) - خطة الاشتراك (free, business, enterprise)
+  settings: JSONB - إعدادات مخصصة للشركة
+  status: VARCHAR(20) - الحالة (active, suspended, cancelled)
+  created_at: TIMESTAMPZ
+  updated_at: TIMESTAMPZ
+  version: INTEGER - للتفاؤل المتفائل (optimistic locking)
+مبررات التصميم:
+
+id مخصص للنظام (ليس auto-increment) لتفادي التخمين
+
+settings كـ JSONB لمرونة الإعدادات المختلفة
+
+version لمنع التحديثات المتعارضة على نفس السجل
+
+2. جدول employees
+text
+employees:
+  id: VARCHAR(50) [PK] - معرف فريد للموظف (مثل: EMP_xxx)
+  company_id: VARCHAR(50) [FK → companies.id] - الشركة التابع لها
+  user_id: VARCHAR(50) [UNIQUE] - معرف المستخدم في نظام المصادقة
+  employee_code: VARCHAR(20) - كود الموظف الداخلي (مثل: SA-001)
+  full_name: VARCHAR(255) - الاسم الكامل
+  email: VARCHAR(255) [UNIQUE] - البريد الإلكتروني (PII)
+  phone: VARCHAR(20) - رقم الهاتف (PII)
+  national_id: VARCHAR(50) - الرقم القومي/الهوية (PII مشفر)
+  department_id: VARCHAR(50) [FK → departments.id] - القسم
+  position: VARCHAR(100) - المسمى الوظيفي
+  employment_type: VARCHAR(20) - نوع التوظيف (full_time, part_time, commission_only)
+  contract_data: JSONB - بيانات العقد (راتب أساسي، نسبة عمولة...)
+  bank_data: JSONB [مشفر] - بيانات البنك للتحويلات
+  status: VARCHAR(20) - الحالة (active, on_leave, terminated)
+  permissions: JSONB - مصفوفة الصلاحيات
+  hire_date: DATE - تاريخ التعيين
+  termination_date: DATE - تاريخ المغادرة (إن وجد)
+  created_at: TIMESTAMPZ
+  updated_at: TIMESTAMPZ
+مبررات التصميم:
+
+national_id و bank_data يجب تشفيرها في قاعدة البيانات
+
+contract_data كـ JSONB لاختلاف هياكل العقود
+
+permissions تخزن كمصفوفة JSON لأداء أفضل
+
+user_id منفصل عن id لفصل الهوية عن البيانات
+
+3. جدول departments
+text
+departments:
+  id: VARCHAR(50) [PK]
+  company_id: VARCHAR(50) [FK → companies.id]
+  name: VARCHAR(100) - اسم القسم (مبيعات، تسويق...)
+  code: VARCHAR(20) - كود القسم
+  parent_id: VARCHAR(50) [FK → departments.id NULLABLE] - للهياكل الهرمية
+  manager_id: VARCHAR(50) [FK → employees.id NULLABLE] - مدير القسم
+  settings: JSONB - إعدادات خاصة بالقسم
+  status: VARCHAR(20)
+  created_at: TIMESTAMPZ
+  sort_order: INTEGER - لترتيب العرض
+4. جدول commissions (الأكثر حساسية)
+text
+commissions:
+  id: VARCHAR(50) [PK] - معرف فريد للعمولة (مثل: COM_yyyymm_xxx)
+  company_id: VARCHAR(50) [FK → companies.id]
+  employee_id: VARCHAR(50) [FK → employees.id]
+  sale_id: VARCHAR(100) - معرف عملية البيع (من النظام الخارجي)
+  
+  -- المبالغ (يجب أن تكون غير قابلة للتعديل بعد التثبيت)
+  amount: DECIMAL(15,2) - مبلغ العمولة النهائي
+  currency: CHAR(3) - العملة
+  original_amount: DECIMAL(15,2) - المبلغ قبل أي تعديلات
+  exchange_rate: DECIMAL(10,6) - سعر الصرف إذا اختلفت العملة
+  
+  -- تفاصيل الحساب (للمراجعة والتدقيق)
+  calculation_snapshot: JSONB - لقطة لحظة الحساب (القواعد، النسب...)
+  applied_rule_id: VARCHAR(50) [FK → commission_rules.id NULLABLE]
+  
+  -- سير العمل
+  status: VARCHAR(20) - (pending, under_review, approved, rejected, paid)
+  approval_flow: JSONB - مسار الموافقات (من وافق ومتى)
+  
+  -- التواريخ الحرجة
+  calculated_at: TIMESTAMPZ - وقت الحساب
+  approved_at: TIMESTAMPZ - وقت الموافقة
+  paid_at: TIMESTAMPZ - وقت الدفع الفعلي
+  
+  -- التتبع
+  created_at: TIMESTAMPZ
+  updated_at: TIMESTAMPZ
+  version: INTEGER
+  
+  -- للمراجعة المستقبلية
+  notes: TEXT - ملاحظات على العمولة
+  dispute_id: VARCHAR(50) [FK → disputes.id NULLABLE] - إذا كان هناك نزاع
+مبررات التصميم:
+
+id يحتوي على التاريخ (yyyymm) للتجزئة السهلة
+
+calculation_snapshot يحفظ حالة الحساب وقتها (لا يعاد حسابها)
+
+amount و original_amount لمنع التلاعب
+
+version لمنع التحديثات المتعارضة على العمولات
+
+5. جدول commission_rules
+text
+commission_rules:
+  id: VARCHAR(50) [PK]
+  company_id: VARCHAR(50) [FK → companies.id]
+  name: VARCHAR(100) - اسم القاعدة
+  rule_type: VARCHAR(30) - النوع (percentage, fixed, tiered, hybrid)
+  condition: JSONB - شروط تطبيق القاعدة
+  calculation: JSONB - صيغة الحساب
+  priority: INTEGER - الأولوية عند تعارض القواعد
+  effective_from: DATE - سارية من تاريخ
+  effective_to: DATE - سارية إلى تاريخ (NULL = لا تنتهي)
+  status: VARCHAR(20) - (active, inactive, draft)
+  created_by: VARCHAR(50) - من أنشأها
+  created_at: TIMESTAMPZ
+  version: INTEGER - لإدارة التغييرات
+6. جدول tasks
+text
+tasks:
+  id: VARCHAR(50) [PK]
+  company_id: VARCHAR(50) [FK → companies.id]
+  title: VARCHAR(255)
+  description: TEXT
+  task_type: VARCHAR(50) - نوع المهمة
+  priority: VARCHAR(20) - (low, medium, high, urgent)
+  status: VARCHAR(20) - (pending, in_progress, completed, cancelled)
+  due_date: TIMESTAMPZ
+  estimated_hours: DECIMAL(5,2)
+  actual_hours: DECIMAL(5,2)
+  assigned_to: JSONB - مصفوفة معرفات الموظفين
+  dependencies: JSONB - مهام تابعة لها
+  attachments: JSONB - روابط الملفات المرفقة
+  metadata: JSONB - بيانات إضافية
+  created_by: VARCHAR(50)
+  created_at: TIMESTAMPZ
+  completed_at: TIMESTAMPZ
+7. جدول sales
+text
+sales:
+  id: VARCHAR(50) [PK]
+  company_id: VARCHAR(50) [FK → companies.id]
+  external_sale_id: VARCHAR(100) - المعرف من النظام الخارجي
+  external_source: VARCHAR(50) - المصدر (shopify, manual, api...)
+  sale_data: JSONB - البيانات الكاملة المستقبلة
+  amount: DECIMAL(15,2)
+  currency: CHAR(3)
+  customer_data: JSONB - بيانات العميل (مشفر إذا كان PII)
+  product_data: JSONB - بيانات المنتج
+  status: VARCHAR(20) - (received, processed, linked, archived)
+  processed_at: TIMESTAMPZ
+  created_at: TIMESTAMPZ
+8. جدول audit_logs
+text
+audit_logs:
+  id: BIGSERIAL [PK]
+  company_id: VARCHAR(50) [FK → companies.id]
+  user_id: VARCHAR(50) - من قام بالإجراء
+  action: VARCHAR(50) - الإجراء (create, update, delete, approve...)
+  entity_type: VARCHAR(50) - نوع الكيان (commission, employee...)
+  entity_id: VARCHAR(50) - معرف الكيان
+  old_values: JSONB - القيم قبل التغيير
+  new_values: JSONB - القيم بعد التغيير
+  ip_address: INET - عنوان IP
+  user_agent: TEXT - متصفح المستخدم
+  created_at: TIMESTAMPZ
+  
+  -- فهارس مركبة للأداء
+  INDEX idx_company_entity (company_id, entity_type, created_at)
+  INDEX idx_user_actions (user_id, created_at)
+9. جدول disputes (مستنتج من سير العمل)
+text
+disputes:
+  id: VARCHAR(50) [PK]
+  company_id: VARCHAR(50) [FK → companies.id]
+  commission_id: VARCHAR(50) [FK → commissions.id]
+  raised_by: VARCHAR(50) [FK → employees.id] - من رفع النزاع
+  reason: TEXT - سبب النزاع
+  status: VARCHAR(20) - (open, under_review, resolved, escalated)
+  resolution: TEXT - القرار النهائي
+  resolved_by: VARCHAR(50) [FK → employees.id NULLABLE]
+  resolved_at: TIMESTAMPZ
+  created_at: TIMESTAMPZ
+العلاقات والتعددية (Relationships & Cardinality)
+العلاقات الأساسية:
+company → employees (1:N)
+
+شركة واحدة لديها العديد من الموظفين
+
+employees.company_id يشير إلى companies.id
+
+تأثير الأداء: فهرس مركب على (company_id, status)
+
+company → departments (1:N)
+
+شركة واحدة لديها العديد من الأقسام
+
+departments.company_id يشير إلى companies.id
+
+يمكن أن يكون هرمي: departments.parent_id يشير إلى departments.id
+
+department → employees (1:N)
+
+قسم واحد به العديد من الموظفين
+
+employees.department_id يشير إلى departments.id
+
+employee → commissions (1:N)
+
+موظف واحد له العديد من العمولات
+
+commissions.employee_id يشير إلى employees.id
+
+فهرس مركب على (employee_id, status, created_at)
+
+commission → commission_rules (N:1)
+
+العديد من العمولات تستخدم قاعدة واحدة
+
+commissions.applied_rule_id يشير إلى commission_rules.id
+
+sale → commission (1:1 أو 1:N)
+
+عملية بيع واحدة قد تولد عدة عمولات (لموظفين مختلفين)
+
+commissions.sale_id يشير إلى sales.external_sale_id
+
+employee → tasks (N:M عبر JSONB array)
+
+موظفين كثر يمكن تعيينهم لمهام كثيرة
+
+مخزن في tasks.assigned_to كمصفوفة JSON
+
+بديل: جدول وسيط task_assignments
+
+commission → dispute (1:1)
+
+عمولة واحدة قد يكون لها نزاع واحد
+
+disputes.commission_id يشير إلى commissions.id
+
+العلاقات المعقدة:
+text
+company (1) → departments (N)
+departments (1) → employees (N)  
+employees (1) → commissions (N)
+commissions (N) → commission_rules (1)
+commissions (1) → disputes (0..1)
+sales (1) → commissions (1..N)
+عزل البيانات متعددة المستأجرين (Multi-Tenancy Isolation)
+استراتيجية العزل: Shared Database, Schema per Company ليس، Shared Database مع company_id
+بناءً على الملفات: جميع الجداول تحتوي على company_id
+
+آلية التنفيذ:
+عزل على مستوى التطبيق:
+
+كل استعلام يجب أن يحتوي WHERE company_id = ?
+
+Middleware يضيف company_id تلقائياً بناءً على JWT
+
+لا يوجد استعلام يمر بدون company_id
+
+عزل على مستوى قاعدة البيانات:
+
+Row-Level Security (RLS) في PostgreSQL:
+
+sql
+ALTER TABLE commissions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY company_isolation ON commissions
+  USING (company_id = current_setting('app.current_company_id'));
+عزل على مستوى الفهرس:
+
+جميع الفهارس الأساسية تبدأ بـ company_id:
+
+sql
+CREATE INDEX idx_commissions_company_employee 
+ON commissions(company_id, employee_id, created_at DESC);
+منع تسريب البيانات:
+
+لا توجد JOINs عبر شركات مختلفة
+
+جميع الـ APIs تعيد فقط بيانات شركة المستخدم
+
+company_id في JWT token ويتم التحقق منه في كل طلب
+
+استثناءات العزل:
+audit_logs: تحتوي company_id ولكن قد يصل المديرون من شركات مختلفة في المستقبل (مع صلاحيات)
+
+system_logs: للسجلات التشغيلية فقط، بدون بيانات عملاء
+
+سلامة البيانات المالية (Financial Data Safety)
+مبادئ التصميم للعمولات:
+عدم التعديل (Immutability):
+
+بمجرد أن تصبح العمولة approved أو paid → لا تعديل
+
+أي تصحيح = عمولة جديدة سالبة (Reversal) + عمولة صحيحة
+
+التسجيل المزدوج (Double-Entry Principle):
+
+كل عمولة لها أثر مقابل في audit_logs
+
+calculation_snapshot يحفظ حالة الحساب وقت التنفيذ
+
+عدم التكرار (Idempotency):
+
+sale_id + employee_id + calculation_date يجب أن يكون فريد
+
+منع حساب نفس العمولة مرتين
+
+التسلسل الزمني (Temporal Integrity):
+
+calculated_at ≤ approved_at ≤ paid_at
+
+تحقق عبر قيود CHECK في قاعدة البيانات
+
+قيود سلامة البيانات:
+sql
+-- مثال لقيود على commissions
+ALTER TABLE commissions ADD CONSTRAINT chronological_check 
+CHECK (
+  (calculated_at IS NOT NULL) AND
+  (approved_at IS NULL OR approved_at >= calculated_at) AND
+  (paid_at IS NULL OR paid_at >= COALESCE(approved_at, calculated_at))
+);
+
+-- منع التكرار
+ALTER TABLE commissions ADD CONSTRAINT unique_sale_employee 
+UNIQUE (company_id, sale_id, employee_id, calculated_at::DATE);
+جداول مساعدة للسلامة المالية:
+commission_reversals (للالغاءات والتصحيحات)
+
+payment_batches (لدفعات المجمعة)
+
+financial_periods (لإغلاق الفترات المالية)
+
+مخطط ERD نصي
+text
+[companies] (1)
+    │
+    ├──< [departments] (N)
+    │       │
+    │       ├──< [employees] (N)
+    │       │       │
+    │       │       ├──< [commissions] (N)
+    │       │       │       │
+    │       │       │       ├──< [commission_rules] (1)
+    │       │       │       │
+    │       │       │       └──< [disputes] (0..1)
+    │       │       │
+    │       │       └──< [tasks] (N) via assigned_to JSONB
+    │       │
+    │       └── [department_manager] (1) → employees.id
+    │
+    ├──< [sales] (N)
+    │       │
+    │       └──< [commissions] (1..N)
+    │
+    ├──< [commission_rules] (N)
+    │
+    ├──< [integrations] (N)
+    │
+    ├──< [audit_logs] (N)
+    │
+    └──< [files] (N)
+            │
+            └──< [tasks_attachments] (N) via JSONB reference
+مخطط Mermaid ERD:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+مخاطر وفجوات نموذج البيانات
+الفجوات الخطيرة:
+غياب payment_transactions:
+
+الملفات تذكر commissions.paid_at ولكن لا يوجد تفاصيل الدفع
+
+المخاطر: لا يمكن تتبع التحويلات البنكية، لا مصالحة
+
+الحل: جدول payments منفصل يرتبط بـ commissions
+
+غياب tax_calculations:
+
+لا ذكر للضرائب على العمولات
+
+المخاطر: عدم الامتثال الضريبي
+
+الحل: إضافة tax_amount و tax_rate في commissions
+
+JSONB المفرط:
+
+contract_data, bank_data, calculation_snapshot كلها JSONB
+
+المخاطر: صعوبة الاستعلام، لا قيود على البيانات
+
+الحل: تقسيم إلى جداول منفصلة أو استخدام JSON Schema
+
+غياب budgets و limits:
+
+لا يوجد تتبع للميزانيات الشهرية للعمولات
+
+المخاطر: تجاوز الإنفاق
+
+الحل: جدول commission_budgets مرتبط بـ departments
+
+أخطاء التطبيع (Normalization Issues):
+التكرار في commissions:
+
+amount و original_amount يمكن حسابها من calculation_snapshot
+
+المخاطر: تناقض البيانات
+
+الحل: الاحتفاظ بواحدة فقط أو استخدام Views
+
+assigned_to كـ JSONB في tasks:
+
+كسر للقاعدة الأولى للتطبيع
+
+المخاطر: صعوبة تحديث، استعلامات معقدة
+
+الحل: جدول وسيط task_assignments
+
+contract_data في employees:
+
+بيانات العقد يجب أن تكون في جدول employment_contracts
+
+المخاطر: فقدان السجل التاريخي للتغيرات
+
+مشاكل التوسع المستقبلية:
+نمو جدول commissions:
+
+عمولة لكل بيع → آلاف السجلات يومياً
+
+الحل: Partitioning بـ company_id و calculated_at
+
+الاستعلامات عبر الشركات:
+
+لا يمكن للمديرين رؤية إحصائيات متعددة الشركات
+
+الحل: read_replicas للتقارير، Data Warehouse منفصل
+
+نسخ commission_rules:
+
+كل شركة لديها نسختها الخاصة → تكرار
+
+الحل: قاعدة قواعد مشتركة مع تجاوزات للشركات
+
+نقاط الضعف الأمنية:
+تشفير في التطبيق فقط:
+
+national_id و bank_data مشفرة ولكن قد يكون في مستوى التطبيق فقط
+
+الخطر: بيانات واضحة في backups
+
+الحل: استخدام PostgreSQL pgcrypto للتشفير في قاعدة البيانات
+
+غياب data_retention_policies:
+
+لا توجد سياسات واضحة لحذف البيانات القديمة
+
+الخطر: انتهاك GDPR، تكاليف تخزين عالية
+
+لا فصل للبيانات الحساسة:
+
+جميع البيانات في نفس قاعدة البيانات
+
+الخطر: اختراق واحد يكشف كل شيء
+
+الحل: قاعدة بيانات منفصلة للبيانات المالية
+
+التوصيات التنفيذية
+أولويات عالية (High Priority):
+إنشاء جدول payments قبل أي عملية دفع حقيقية
+
+تطبيق RLS (Row Level Security) لكل جدول قبل الإنتاج
+
+إنشاء audit_logs triggers لجميع الجداول الحساسة
+
+أولويات متوسطة:
+استبدال JSONB assigned_to بجدول task_assignments
+
+إضافة tax_columns إلى commissions
+
+تصميم partitioning strategy قبل وصول البيانات الكبيرة
+
+أولويات منخفضة:
+تقسيم contract_data إلى جدول منفصل
+
+إنشاء read_replicas لاستعلامات التقارير
+
+تصميم Data Warehouse للتحليلات الطويلة المدى
+
+تنبيهات للمطورين:
+أبداً لا تكتب استعلام بدون company_id
+
+افترض أن جميع البيانات يجب أن تكون غير قابلة للتغيير بعد الموافقة
+
+استخدم calculation_snapshot للحسابات - لا تعيد الحساب من البيانات الحية
+
+تأكد من Idempotency في كل عملية مالية
+
+سجل كل شيء في audit_logs - لا تعتمد على سجلات التطبيق فقط
+
+الملخص
+نموذج بيانات "باسان" مصمم على مبادئ:
+
+العزل الكامل بين الشركات عبر company_id في كل جدول
+
+السلامة المالية عبر عدم قابلية التعديل والتسجيلات المزدوجة
+
+القابلية للتوسع عبر Partitioning والتخزين المناسب
+
+المراجعة الكاملة عبر audit_logs لكل تغيير
+
+النقاط القوية: عزل واضح، سلامة مالية، مرونة عبر JSONB
+النقاط الضعيفة: اعتماد كبير على JSONB، غياب بعض الجداول الحرجة
+
+التوصية النهائية: البدء بالمخطط الحالي مع تعديلات ضرورية لجدول payments و taxes قبل الإطلاق، والتخطيط لإعادة تصميم جزئية بعد 6-12 شهر من التشغيل.
+

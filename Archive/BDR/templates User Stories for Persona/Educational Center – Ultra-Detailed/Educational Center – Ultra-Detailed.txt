@@ -1,0 +1,307 @@
+Educational Center – Ultra-Detailed Personas & User Stories
+Personas / User Roles – تفصيل كامل
+1️⃣ Director / Owner – Hany Fathy
+
+Age: 50
+
+Background: مالك المركز التعليمي، خبرة 20 سنة في إدارة المدارس والمراكز التعليمية
+
+Goals / Objectives:
+
+الرؤية الشاملة لكل الأقسام التعليمية والإدارية
+
+متابعة الأداء الأكاديمي والإداري
+
+تحسين تجربة الطلاب والمعلمين
+
+زيادة الإقبال على المركز وتحسين الإيرادات
+
+Pain Points / Challenges:
+
+صعوبة متابعة أداء الأقسام والمعلمين يوميًا
+
+ضعف التكامل بين الإدارة الأكاديمية والإدارية
+
+مشاكل في متابعة دفع الرسوم والاشتراكات
+
+Tools / Modules Used:
+
+Dashboard & Analytics Module: KPIs للطلاب، المعلمين، الأقسام
+
+Operations Module: متابعة سير العملية التعليمية والجداول
+
+Finance Module: متابعة الاشتراكات والمدفوعات
+
+Notifications Module: التنبيهات الحرجة مثل غياب المعلمين أو الطلاب
+
+Inputs / Outputs:
+
+Inputs: بيانات الطلاب، حضور المعلمين، تقارير الأداء، المدفوعات
+
+Outputs: مؤشرات الأداء، تقارير مالية وأكاديمية، تنبيهات النظام
+
+Interactions / Integrations:
+
+مع Heads of Departments للحصول على تقارير يومية
+
+مع Finance Team لمتابعة الرسوم
+
+مع CRM Module لمتابعة بيانات الطلاب الجدد والمحتملين
+
+Success Criteria:
+
+بيانات دقيقة لجميع الطلاب والمعلمين
+
+تقارير يومية، أسبوعية، وشهرية جاهزة
+
+تحسين معدل رضا الطلاب وأولياء الأمور ≥ 90%
+
+2️⃣ Academic Head / Department Head – Dr. Laila Samir
+
+Age: 38
+
+Background: رئيس قسم الأكاديميات، خبرة 12 سنة في التعليم وإدارة المعلمين
+
+Goals / Objectives:
+
+وضع ومتابعة الخطط الدراسية
+
+تنظيم جداول المعلمين والفصول
+
+متابعة التقييمات والامتحانات
+
+تحسين جودة التدريس
+
+Pain Points / Challenges:
+
+صعوبة معرفة حضور المعلمين والطلاب في الوقت الفعلي
+
+عدم وجود تقارير مباشرة لأداء الطلاب
+
+تعارض الجداول أو تعديلها يدوياً
+
+Tools / Modules Used:
+
+Operations Module: تنظيم الجداول الدراسية
+
+CRM Module: بيانات الطلاب ومتابعة التسجيلات
+
+Analytics Module: أداء الطلاب والمعلمين
+
+Notifications Module: لإشعارات التغييرات في الجداول
+
+Inputs / Outputs:
+
+Inputs: بيانات الطلاب، حضور المعلمين، خطط التدريس
+
+Outputs: جداول الدروس، تقارير الأداء الأكاديمي، إشعارات التغييرات
+
+Interactions / Integrations:
+
+مع Teachers لتأكيد الجداول والمواعيد
+
+مع Receptionist / Admissions لمتابعة الطلاب الجدد
+
+مع Director لتقديم تقارير دورية
+
+Success Criteria:
+
+جميع الجداول متزامنة ودقيقة
+
+تقارير يومية لأداء الطلاب والمعلمين
+
+تحسين مستوى الطلاب تدريجيًا
+
+3️⃣ Teacher / Instructor – Mahmoud Yasser
+
+Age: 30
+
+Background: معلم، خبرة 5 سنوات في التدريس في مراكز تعليمية
+
+Goals / Objectives:
+
+توصيل المادة الدراسية بشكل فعال
+
+متابعة حضور الطلاب وتقييمهم
+
+تسجيل ملاحظات حول تقدم الطلاب
+
+Pain Points / Challenges:
+
+صعوبة معرفة التغييرات في الجداول بشكل فوري
+
+الحاجة لتحديث نتائج الطلاب يدويًا
+
+متابعة الطلاب المحتاجين لدعم إضافي صعبة
+
+Tools / Modules Used:
+
+Operations Module: الاطلاع على الجداول الدراسية
+
+CRM Module: بيانات الطلاب وتاريخ التقييمات
+
+Analytics Module: متابعة تقدم الطلاب
+
+Notifications Module: لتذكير بمواعيد الدروس والامتحانات
+
+Inputs / Outputs:
+
+Inputs: بيانات الطلاب، الحضور، تقييمات الطلاب
+
+Outputs: تقييمات الطلاب، تقارير التقدم، ملاحظات فردية
+
+Interactions / Integrations:
+
+مع Department Head لتعديل الجداول
+
+مع Student Portal لمتابعة تقدم الطلاب
+
+مع Customer Support للإبلاغ عن مشاكل الطلاب
+
+Success Criteria:
+
+جميع الدروس والطلاب متابعين بدقة
+
+تحديث التقييمات بشكل لحظي
+
+رضا الطلاب وأولياء الأمور ≥ 90%
+
+4️⃣ Receptionist / Admissions – Farah Kamal
+
+Age: 26
+
+Background: استقبال وتسجيل الطلاب، خبرة 3 سنوات
+
+Goals / Objectives:
+
+تسجيل الطلاب الجدد وربطهم بالنظام
+
+جدولة الدروس وربط الطلاب بالمعلمين والفصول
+
+متابعة المدفوعات وتحديث حالة الاشتراكات
+
+Pain Points / Challenges:
+
+أخطاء التسجيل اليدوي
+
+صعوبة متابعة دفع الطلاب أو التأكد من تسجيلهم بشكل صحيح
+
+Tools / Modules Used:
+
+CRM Module: بيانات الطلاب الجدد
+
+Operations Module: إدارة جداول الدروس والفصول
+
+Finance Module: متابعة المدفوعات والاشتراكات
+
+Notifications Module: إرسال تذكيرات للطلاب
+
+Inputs / Outputs:
+
+Inputs: بيانات الطلاب، الجداول الدراسية، المدفوعات
+
+Outputs: جلسات ومواعيد مجدولة، إشعارات للطلاب والمعلمين
+
+Interactions / Integrations:
+
+مع Teachers لتأكيد حضور الطلاب
+
+مع Finance Team لمتابعة الدفع
+
+مع Director لتحديث عدد الطلاب الجدد
+
+Success Criteria:
+
+تسجيل الطلاب بدقة
+
+جميع الدروس والفصول مجدولة بشكل صحيح
+
+تقليل الغياب والتأخير ≥ 90%
+
+5️⃣ Student / Learner – Aya Ahmed
+
+Age: 16–25
+
+Background: طالب أو متدرب، مختلف الأعمار بحسب المركز
+
+Goals / Objectives:
+
+الوصول لمواعيد الدروس بسهولة
+
+متابعة تقدمهم الأكاديمي والتقييمات
+
+التفاعل مع المعلمين ورفع الاستفسارات
+
+Pain Points / Challenges:
+
+صعوبة متابعة الجداول والتغييرات في الوقت الفعلي
+
+نقص التواصل مع المعلمين للإستفسارات
+
+Tools / Modules Used:
+
+Student Portal (CRM Module): متابعة الدروس والتقييمات
+
+Notifications Module: تذكيرات بالجداول والمهام
+
+Customer Support Module: للإستفسارات والشكاوى
+
+Inputs / Outputs:
+
+Inputs: بيانات الطالب، مواعيد الدروس، التقييمات
+
+Outputs: إشعارات، تحديثات الأداء، رسائل للمعلمين
+
+Interactions / Integrations:
+
+مع Teachers لمتابعة التقييمات
+
+مع Receptionist لتأكيد الحضور والمدفوعات
+
+مع Customer Support لمتابعة أي استفسارات
+
+Success Criteria:
+
+متابعة كل الدروس والتقييمات بشكل دقيق
+
+وصول الإشعارات والرسائل في الوقت المناسب
+
+رضا الطالب وأولياء الأمور ≥ 90%
+
+-------
+Educational Center – User Stories
+1️⃣ Director / Owner – Hany Fathy
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Director, I want to view a real-time dashboard of all students, teachers, and classes, so that I can monitor performance and resource allocation instantly.	Dashboard shows current student attendance, teacher availability, active classes, and key KPIs; updates in real-time; exportable reports.	High	Analytics / Operations
+2	As a Director, I want to receive automatic alerts for delayed payments or inactive students, so that I can take timely action.	Alerts trigger when payments are overdue or student is absent > 3 consecutive classes; notifications via email, WhatsApp, Telegram, and dashboard.	High	Finance / Notifications
+3	As a Director, I want to assign special tasks to Department Heads remotely, so that operations continue without manual intervention.	Task assignment reflects in Department Heads' dashboards; includes deadlines and priority; track completion.	High	Operations / HR
+4	As a Director, I want to generate weekly and monthly reports for student performance and teacher evaluations, so that I can make strategic decisions.	Reports include attendance, grades, teacher performance; downloadable PDF/Excel; graphs for trends.	Medium	Analytics / Reporting
+5	As a Director, I want to review resource utilization (classrooms, equipment), so that I can optimize allocation and reduce costs.	Visual representation of classrooms and resources usage; alerts for conflicts or overbooking.	Medium	Operations / Analytics
+2️⃣ Academic Head / Department Head – Dr. Laila Samir
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As an Academic Head, I want to create and adjust course schedules for multiple classes, so that teachers and students are properly allocated.	Schedule editor supports drag-and-drop, auto-conflict detection, and live updates to all stakeholders.	High	Operations / Scheduling
+2	As an Academic Head, I want to track teacher attendance and student participation, so that I can identify gaps and improve learning.	Attendance dashboard displays per-class and per-teacher metrics; alerts for irregularities; exportable.	High	Analytics / Operations
+3	As an Academic Head, I want to assign tasks to teachers for exams, assignments, or extra sessions, so that responsibilities are clear and trackable.	Tasks assigned with deadlines, priority, and linked to classes; status updates visible to Head.	High	Operations / Task Management
+4	As an Academic Head, I want to review performance trends for students, so that I can identify top performers and those needing support.	Reports show grade trends, attendance patterns, flagged students; supports filtering by class, grade, or period.	Medium	Analytics / Reporting
+5	As an Academic Head, I want to coordinate with Reception for student registration updates, so that student data is accurate and complete.	Student list automatically updates with new registrations; changes visible in scheduling and reporting modules.	Medium	CRM / Operations
+3️⃣ Teacher / Instructor – Mahmoud Yasser
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Teacher, I want to view my daily class schedule and assigned students, so that I can prepare lessons efficiently.	Dashboard shows today's schedule, classroom, student list, and lesson plan; syncs with Department Head changes.	High	Operations / Scheduling
+2	As a Teacher, I want to record student attendance quickly, so that class records remain accurate.	Attendance submission is simple (checkbox or QR scan), updates central database instantly; alerts for absences.	High	Operations / CRM
+3	As a Teacher, I want to input student grades and assignment results, so that academic performance is tracked.	Grade entry supports per-assignment and per-student; auto-calculates averages; reports sent to students/parents.	High	Analytics / CRM
+4	As a Teacher, I want to communicate with students for clarifications or extra help, so that learning outcomes improve.	In-app messaging or notifications to student portal; messages logged for tracking.	Medium	Notifications / CRM
+5	As a Teacher, I want to receive alerts for last-minute schedule changes, so that I can adjust accordingly.	Alerts show class/time change, new students added, or canceled sessions; via dashboard, WhatsApp, or email.	Medium	Notifications / Operations
+4️⃣ Receptionist / Admissions – Farah Kamal
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Receptionist, I want to register new students quickly, so that data entry errors are minimized and students can start classes immediately.	Form auto-validates fields, links student to courses, assigns ID, and notifies relevant teachers/Departments.	High	CRM / Operations
+2	As a Receptionist, I want to manage student payments and subscriptions, so that Finance records remain accurate.	Payments updated in real-time; automated reminders for due payments; integrates with Finance module.	High	Finance / CRM
+3	As a Receptionist, I want to schedule or reschedule classes for students, so that there are no conflicts.	Scheduler prevents double-booking, notifies students, teachers, and Academic Head of changes.	High	Operations / Scheduling
+4	As a Receptionist, I want to generate reports on new students and enrollment trends, so that management can make decisions.	Reports include student demographics, registration dates, and program choices; exportable to Excel/PDF.	Medium	Analytics / Reporting
+5	As a Receptionist, I want to send notifications to students about schedules, fees, or exams, so that they stay informed.	Notifications sent via email, WhatsApp, Telegram; logs saved for compliance and tracking.	Medium	Notifications / CRM
+5️⃣ Student / Learner – Aya Ahmed
+#	User Story	Acceptance Criteria	Priority	Module / Feature
+1	As a Student, I want to view my class schedule and upcoming exams, so that I can manage my time effectively.	Schedule displays all classes, teachers, exam dates; auto-updated if changes occur.	High	Student Portal / Operations
+2	As a Student, I want to access my grades and assignment feedback, so that I can track my progress.	Grades visible per course and assignment; teacher comments included; downloadable report.	High	Analytics / Student Portal
+3	As a Student, I want to communicate with my teachers for doubts or clarifications, so that learning is enhanced.	Messaging portal supports one-to-one or group chats; history stored; notifications sent on replies.	Medium	Notifications / CRM
+4	As a Student, I want to receive alerts for class cancellations, schedule changes, or fee dues, so that I am always up-to-date.	Alerts received via app, email, WhatsApp; logs kept for reference.	High	Notifications / Operations
+5	As a Student, I want to request extra help sessions or tutorial classes, so that I can improve in weak subjects.	Requests submitted via portal; assigned automatically to available teachers; status tracked.	Medium	Operations / Task Management

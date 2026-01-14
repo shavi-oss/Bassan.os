@@ -1,0 +1,250 @@
+// Bassan.os MVP Prisma Schema
+// Sprint 1 - Core Models Only
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================
+// MULTI-TENANCY & IDENTITY
+// ============================================================
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+  roles Role[]
+  leads Lead[]
+  tasks Task[]
+  workflowDefinitions WorkflowDefinition[]
+
+  @@map("organizations")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String
+  firstName      String?
+  lastName       String?
+  isActive       Boolean   @default(true)
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  roles          UserRole[]
+  refreshTokens  RefreshToken[]
+  leadsOwned     Lead[]         @relation("LeadOwner")
+  tasksAssigned  Task[]         @relation("TaskAssignee")
+  tasksCreated   Task[]         @relation("TaskCreator")
+
+  @@index([organizationId])
+  @@map("users")
+}
+
+model Role {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  users        UserRole[]
+  permissions  Permission[]
+
+  @@unique([organizationId, name])
+  @@map("roles")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model Permission {
+  id       String @id @default(uuid())
+  action   String // e.g., "leads:read", "leads:write"
+  resource String // e.g., "leads", "tasks"
+  roleId   String
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@map("permissions")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ============================================================
+// LEADS (Sales)
+// ============================================================
+
+model Lead {
+  id             String    @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  company        String?
+  status         LeadStatus @default(NEW)
+  source         String?
+  notes          String?
+  organizationId String
+  ownerId        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  owner        User?        @relation("LeadOwner", fields: [ownerId], references: [id])
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("leads")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  UNQUALIFIED
+  CONVERTED
+}
+
+// ============================================================
+// TASKS (Operations)
+// ============================================================
+
+model Task {
+  id             String     @id @default(uuid())
+  title          String
+  description    String?
+  status         TaskStatus @default(PENDING)
+  priority       TaskPriority @default(MEDIUM)
+  dueDate        DateTime?
+  organizationId String
+  assigneeId     String?
+  createdById    String
+  completedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  createdBy    User         @relation("TaskCreator", fields: [createdById], references: [id])
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([assigneeId])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ============================================================
+// WORKFLOW DEFINITION (Stage 2 - Design-Time Only)
+// ============================================================
+
+model WorkflowDefinition {
+  id             String         @id @default(uuid())
+  name           String
+  description    String?
+  status         WorkflowStatus @default(DRAFT)
+  organizationId String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id])
+  states       WorkflowState[]
+  transitions  WorkflowTransition[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("workflow_definitions")
+}
+
+model WorkflowState {
+  id                   String   @id @default(uuid())
+  workflowDefinitionId String
+  name                 String
+  description          String?
+  isStart              Boolean  @default(false)
+  isEnd                Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  workflowDefinition WorkflowDefinition   @relation(fields: [workflowDefinitionId], references: [id], onDelete: Cascade)
+  transitionsFrom    WorkflowTransition[] @relation("TransitionsFrom")
+  transitionsTo      WorkflowTransition[] @relation("TransitionsTo")
+
+  @@index([workflowDefinitionId])
+  @@map("workflow_states")
+}
+
+model WorkflowTransition {
+  id                   String   @id @default(uuid())
+  workflowDefinitionId String
+  fromStateId          String
+  toStateId            String
+  label                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  workflowDefinition WorkflowDefinition @relation(fields: [workflowDefinitionId], references: [id], onDelete: Cascade)
+  fromState          WorkflowState      @relation("TransitionsFrom", fields: [fromStateId], references: [id], onDelete: Cascade)
+  toState            WorkflowState      @relation("TransitionsTo", fields: [toStateId], references: [id], onDelete: Cascade)
+
+  @@index([workflowDefinitionId])
+  @@index([fromStateId])
+  @@index([toStateId])
+  @@map("workflow_transitions")
+}
+
+enum WorkflowStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+

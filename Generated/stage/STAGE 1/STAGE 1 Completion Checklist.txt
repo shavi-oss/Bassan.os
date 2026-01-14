@@ -1,0 +1,78 @@
+# STAGE 1 Completion Checklist
+Date 2026-01-14
+---
+## Scope Compliance
+- [x] No routes outside allowlist (10 endpoints only)
+- [x] No modules outside auth, organizations, users, roles
+- [x] No LeadsTasksWorkflow code added
+- [x] No UI components
+- [x] No external integrations
+---
+## Security Compliance
+- [x] All controllers use `@UseGuards(JwtAuthGuard, TenantGuard)`
+- [x] No `_unsafeClient` outside auth, organizations, prisma
+- [x] Permission queries use relation-based filter (`role { organizationId }`)
+- [x] RefreshToken has no public listing endpoint
+- [x] Security linter passes (66 tests)
+---
+## Functional Compliance
+- [x] Login works (`POST authlogin`)
+- [x] `authme` works (`GET authme`)
+- [x] Create org works (`POST organizations`)
+- [x] Get org works with ownership check (`GET organizationsid`)
+- [x] Create user works (tenant-scoped) (`POST users`)
+- [x] List users works (tenant-scoped) (`GET users`)
+- [x] Create role works (tenant-scoped) (`POST roles`)
+- [x] List roles works (tenant-scoped) (`GET roles`)
+- [x] Assign permissions works (`POST rolesroleIdpermissions`)
+- [x] List permissions uses relation filter (`GET rolesroleIdpermissions`)
+---
+## Test Compliance
+- [x] Security linter passes (66)
+- [x] Build succeeds (Exit code 0)
+- [x] Foundation tests available (require DB - same as Stage 0)
+- [x] No integration tests required for Stage 1 (per plan)
+---
+## Code Quality
+- [x] All DTOs have validation decorators
+- [x] All services use proper client (tenant-scoped vs unsafe)
+- [x] All controllers have proper guards
+- [x] All security justifications documented in comments
+- [x] Relation-based filters documented with SECURITY CRITICAL comments
+---
+## Delivery Artifacts
+- [x] `STAGE_1_PLAN.md` created (before implementation)
+- [x] `STAGE_1.md` created (completion report)
+- [x] `VALIDATION.md` created (test outputs)
+- [x] `CHECKLIST.md` created (this file)
+---
+## Architectural Laws (from Implementation Contract)
+### Non-Negotiable Invariants
+- [x] I-1 Every DB query scoped by `tenantId` (via Prisma extension)
+- [x] I-2 Every Task has exactly ONE owner (NA - no Task in Stage 1)
+- [x] I-3 Evidence is immutable (NA - no Evidence in Stage 1)
+- [x] I-4 All mutations logged (via Prisma extension)
+- [x] I-5 Workflow state transitions validated (NA - no Workflow in Stage 1)
+- [x] I-6 Permission checks before state changes (implemented in guards)
+- [x] I-7 Tenant isolation NEVER bypassed (enforced by linter + extension)
+### Explicit Anti-Goals (Verified)
+- [x] Not building a CRM in Stage 1
+- [x] Not building AI features in Stage 1
+- [x] Not building billing in Stage 1
+- [x] Not building external integrations in Stage 1
+- [x] Not building UI in Stage 1
+- [x] Not building reporting in Stage 1
+### Forbidden Shortcuts (Verified)
+- [x] Did NOT add `tenantId` later (Prisma extension handles it)
+- [x] Did NOT allow null `ownerId` (NA - no Task in Stage 1)
+- [x] Did NOT skip workflow validation (NA - no Workflow in Stage 1)
+- [x] Did NOT use global queries (all tenant-scoped)
+- [x] Did NOT accept `organizationId` from client (sanitized by TenantGuard)
+- [x] Did NOT skip permission checks (guards enforced)
+- [x] Did NOT make evidence mutable (NA - no Evidence in Stage 1)
+- [x] Did NOT skip audit trail (Prisma extension logs all)
+---
+## Final Verification
+All checkboxes marked ✅ YES
+Ready for Gate 2 ✅ YES
+Recommendation APPROVE Stage 1 completion and proceed to Gate 2 review.

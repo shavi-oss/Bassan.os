@@ -1,0 +1,1557 @@
+Bassan.os – C4 Model Architecture
+------------
+
+------------
+LEVEL 1: SYSTEM CONTEXT
+System Context Table
+Element Type	Name	Description	Responsibilities	Interactions	Business Value	Related BRD Sections
+System	Bassan.os	Multi-tenant Business Operating System SaaS platform	Unified business orchestration, workflow automation, accountability tracking, cross-department coordination, performance analytics	Serves all user types, integrates with external systems	Operational efficiency, revenue protection, scalability	1.1, 2.1, 4.1
+Internal User	CEO / Founder	Executive decision-maker, strategic oversight	Strategic planning, performance monitoring, risk management	Uses executive dashboards, analytics, decision tools	Business control, strategic alignment	2.1.1, 2.1.3
+Internal User	Sales Manager	Revenue growth owner, team leadership	Pipeline management, commission tracking, team performance	Uses CRM, sales tools, commission calculator	Revenue predictability, team accountability	2.1.4, 5.4
+Internal User	Marketing Manager	Demand generation, campaign management	Campaign planning, ROI tracking, lead attribution	Uses marketing module, analytics, campaign tools	Marketing effectiveness, lead quality	2.1.4, 5.5
+Internal User	Operations Manager	Service delivery oversight, workflow management	Workflow design, SLA monitoring, resource allocation	Uses workflow designer, task management, SLA tracker	Operational efficiency, service quality	5.4, 5.5, 7.4
+Internal User	HR Manager	Workforce governance, performance management	Employee management, role configuration, compliance tracking	Uses HR module, performance tracker, role configurator	Workforce scalability, compliance	5.6, 5.7
+Internal User	Finance Manager	Financial integrity, revenue protection	Billing, commission calculation, financial reporting	Uses finance module, billing system, reporting	Revenue accuracy, cost control	2.1.4, 5.6
+Internal User	Support Agent	Customer issue resolution, client communication	Ticket handling, customer support, escalation management	Uses ticketing system, knowledge base, communication	Customer satisfaction, SLA compliance	5.7, 7.7
+Internal User	System Administrator	Platform management, user administration	User management, system configuration, integration oversight	Uses admin panel, role configurator, integration hub	System reliability, security	3.2, 4.1.9
+External User	Client / Customer	Service recipient, business customer	Service tracking, communication, feedback provision	Uses client portal, notifications, feedback system	Client transparency, trust building	5.6, 7.3
+External User	Partner / Freelancer	External service provider, collaborator	Deliverable submission, milestone tracking, communication	Uses partner portal, task management, communication	Effective collaboration, partner management	5.7, 7.6
+External System	Email Service	External communication delivery	Send notifications, alerts, reports	Receives messages from Bassan.os, confirms delivery	Reliable communication	4.1.8, BR-22
+External System	WhatsApp / Telegram	Instant messaging platforms	Send real-time alerts, updates, notifications	Receives formatted messages, provides delivery status	Immediate communication	4.1.8, BR-22
+External System	Payment Processor	Financial transaction handling	Process payments, validate transactions, provide status	Receives payment requests, returns confirmation	Revenue collection, payment processing	4.2.1 (excluded)
+External System	CRM System (External)	Customer relationship management	Store customer data, track interactions, manage leads	Exchanges customer data, synchronizes interactions	Customer data management	4.1.9
+External System	Accounting Software	Financial management	Process accounting entries, generate financial reports	Receives financial data, returns processed information	Financial compliance, reporting	4.1.9
+External System	HRIS / Payroll System	Human resources management	Process payroll, manage employee records	Exchanges employee data, synchronizes payroll information	Workforce management	4.2.2 (excluded)
+External System	Analytics Platform (External)	Advanced data analysis	Process analytics, generate insights, provide visualizations	Receives business data, returns analytical insights	Business intelligence	4.1.7
+----------------
+SECTION 1 — SYSTEM OVERVIEW
+Bassan.os is a multi-tenant, enterprise-grade Business Operating System delivered as a SaaS platform. It serves as a foundational orchestration layer for modern service-driven businesses, designed to unify operations, decision-making, accountability, and growth within a single, adaptable platform. The system is positioned as a business control layer that sits above daily operations, enabling organizations to structure themselves correctly, evolve internal workflows without system replacement, and scale teams, departments, and revenue models without operational collapse.
+
+Primary Audience: B2B service organizations across medical, educational, marketing, service, and product-based industries operating in regional markets with intent for global expansion.
+
+Core Business Value: Eliminates fragmentation of business operations by providing a single source of truth, increasing organizational accountability and transparency, improving revenue predictability, and delivering enterprise-grade capabilities to regional markets without the complexity and cost of traditional enterprise software.
+
+SECTION 2 — SYSTEM CONTEXT TABLE
+Element Type	Name	Description	Primary Responsibilities	Key Interactions	Business Value	Notes / Assumptions
+Core System	Bassan.os	Multi-tenant Business Operating System SaaS	Business orchestration, workflow automation, accountability enforcement, performance analytics, cross-department coordination	Serves all human actors, integrates with external systems	Operational unification, revenue protection, scalable growth	Enterprise SaaS, multi-tenant, regional focus with global readiness
+Human Actor	Company Owner / CEO	Ultimate decision-maker, financial risk bearer	Strategic oversight, resource allocation, performance monitoring, risk management	Uses executive dashboards, strategic planning tools, analytics	Business control, predictable growth, reduced operational surprises	Internal, ultimate authority, requires holistic visibility
+Human Actor	Sales Director / Manager	Revenue growth owner, team leadership	Pipeline management, commission validation, team performance, forecasting	Uses CRM, sales pipeline, commission dashboard, reporting	Revenue predictability, team accountability, commission accuracy	Internal, managerial level, focused on conversion and revenue
+Human Actor	Marketing Manager	Demand generation lead	Campaign planning, ROI tracking, budget management, lead attribution	Uses campaign management, analytics, budget tools, attribution	Marketing effectiveness, budget optimization, lead quality	Internal, requires alignment with sales outcomes
+Human Actor	Operations Manager	Service delivery oversight	Workflow design, SLA monitoring, resource allocation, exception handling	Uses workflow designer, task management, SLA tracker, resource tools	Operational efficiency, service quality, bottleneck reduction	Internal, cross-department coordination role
+Human Actor	HR Manager / People Ops	Workforce governance	Employee management, performance tracking, role configuration, compliance	Uses HR module, performance tracker, role configurator, compliance tools	Workforce scalability, fair evaluations, compliance	Internal, manages both internal and remote workforce
+Human Actor	Finance Manager / Accountant	Financial integrity guardian	Billing, commission calculation, financial reporting, revenue recognition	Uses finance module, billing system, reporting, commission calculator	Revenue accuracy, cost control, audit readiness	Internal, financial compliance focus
+Human Actor	Customer Support Agent	Client issue resolution	Ticket handling, customer communication, escalation management, feedback collection	Uses ticketing system, knowledge base, communication tools, feedback	Customer satisfaction, SLA compliance, issue resolution	Internal, frontline customer-facing role
+Human Actor	Department Staff (Sales, Marketing, Ops)	Task execution, service delivery	Task completion, evidence submission, status updates, communication	Uses task lists, evidence upload, status trackers, communication tools	Operational execution, verifiable contributions	Internal, operational-level execution
+Human Actor	System Administrator	Platform management	User management, system configuration, integration oversight, security	Uses admin panel, role configurator, integration hub, security tools	System reliability, security, user access control	Internal, technical administration role
+Human Actor	External Partner Manager	Service delivery partner	Deliverable submission, milestone tracking, communication, invoice submission	Uses partner portal, communication tools, milestone tracker	Effective collaboration, partner performance	External, controlled data access only
+Human Actor	Remote Freelancer / Contractor	Flexible workforce contributor	Task execution, progress reporting, evidence submission, invoice creation	Uses remote task portal, evidence upload, time tracker, invoice tools	Workforce scalability, flexible resourcing	External, limited system access
+Human Actor	End Customer / Client	Service/product recipient	Service tracking, communication, feedback, self-service	Uses client portal, notifications, feedback system, status tracking	Client transparency, trust building, reduced support load	External, beneficiary of services
+External System	Email Service Provider	Communication delivery system	Send notifications, alerts, reports, confirmations	Receives formatted messages, provides delivery status, handles bounces	Reliable business communication	Assumed SMTP/API integration
+External System	WhatsApp / Telegram API	Instant messaging platforms	Send real-time alerts, updates, notifications, confirmations	Receives formatted messages, provides delivery/read receipts	Immediate communication, high engagement	Regional preference consideration
+External System	External CRM System	Customer relationship management	Store customer data, track interactions, manage leads, sync history	Exchanges customer data, synchronizes interactions, updates status	Customer data continuity	Integration only, not replacement
+External System	External Accounting Software	Financial management system	Process accounting entries, generate financial reports, manage ledgers	Receives financial data, returns processed information, syncs status	Financial compliance, reporting	Integration only, not replacement
+External System	External Analytics Platform	Advanced data analysis	Process analytics, generate insights, provide visualizations, predictions	Receives business data, returns analytical insights, visualizations	Business intelligence augmentation	Enhancement, not core requirement
+External System	Payment Gateway	Financial transaction processing	Process payments, validate transactions, provide confirmation, handle refunds	Receives payment requests, returns confirmation, manages settlements	Revenue collection	Explicitly excluded per BRD 4.2.1
+External System	External HRIS / Payroll	Human resources system	Process payroll, manage employee records, handle benefits, compliance	Exchanges employee data, synchronizes payroll information, updates	Workforce administration	Explicitly excluded per BRD 4.2.2
+Regulatory Body	Data Protection Authority	Regional compliance enforcement	Set data protection rules, conduct audits, enforce penalties, provide guidance	Receives compliance reports, may request audit access, provides updates	Legal compliance, market access	Region-specific, assumed for EU/GCC etc.
+Regulatory Body	Industry Regulatory Body	Industry-specific compliance	Set industry standards, conduct certifications, enforce regulations	Receives compliance evidence, may audit, provides certifications	Industry compliance, credibility	Medical, educational industry specific
+SECTION 3 — ACTOR GOALS & DEPENDENCIES
+Actor	Primary Goals	Depends On System For	Risks If System Fails
+Company Owner / CEO	Business growth, operational control, revenue protection	Holistic business visibility, strategic decision support, risk monitoring	Reactive management, revenue leakage, strategic misalignment
+Sales Director	Increased conversion, accurate forecasting, fair commissions	Pipeline visibility, commission calculation, team performance tracking	Lost opportunities, commission disputes, poor forecasting
+Marketing Manager	Campaign ROI, budget efficiency, lead quality	Attribution tracking, campaign performance, budget monitoring	Wasted spend, poor attribution, misaligned campaigns
+Operations Manager	SLA adherence, resource optimization, bottleneck reduction	Workflow orchestration, task tracking, exception handling	Service breakdowns, delayed deliveries, customer dissatisfaction
+HR Manager	Fair evaluations, compliance, workforce scalability	Performance tracking, role management, compliance monitoring	Subjective reviews, compliance violations, talent issues
+Finance Manager	Revenue accuracy, cost control, audit readiness	Billing automation, commission calculation, financial reporting	Revenue leakage, accounting errors, audit failures
+Customer Support Agent	Fast resolution, customer satisfaction, SLA compliance	Ticket management, customer context, knowledge access	Slow response, unhappy customers, SLA breaches
+External Partner Manager	Deliverable acceptance, timely payment, relationship maintenance	Clear deliverables, milestone tracking, communication	Scope disputes, payment delays, partnership breakdown
+End Customer	Service transparency, timely delivery, clear communication	Status visibility, update notifications, self-service portal	Uncertainty, frustration, need for constant follow-up
+SECTION 4 — EXTERNAL SYSTEM DEPENDENCIES
+External System	Why It Exists	Data Exchanged	Criticality	Failure Impact
+Email Service Provider	Business communication delivery	Notifications, alerts, reports, confirmations	High	Missed communications, delayed updates, reduced transparency
+WhatsApp / Telegram API	Immediate communication, high engagement	Real-time alerts, updates, delivery confirmations	Medium	Reduced responsiveness, communication gaps in regions preferring instant messaging
+External CRM System	Customer data continuity for existing systems	Customer profiles, interaction history, status updates	Medium	Data silos, duplicate work, inconsistent customer view
+External Accounting Software	Financial compliance and reporting	Invoices, payments, expenses, journal entries	Medium	Manual data entry, reconciliation errors, delayed reporting
+External Analytics Platform	Advanced analytics and visualization	Business metrics, performance data, trend information	Low	Reduced analytical depth, manual reporting, limited insights
+Payment Gateway	Financial transaction processing (excluded)	Payment requests, confirmations, refund data	N/A	Not applicable - explicitly out of scope per BRD
+External HRIS / Payroll	Payroll processing (excluded)	Employee data, payroll information, benefits	N/A	Not applicable - explicitly out of scope per BRD
+SECTION 5 — SYSTEM BOUNDARIES & ASSUMPTIONS
+Category	Included	Excluded	Notes
+Financial Processing	Payment status tracking, billing generation, commission calculation	Payment processing, fund holding, financial intermediation	BRD 4.2.1 explicitly excludes financial transaction processing
+Human Resources	Performance tracking, role management, contribution measurement	Payroll processing, tax filings, benefits administration	BRD 4.2.2 explicitly excludes full HRIS/payroll systems
+Communication	Notification orchestration, message formatting, delivery tracking	Social media hosting, content storage, social feed management	BRD 4.2.3 excludes social media/content hosting
+Automation	Business workflow automation, conditional routing, task assignment	Complex AI decision engines, RPA tooling, code-based scripting	BRD 4.2.4 excludes deep technical automation engines
+Data Ownership	Operational data, workflow definitions, performance metrics	Customer financial data (beyond status), external system raw data	Data isolation maintained, only necessary data exchanged
+Multi-tenancy	Complete data isolation per organization, configurable workflows	Shared data between organizations without explicit agreement	Default isolation with controlled collaboration only
+Regional Compliance	Configurable compliance templates, audit trails, evidence collection	Region-specific legal advice, regulatory interpretation	Platform enables compliance but doesn't provide legal guidance
+Key Architectural Assumptions:
+
+Multi-tenant by design: Each organization operates in complete isolation unless explicitly configured for collaboration
+
+Configuration over code: Business users can modify workflows without developer intervention
+
+Evidence-based operations: All significant actions require or generate verifiable evidence
+
+Regional adaptability: System can be configured for regional business practices and regulations
+
+Integration-ready: Designed for secure integration with external systems, not replacement
+
+SECTION 6 — TRACEABILITY MATRIX
+Business Objective	Actor	System Responsibility	Expected Outcome
+Establish operational backbone	Company Owner / CEO	Provide unified business platform, single source of truth	Reduced fragmentation, clear accountability, operational control
+Increase revenue predictability	Sales Director, Finance Manager	Automated billing, commission calculation, revenue tracking	Reduced revenue leakage, accurate forecasting, fair compensation
+Enable operational flexibility	Operations Manager, HR Manager	Configurable workflows, role management, process design	Business adaptability, reduced system rigidity, scalable operations
+Improve accountability	All Department Heads	Task ownership tracking, evidence submission, performance attribution	Reduced blame-shifting, clear ownership, verifiable contributions
+Enhance client transparency	End Customer, Support Agent	Client portal, status notifications, self-service access	Increased trust, reduced support calls, better client experience
+Support workforce scalability	HR Manager, Operations Manager	Remote workforce management, contractor support, flexible roles	Adaptable resourcing, reduced overhead, talent optimization
+Ensure compliance readiness	Finance Manager, HR Manager, System Administrator	Audit trails, compliance tracking, evidence collection	Audit readiness, regulatory compliance, reduced legal risk
+Facilitate inter-company collaboration	External Partner Manager, Operations Manager	Partner portal, milestone tracking, controlled data sharing	Effective partnerships, clear deliverables, dispute reduction
+----------------
+----------------
+SYSTEM CONTEXT DELIVERABLE STATUS
+✅ C4 Level 1: System Context Complete
+----------------
+Coverage Summary:
+
+1 Core System with clear business value proposition
+13 Human Actors covering all identified user roles
+7 External Systems with integration rationale
+2 Regulatory Bodies acknowledging compliance requirements
+Clear system boundaries with inclusion/exclusion rationale
+Full traceability to business objectives
+----------------
+----------------
+SYSTEM CONTEXT ANALYSIS SUMMARY
+Key Characteristics:
+----------------
+CONTAINERS ANALYSIS
+Based on the approved System Context and full analysis of requirements, I've identified the following high-level technical containers that comprise the Bassan.os platform. Each container represents a major technical building block with clear boundaries and responsibilities.
+----------
+Multi-tenant SaaS: Supports multiple independent organizations
+B2B Focus: Primarily serves businesses, not consumers
+Horizontal Platform: Cross-industry applicability
+Orchestration Layer: Integrates people, processes, and tools
+Regional Focus: Designed for regional markets with global readiness
+Primary Value Proposition: Unifying fragmented business operations into a single orchestrated system with clear accountability and transparency.
+Integration Strategy:
+Included: Communication channels (Email, WhatsApp, Telegram), external analytics
+Excluded: Payment processing, payroll systems, social media hosting
+Integration Points: CRM, accounting systems, partner platforms
+-----
+C4 Level 1: System Context Complete
+
+Generated:
+1 Core System (Bassan.os)
+9 Internal User Types (covering all departments)
+2 External User Types (clients, partners)
+7 External Systems (with clear inclusion/exclusion rationale)
+Full traceability to BRD requirements
+---------
+----------
+LEVEL 2: CONTAINERS
+----------
+CONTAINERS TABLE
+Container Name	Type	Responsibilities	Technology Assumptions	Data Owned	Interactions	Scalability / Availability Notes	Related Business Capabilities
+Web Application	Web App	User interface for all user types, business workflow interaction, real-time updates, dashboard visualization	React/Angular/Vue SPA, Responsive design, PWA capabilities	UI state, user preferences, session data	Serves browsers, calls APIs, receives WebSocket updates	Horizontal scaling via load balancers, CDN for static assets, 99.5% availability target	All user interactions, dashboard visualization, workflow execution
+API Gateway	API Gateway	Request routing, authentication, rate limiting, request transformation, API version management	Kong/Apigee/NGINX, JWT validation, OAuth2 support	API routing rules, rate limit counters, access logs	Receives API calls, routes to services, returns responses	Horizontal scaling, geo-distribution possible, 99.9% availability	Secure API access, multi-tenant isolation, request management
+Authentication Service	Microservice	User authentication, session management, multi-factor auth, password management, SSO integration	OAuth2/OIDC provider, JWT issuance, secure password hashing	User credentials, sessions, MFA configurations, SSO mappings	Validates credentials, issues tokens, manages sessions	Stateless design, horizontal scaling, 99.95% availability	User access control, security compliance, single sign-on
+Tenant Management Service	Microservice	Multi-tenant organization management, tenant isolation, subscription management, billing integration	Multi-tenant database patterns, tenant context propagation	Tenant configurations, subscriptions, feature flags, billing status	Creates/manages tenants, enforces isolation, tracks usage	Sharding by tenant, horizontal scaling, 99.9% availability	Multi-tenant SaaS foundation, subscription management
+Workflow Engine	Microservice	Business workflow execution, conditional routing, SLA tracking, escalation management, process orchestration	BPMN/DMN support, state machine engine, rule engine	Workflow definitions, execution state, SLA timers, escalation rules	Executes workflows, triggers actions, manages state	Event-driven, horizontal scaling, state persistence required	Operational orchestration, process automation, SLA management
+Task Management Service	Microservice	Task creation, assignment, tracking, evidence collection, completion validation	Event sourcing, CQRS pattern, file storage integration	Tasks, assignments, evidence metadata, completion status	Creates tasks, assigns owners, tracks progress, validates completion	High write volume, horizontal scaling, eventual consistency	Task accountability, evidence collection, performance tracking
+CRM Service	Microservice	Customer/contact management, lead tracking, interaction history, relationship management	Graph database for relationships, search indexing	Customer profiles, leads, interactions, relationships	Manages customer data, tracks interactions, analyzes relationships	Read-heavy, search optimization, horizontal scaling	Customer lifecycle management, sales pipeline, relationship tracking
+Commission Service	Microservice	Commission calculation, rule management, payment tracking, dispute resolution	Rule engine, financial calculations, audit logging	Commission rules, calculations, payments, disputes	Calculates commissions, validates evidence, processes payments	Financial accuracy critical, audit trail required, 99.95% availability	Revenue protection, incentive management, payment accuracy
+Billing Service	Microservice	Invoice generation, payment tracking, revenue recognition, financial reporting	Financial calculations, regulatory compliance, reporting	Invoices, payments, revenue schedules, financial reports	Generates invoices, tracks payments, recognizes revenue	Financial accuracy critical, audit compliance, high availability	Revenue management, financial compliance, billing automation
+Notification Service	Microservice	Multi-channel notification delivery, template management, delivery tracking, preference management	Queue-based delivery, template engine, delivery tracking	Notification templates, delivery logs, user preferences	Sends notifications, tracks delivery, manages templates	High throughput, eventual delivery, horizontal scaling	Business communication, alerting, user engagement
+Analytics Service	Microservice	Business intelligence, reporting, dashboard data, performance analytics	OLAP capabilities, real-time processing, caching	Aggregated metrics, reports, dashboard data, trends	Processes analytics, generates reports, serves dashboards	Read-heavy, caching intensive, horizontal scaling	Business intelligence, performance monitoring, decision support
+Integration Hub	Microservice	External system integration, API management, data synchronization, error handling	API gateway patterns, transformation engine, retry logic	Integration configurations, sync state, error logs, API keys	Connects to external systems, syncs data, handles errors	High resilience required, circuit breaker pattern, horizontal scaling	System connectivity, data synchronization, external collaboration
+Document/File Service	Microservice	Document storage, version control, access management, evidence file handling	Object storage, CDN integration, version control	Documents, files, versions, access permissions, metadata	Stores files, manages versions, controls access, serves content	High storage capacity, CDN distribution, horizontal scaling	Evidence management, document storage, audit compliance
+Search Service	Microservice	Full-text search, faceted filtering, relevance ranking, autocomplete	Elasticsearch/Solr, indexing pipeline, query optimization	Search indices, document mappings, relevance models	Indexes content, processes queries, returns results	High read performance, indexing pipeline, horizontal scaling	Content discovery, data retrieval, user productivity
+Message Queue	Infrastructure	Event distribution, asynchronous processing, workload decoupling, event persistence	RabbitMQ/Kafka/Redis, persistent queues, event schemas	Event messages, queue state, consumer offsets	Receives events, distributes to consumers, ensures delivery	High throughput, persistence required, clustering support	Event-driven architecture, system decoupling, async processing
+Relational Database	Database	Transactional data storage, ACID compliance, relational integrity, reporting data	PostgreSQL/MySQL, replication, partitioning, backups	Core business data, relationships, transactional records	Stores/retrieves structured data, enforces constraints	Vertical/horizontal scaling, replication, backup/restore	Data persistence, transaction integrity, reporting foundation
+NoSQL Database	Database	Flexible schema storage, high-volume writes, real-time analytics, cache layer	MongoDB/Cassandra, sharding, replication, TTL	Session data, logs, metrics, flexible documents	Stores unstructured/semi-structured data, high-speed access	Horizontal scaling, eventual consistency, high write throughput	Flexible data storage, real-time analytics, session management
+Object Storage	Infrastructure	Binary file storage, CDN integration, versioning, access control	AWS S3/Azure Blob, CDN distribution, lifecycle policies	Files, documents, images, backups, static assets	Stores/retrieves binary data, manages access, distributes via CDN	Unlimited scaling, global distribution, cost-effective storage	File management, evidence storage, static asset delivery
+
+---------------------
+CONTAINER INTERACTIONS SUMMARY
+Primary Interaction Patterns:
+Web Application → API Gateway → Services
+All user interactions flow through this path
+API Gateway provides security and routing
+Service → Service via Message Queue
+Asynchronous processing (notifications, analytics, integrations)
+Event-driven architecture for decoupling
+Service → Database
+Each service owns its data domain
+Clear data ownership boundaries
+Integration Hub → External Systems
+Controlled external communication
+Circuit breaker and retry patterns
+-----------------
+Critical Data Flows:
+Workflow Execution Flow:
+
+text
+Web App → API Gateway → Workflow Engine → Task Service → Database
+Commission Calculation Flow:
+
+text
+Task Service → Commission Service → Billing Service → Notification Service
+Customer Interaction Flow:
+
+text
+Web App → API Gateway → CRM Service → Task Service → Notification Service
+Analytics Processing Flow:
+
+text
+All Services → Message Queue → Analytics Service → Databases
+SCALABILITY & AVAILABILITY CONSIDERATIONS
+Container Category	Scaling Strategy	Availability Target	Disaster Recovery
+User-Facing (Web, API)	Horizontal scaling, global load balancing	99.5%	Multi-region deployment, CDN failover
+Core Business Services	Horizontal scaling, read replicas	99.9%	Active-active regions, data replication
+Financial Services	Vertical scaling for consistency, careful scaling	99.95%	Active-passive with warm standby
+Data Storage	Sharding, partitioning, replication	99.99%	Cross-region replication, point-in-time recovery
+Infrastructure	Auto-scaling, queue-based decoupling	99.9%	Multi-zone deployment, queue replication
+MULTI-TENANCY IMPLEMENTATION
+------------------
+Tenant Isolation Strategy:
+Database Level: Schema-per-tenant or row-level tenant ID
+Application Level: Tenant context in all requests
+Infrastructure Level: Shared resources with logical isolation
+
+Data Segregation:
+Strict Isolation: Default for all tenant data
+Controlled Sharing: Explicit configuration required for collaboration
+Audit Trail: All cross-tenant access logged
+----------------
+Containers Table
+Container Name	Type	Responsibilities	Technology Assumptions	Data Owned	Interactions	Scalability / Availability Notes	Related Business Capabilities
+Web Application	Web App (SPA/MPA)	User interface, interactive workflows, real-time updates	React/Vue/Angular, TypeScript, Progressive Web App capabilities	User sessions, UI state, cached data	Browser ↔ API Gateway, WebSocket Server	Horizontal scaling, CDN for static assets, Session affinity for WebSocket	All user-facing business capabilities
+API Gateway	API Gateway / BFF	Request routing, authentication, rate limiting, API composition	Node.js/Go, JWT/OAuth 2.0, Rate limiting middleware	API metadata, routing rules, rate limit counters	Web App ↔ Microservices, External systems ↔ Internal APIs	High availability, Geo-distribution, Circuit breaking	Unified API access, Security enforcement
+Authentication Service	Microservice	User authentication, session management, SSO, multi-tenant isolation	OAuth 2.0/OpenID Connect, JWT, Multi-tenant data isolation	User credentials, sessions, tenant configurations	All services (for auth validation), External identity providers	Stateless, Horizontal scaling, Session replication	Multi-tenant security, User access control
+Tenant Management Service	Microservice	Tenant lifecycle, configuration, isolation, billing association	Multi-tenant database patterns, Configuration management	Tenant metadata, configurations, subscriptions	All services (for tenant context), Billing Service	Partitioned by tenant, Configuration caching	Business isolation, SaaS operations
+CRM Service	Microservice	Customer lifecycle, lead management, contact management	Domain-driven design, Event sourcing (optional)	Customers, leads, interactions, relationships	Sales Service, Marketing Service, Support Service	Sharding by tenant, Read replicas for analytics	Customer management, Sales pipeline
+Sales Service	Microservice	Sales pipeline, opportunity tracking, commission calculation	Business rule engine, Commission calculation engine	Opportunities, quotes, commissions, forecasts	CRM Service, Finance Service, HR Service	High write volume, Commission calculation intensive	Revenue generation, Sales operations
+Marketing Service	Microservice	Campaign management, attribution, ROI tracking	Analytics processing, Attribution modeling	Campaigns, assets, performance data, attribution	CRM Service, Sales Service, Analytics Service	Event-driven, Batch processing for attribution	Demand generation, Marketing effectiveness
+Operations Service	Microservice	Workflow orchestration, task management, SLA tracking	Workflow engine (BPMN compatible), SLA engine	Workflows, tasks, SLAs, execution logs	All department services, Notification Service	Stateful workflow execution, High concurrency	Service delivery, Process automation
+HR Service	Microservice	Employee management, role management, performance tracking	Role-based access control, Performance evaluation engine	Employees, roles, permissions, performance data	All services (for access control), Finance Service	Sensitive data, Strict access controls	Workforce management, Organizational governance
+Finance Service	Microservice	Billing, invoicing, revenue recognition, financial reporting	Accounting rules engine, Financial reporting engine	Invoices, payments, revenue recognition, financial reports	Sales Service, Operations Service, External accounting systems	ACID compliance, Audit trail required	Revenue management, Financial control
+Support Service	Microservice	Ticketing, knowledge base, customer communication	CQRS pattern, Knowledge graph/search	Tickets, knowledge articles, customer communications	CRM Service, Operations Service, Notification Service	High read volume, Search optimization	Customer support, Issue resolution
+Analytics Service	Microservice	Business intelligence, reporting, dashboarding	Columnar database, OLAP processing, Dashboard engine	Aggregated metrics, reports, dashboards, trends	All business services, External analytics systems	Read-heavy, Aggregation optimization	Business intelligence, Decision support
+Notification Service	Microservice	Multi-channel notifications, delivery tracking, preference management	Message queue, Delivery status tracking	Notification templates, delivery logs, user preferences	All services (for event notifications), External communication systems	High throughput, Delivery guarantee	Communication orchestration, User engagement
+Integration Service	Microservice	External system integration, API management, data synchronization	API gateway pattern, ETL/ELT processing	Integration configurations, sync logs, API metadata	All services (for external data), External systems	Fault tolerance, Retry mechanisms, Rate limiting	Ecosystem connectivity, Data exchange
+Document Service	Microservice	Document storage, version control, evidence management	Object storage, Document processing, Version control	Documents, files, evidence, version history	All services (for document storage)	High storage volume, Version management	Evidence management, Document control
+Event Bus	Message Broker	Event distribution, service decoupling, event sourcing	Apache Kafka/RabbitMQ, Event schema registry	Event streams, schemas, consumer offsets	All microservices (publish/subscribe)	High availability, Message persistence, Ordering guarantee	System integration, Event-driven architecture
+Relational Database	Database (Primary)	Transactional data storage, ACID compliance, relationships	PostgreSQL/MySQL with multi-tenant schemas	Core business entities, transactions, relationships	All microservices (via data access layer)	Sharding by tenant, Read replicas, Backup/recovery	Data consistency, Transaction integrity
+Document Database	Database (Secondary)	Flexible schema storage, document relationships, fast reads	MongoDB/DocumentDB with multi-tenant collections	User-generated content, configurations, audit logs	Configuration services, Content services	Horizontal scaling, Flexible schema evolution	Content management, Configuration storage
+Cache Service	In-Memory Cache	Performance optimization, session storage, frequent data access	Redis/ElastiCache with clustering	Cached queries, session data, rate limit counters	All microservices (for caching)	High throughput, Low latency, Data expiration	Performance optimization, Session management
+Search Service	Search Engine	Full-text search, faceted search, relevance ranking	Elasticsearch/Solr with multi-tenant indices	Searchable content, indices, relevance models	All services (for search functionality)	Distributed indexing, Query optimization	Content discovery, Information retrieval
+File Storage	Object Storage	File storage, evidence management, document archiving	AWS S3/Azure Blob Storage with multi-tenant buckets	Files, images, documents, backups	Document Service, All services (for file access)	Unlimited scaling, Geo-replication, Versioning	Evidence storage, File management
+---------------------
+
+----------------
+C4 Level 2: Containers Definition Complete
+
+Summary:
+
+18 Containers identified with clear boundaries
+4 Container Types: Web App, Microservices, Databases, Infrastructure
+Clear Responsibilities mapped to business capabilities
+Scalability Strategies defined per container type
+Interaction Patterns documented
+Multi-tenancy approach specified
+Key Architectural Decisions:
+Microservices Architecture for business capability alignment
+API Gateway for request routing and security
+Event-Driven Design for system decoupling
+Polyglot Persistence (Relational + NoSQL + Object Storage)
+Multi-tenant by design with configurable isolation
+
+----------
+CONTAINERS ARCHITECTURE ANALYSIS
+----------
+Key Architectural Decisions:
+1.Microservices Architecture:
+
+Business capability-based service boundaries
+
+Independent scaling per business domain
+
+Clear ownership per department/function
+
+Multi-Tenancy Implementation:
+
+Database-level isolation (schema per tenant)
+
+Service-level tenant context propagation
+
+Cached tenant configurations for performance
+
+Data Management Strategy:
+
+Relational Database: Core transactional data with relationships
+
+Document Database: Flexible content and configurations
+
+Search Engine: Specialized search capabilities
+
+Object Storage: Unstructured file storage
+
+Communication Patterns:
+
+Synchronous: REST/GraphQL for request/response
+
+Asynchronous: Event bus for eventual consistency
+
+Real-time: WebSocket for live updates
+
+External Integration:
+
+Dedicated Integration Service for external systems
+
+API Gateway for unified external access
+
+Event-driven integration patterns
+
+Scalability Considerations:
+Service Type	Scaling Pattern	Critical Data	Availability Requirement
+User-Facing	Horizontal, Stateless	Session data	99.9%+
+Business Processing	Partitioned by tenant	Business transactions	99.5%+
+Analytics	Read replicas, Caching	Aggregated data	99%+
+Integration	Queue-based, Fault-tolerant	Sync state	99%+
+Security Boundaries:
+API Gateway: External access control, rate limiting
+
+Authentication Service: Centralized auth, tenant isolation
+
+HR Service: Role and permission management
+
+Tenant Management: Data isolation enforcement
+
+Event Bus: Internal only, no external access
+------
+C4 Level 2: Containers Complete
+
+Generated:
+
+21 Containers with clear responsibilities and boundaries
+
+4 Database/Storage types for different data patterns
+
+Clear technology assumptions (non-binding, indicative)
+
+Scalability and availability considerations per container type
+
+Full business capability mapping
+
+Architecture Style: Microservices with clear domain boundaries
+Multi-tenancy: Database-level isolation with tenant context propagation
+Integration Strategy: Dedicated Integration Service with event-driven patterns
+----------------
+----------
+LEVEL 3: COMPONENTS
+----------
+COMPONENTS ANALYSIS
+Now breaking down each container into logical components. We'll proceed container by container, starting with the most critical business capabilities.
+
+----------------
+
+LEVEL 3: COMPONENTS
+CONTAINER: Web Application
+-----------
+CONTAINER 1: WEB APPLICATION
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Dashboard Module	Web Application	Executive and department-level dashboard visualization	Render dashboards, Update real-time data, Apply filters, Export reports	Analytics API, User Preferences API	Dashboard events, Export requests	US-01, US-13, EXEC-01	Role-based dashboard views, Real-time refresh
+Workflow Designer UI	Web Application	Visual workflow design and configuration	Drag-and-drop workflow creation, Set conditions, Test workflows, Save configurations	Workflow Engine API, Validation API	Workflow definitions, Validation results	OPS-01, OPS-04	No-code configuration, Business user accessibility
+Task Management UI	Web Application	Task assignment, tracking, and evidence submission	Create tasks, Assign owners, Update status, Upload evidence, View progress	Task API, Document API, User API	Task events, Evidence uploads	OPS-02, OPS-03, SALES-08	Single task ownership, Evidence requirement rules
+CRM Interface	Web Application	Customer and lead management interface	Create/update customers, Track interactions, Manage pipeline, View history	CRM API, Task API, Notification API	Customer events, Lead updates	SALES-01, SALES-02, SUPP-02	Customer state management, Lead ownership rules
+Commission Calculator UI	Web Application	Commission calculation and review interface	Calculate commissions, Review evidence, Approve/reject, View history	Commission API, Task API, Finance API	Commission calculations, Approval requests	SALES-03, FIN-02, HR-07	Commission rule validation, Approval workflows
+Billing Interface	Web Application	Invoice creation and payment tracking	Generate invoices, Send to clients, Track payments, Apply credits	Billing API, CRM API, Notification API	Invoice events, Payment updates	FIN-01, FIN-03, FIN-04	Billing automation rules, Payment status triggers
+Admin Configuration UI	Web Application	System configuration and user management	Manage users, Configure roles, Set system settings, Monitor health	Admin API, Tenant API, Security API	Configuration changes, User events	IT-01, IT-02, HR-03	Multi-tenant isolation, Role hierarchy
+Client/Partner Portal	Web Application	Self-service portal for external users	View service status, Submit requests, Communicate, Provide feedback	CRM API, Task API, Notification API	Portal requests, Feedback submissions	US-21, OPS-10, SUPP-09	External access controls, Data isolation rules
+Web Application Component Dependencies:
+
+All components depend on Authentication Service for user sessions
+
+All data operations go through API Gateway
+
+Real-time updates via WebSocket connections
+
+File uploads via Document Service
+
+--------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Dashboard Component	Web Application	Executive and department dashboards	Render metrics, Update real-time, Apply filters	Analytics API, Event Stream	Dashboard Events, User Interactions	EXEC-01, SALES-05, OPS-08	Role-based view filtering, Real-time data refresh
+Workflow Designer	Web Application	Visual workflow creation and editing	Drag-and-drop design, Set conditions, Test workflows	Operations API, Validation Service	Workflow Definitions, Validation Results	OPS-01, OPS-12	No-code configuration only, Conditional routing validation
+CRM Interface	Web Application	Customer and lead management	Create/update leads, View pipeline, Log interactions	CRM API, Sales API	Lead Events, Pipeline Updates	SALES-01, SALES-02, SALES-08	Lead ownership rules, Pipeline stage validation
+Task Management UI	Web Application	Task assignment and tracking	Assign tasks, Update status, Submit evidence	Operations API, Document API	Task Events, Evidence Submissions	OPS-02, OPS-03, OPS-11	Single task ownership, Evidence requirement rules
+Commission Calculator UI	Web Application	Commission calculation and approval	Calculate commissions, Review evidence, Approve payments	Finance API, Sales API	Commission Calculations, Approval Requests	SALES-03, FIN-02, HR-07	Commission formula validation, Approval workflow
+Reporting Interface	Web Application	Report generation and export	Generate reports, Apply filters, Export formats	Analytics API, Finance API	Report Requests, Export Files	FIN-05, SUPP-13, EXEC-13	Data access permissions, Export format options
+Admin Configuration Panel	Web Application	System configuration and user management	Configure system settings, Manage users, Set roles	Admin API, Tenant API	Configuration Updates, User Management Events	IT-01, IT-02, IT-10	Admin-only access, Configuration validation
+Client Portal	Web Application	Client self-service interface	View service status, Submit requests, Communicate	Support API, Operations API, Notification API	Client Requests, Service Updates	SUPP-09, SUPP-02	Client-only data access, Service visibility rules
+Partner Portal	Web Application	External partner collaboration	View assigned deliverables, Submit work, Track payments	Operations API, Partner API, Finance API	Deliverable Submissions, Payment Requests	OPS-10, FIN-12	Partner data isolation, Mutual validation requirement
+Mobile Interface	Web Application	Mobile-optimized task management	View tasks on mobile, Capture evidence, Receive notifications	Mobile API, Notification API	Mobile Events, Location Data	OPS-11, SUPP-14	Offline capability, Mobile-optimized workflows
+-----
+Components for Web Application Container Complete
+----------
+Generated:
+10 Components covering all user interface capabilities
+Clear responsibility separation between different user types
+Full user story mapping for traceability
+Business rules enforcement at component level
+----------
+Key Design Decisions:
+Component Organization: By user role and business capability
+Interface Design: RESTful APIs for data, WebSocket for real-time
+State Management: Local UI state with server synchronization
+Mobile Support: Responsive design with mobile-specific components
+---------
+------
+CONTAINER: API Gateway
+----------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Request Router	API Gateway	Route requests to appropriate services	Parse request paths, Determine target service, Forward requests	Incoming HTTP/WebSocket requests	Routed requests to microservices	All API-based stories	Tenant context extraction, Service discovery
+Authentication Middleware	API Gateway	Validate authentication tokens	Validate JWT tokens, Check session validity, Extract user context	Authentication Service API	Authenticated requests with user context	All authenticated stories	Token validation rules, Session timeout enforcement
+Rate Limiter	API Gateway	Enforce API rate limits	Track request counts, Apply limits, Return rate limit headers	Rate limit configuration	Rate-limited responses	All API-based stories	Tenant-based rate limits, Burst handling rules
+Request Transformer	API Gateway	Transform request/response formats	Convert between API versions, Apply response filters, Add headers	Service-specific schemas	Transformed requests/responses	All API-based stories	Version compatibility rules, Response filtering policies
+Circuit Breaker	API Gateway	Prevent cascading failures	Monitor service health, Open/close circuits, Fallback responses	Service health endpoints	Circuit-controlled requests	All API-based stories	Failure threshold rules, Recovery timing policies
+API Composition	API Gateway	Combine multiple service responses	Call multiple services, Merge responses, Handle partial failures	Multiple microservice APIs	Composed API responses	EXEC-01, SALES-02, OPS-08	Response merging rules, Partial failure handling
+Monitoring & Logging	API Gateway	Log requests and monitor performance	Log request details, Track performance metrics, Generate alerts	Monitoring configuration	Logs and metrics	IT-03, IT-13	Log retention policies, Performance threshold rules
+CORS & Security Headers	API Gateway	Apply security policies	Set CORS headers, Apply security headers, Validate origins	Security policies	Secured responses	All external API stories	Cross-origin rules, Security header requirements
+----------
+----------
+CONTAINER 2: WORKFLOW ENGINE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Workflow Definition Manager	Workflow Engine	Store and manage workflow definitions	Create workflows, Version control, Validate definitions, Retrieve workflows	Workflow storage, Validation rules	Workflow definitions, Validation results	OPS-01, OPS-15	No-code configuration, Business rule validation
+Process Orchestrator	Workflow Engine	Execute workflow instances	Start workflows, Transition states, Evaluate conditions, Handle exceptions	Workflow definitions, Business rules, Task events	Process events, Task creations, Notifications	OPS-04, OPS-12	Conditional routing, State transition rules
+SLA Monitor	Workflow Engine	Track and enforce service level agreements	Calculate SLA times, Trigger escalations, Monitor compliance, Report breaches	Time service, Escalation rules, Task status	SLA alerts, Escalation events, Breach reports	SUPP-03, OPS-04	SLA calculation rules, Escalation thresholds
+Condition Evaluator	Workflow Engine	Evaluate business conditions for routing	Parse conditions, Evaluate expressions, Return results, Log decisions	Business rules, Data context, User permissions	Evaluation results, Decision logs	MKTG-06, SALES-06	Conditional logic, Data validation rules
+Exception Handler	Workflow Engine	Manage workflow exceptions and escalations	Detect exceptions, Route to handlers, Escalate issues, Track resolution	Exception definitions, Escalation paths, User roles	Exception events, Escalation requests, Resolution updates	OPS-06, SUPP-06	Exception classification, Escalation workflows
+Workflow Engine Component Dependencies:
+
+Depends on Task Service for task creation
+
+Integrates with Notification Service for alerts
+
+Uses Message Queue for event distribution
+
+Stores definitions in Relational Database
+-------------------------
+CONTAINER 3: TASK MANAGEMENT SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Task Creator	Task Management Service	Create new tasks with proper assignments	Validate task requirements, Assign owners, Set priorities, Calculate SLAs	Workflow events, User assignments, Business rules	Task records, Assignment events, SLA starts	OPS-02, SALES-07	Task validation rules, Owner assignment logic
+Task Tracker	Task Management Service	Track task progress and status	Update status, Record progress, Log changes, Validate transitions	Status updates, Progress reports, Validation rules	Status events, Progress notifications, Validation results	OPS-03, OPS-10	Status transition rules, Progress validation
+Evidence Manager	Task Management Service	Handle evidence submission and validation	Receive evidence, Validate format, Link to tasks, Manage approvals	File uploads, Validation rules, Approval workflows	Evidence records, Approval requests, Validation results	OPS-03, SALES-04	Evidence requirement rules, File validation
+Assignment Engine	Task Management Service	Optimize task assignments	Match tasks to resources, Balance workload, Consider skills, Optimize allocation	Resource availability, Skills data, Task requirements	Assignment decisions, Workload updates	OPS-05, HR-08	Assignment optimization rules, Load balancing
+Completion Validator	Task Management Service	Validate task completion requirements	Check evidence, Verify requirements, Confirm completion, Trigger next steps	Completion criteria, Evidence checks, Workflow rules	Completion events, Validation results, Next steps	HR-02, FIN-02	Completion validation rules, Evidence requirements
+Task Service Component Dependencies:
+
+Integrates with Document Service for evidence storage
+
+Uses Commission Service for completion validation
+
+Depends on User Service for assignment data
+
+Publishes events to Message Queue
+
+----------
+Components for API Gateway Container Complete
+----------
+Generated:
+8 Components covering all API gateway responsibilities
+Clear separation of routing, security, and composition concerns
+Full operational requirements including resilience patterns
+Security and compliance enforcement at gateway level
+----------
+Key Design Decisions:
+----------
+Gateway Pattern: Single entry point for all API traffic
+Security First: Authentication and rate limiting at edge
+Resilience Patterns: Circuit breakers and fallbacks
+Composition Capability: API aggregation for complex queries
+----------
+-------------
+LEVEL 3: COMPONENTS (Continued)
+----------
+----------
+CONTAINER: Authentication Service
+--------------------
+CONTAINER 10: AUTHENTICATION SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Identity Provider	Authentication Service	Manage user identities and authentication	Authenticate users, Issue tokens, Validate credentials, Handle sessions	Credentials, Token requests, Validation rules	Authentication results, Tokens, Session data	IT-01, BR-02	Authentication protocols, Token issuance rules
+Session Manager	Authentication Service	Manage user sessions and access	Create sessions, Validate tokens, Handle logout, Track activity	Token validations, Session rules, Activity data	Session events, Validation results, Activity logs	IT-01, IT-13	Session management rules, Token validation logic
+Multi-Factor Authenticator	Authentication Service	Handle multi-factor authentication	Send MFA codes, Validate responses, Manage devices, Ensure security	MFA requests, Validation rules, Device data	MFA challenges, Validation results, Device updates	IT-02, BR-03	MFA enforcement rules, Security requirements
+SSO Integrator	Authentication Service	Integrate with external identity providers	Handle SSO requests, Map identities, Sync profiles, Ensure compatibility	SSO protocols, Identity mappings, Compatibility rules	SSO events, Identity mappings, Compatibility reports	IT-01, BR-22	SSO integration standards, Identity mapping rules
+Password Manager	Authentication Service	Handle password policies and recovery	Enforce policies, Handle resets, Validate strength, Track changes	Password rules, Reset requests, Validation criteria	Policy validations, Reset events, Strength reports	IT-01, IT-02	Password policy rules, Reset procedures
+Authentication Service Component Dependencies:
+
+Integrates with External SSO Providers
+
+Uses NoSQL Database for session storage
+
+Depends on Notification Service for MFA delivery
+
+Provides authentication to API Gateway
+
+--------------------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+User Authentication	Authentication Service	Validate user credentials	Validate username/password, Check MFA, Generate tokens	Credential validation requests	Authentication responses	All login stories	Password policy enforcement, MFA requirement rules
+Session Management	Authentication Service	Manage user sessions	Create sessions, Validate session tokens, Invalidate sessions	Session operations	Session validation responses	All authenticated stories	Session timeout rules, Concurrent session limits
+Tenant Context Resolver	Authentication Service	Resolve and validate tenant context	Extract tenant from request, Validate tenant access, Apply isolation	Tenant resolution requests	Tenant context responses	All multi-tenant stories	Tenant isolation enforcement, Cross-tenant access prevention
+SSO Integration	Authentication Service	Integrate with external identity providers	Handle OAuth/OIDC flows, Map external identities, Synchronize attributes	External IDP APIs	SSO authentication responses	IT-01 (Admin SSO)	SSO configuration rules, Identity mapping policies
+Permission Validator	Authentication Service	Validate user permissions for resources	Check role permissions, Validate resource access, Apply policies	Permission validation requests	Permission responses	HR-03, IT-02	Role-based access control, Permission inheritance rules
+Audit Logger	Authentication Service	Log authentication events	Log login attempts, Log permission checks, Log security events	Audit event requests	Audit log entries	IT-08, IT-13	Audit retention policies, Security event logging rules
+Password Management	Authentication Service	Handle password operations	Reset passwords, Update passwords, Validate password history	Password operations	Password operation results	IT-01 (User management)	Password complexity rules, History prevention rules
+Token Service	Authentication Service	Issue and validate security tokens	Issue JWT tokens, Validate token signatures, Refresh tokens	Token operations	Token validation responses	All API stories	Token expiration rules, Refresh token policies
+----------
+Components for Authentication Service Complete
+Generated:
+----------------
+8 Components covering authentication, authorization, and session management
+Multi-tenancy support with tenant context resolution
+External integration for SSO and identity providers
+Comprehensive audit logging for compliance
+----------------
+Key Design Decisions:
+Centralized Auth: Single source of truth for authentication
+Tenant Isolation: Tenant context enforced at authentication layer
+Stateless Tokens: JWT-based for scalability
+Audit Trail: Complete logging of all security events
+----------------
+
+----------
+LEVEL 3: COMPONENTS (Continued)
+----------------
+CONTAINER: Tenant Management Service
+CONTAINER 11: TENANT MANAGEMENT SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Tenant Provisioner	Tenant Management Service	Create and manage tenant organizations	Create tenants, Configure settings, Allocate resources, Initialize data	Tenant requests, Configuration rules, Resource allocations	Tenant records, Configuration events, Resource assignments	IT-01, BR-01	Tenant creation rules, Resource allocation policies
+Isolation Enforcer	Tenant Management Service	Enforce multi-tenant data isolation	Validate isolation, Apply filters, Monitor compliance, Report violations	Data requests, Isolation rules, Compliance checks	Isolation validations, Compliance reports, Violation alerts	IT-01, BR-13	Data isolation rules, Compliance monitoring
+Subscription Manager	Tenant Management Service	Manage tenant subscriptions and billing	Track subscriptions, Handle upgrades/downgrades, Manage billing cycles, Enforce limits	Subscription data, Billing events, Limit rules	Subscription events, Billing updates, Limit enforcement	FIN-01, BR-16	Subscription management rules, Limit enforcement logic
+Feature Flag Manager	Tenant Management Service	Manage feature availability per tenant	Set feature flags, Control rollouts, A/B test features, Track usage	Feature definitions, Rollout plans, Usage data	Feature updates, Rollout events, Usage reports	IT-10, MKTG-12	Feature flag rules, Rollout strategies
+Usage Tracker	Tenant Management Service	Track tenant resource usage	Monitor usage, Calculate costs, Enforce quotas, Report consumption	Usage metrics, Cost models, Quota rules	Usage reports, Cost calculations, Quota alerts	FIN-08, EXEC-04	Usage tracking rules, Quota enforcement logic
+Tenant Management Service Component Dependencies:
+
+Integrates with Billing Service for subscription management
+
+Uses Relational Database for tenant configurations
+
+Depends on Analytics Service for usage tracking
+
+Enforces isolation across all services
+
+----------------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Tenant Lifecycle Manager	Tenant Management Service	Manage tenant creation and lifecycle	Create new tenants, Activate/suspend tenants, Delete tenants	Tenant lifecycle requests	Tenant lifecycle events	IT-01, EXEC-07	Tenant provisioning rules, Data retention policies
+Configuration Manager	Tenant Management Service	Manage tenant-specific configurations	Store configurations, Retrieve configurations, Validate settings	Configuration operations	Configuration responses	IT-10, OPS-01	Configuration validation rules, Default configuration inheritance
+Subscription Manager	Tenant Management Service	Manage tenant subscriptions and features	Track subscription status, Manage feature entitlements, Handle renewals	Subscription operations	Subscription events	FIN-01, EXEC-02	Subscription tier rules, Feature entitlement policies
+Billing Coordinator	Tenant Management Service	Coordinate billing with external systems	Generate billing events, Track payment status, Handle billing disputes	Billing operations, External billing APIs	Billing coordination events	FIN-01, FIN-03	Billing cycle rules, Payment failure handling
+Tenant Health Monitor	Tenant Management Service	Monitor tenant health and usage	Track usage metrics, Detect anomalies, Generate health scores	Usage data, Health checks	Health reports, Alerts	EXEC-08, SUPP-08	Health scoring rules, Anomaly detection thresholds
+Data Isolation Enforcer	Tenant Management Service	Enforce data isolation between tenants	Validate data access, Apply isolation rules, Audit cross-tenant access	Data access requests	Isolation validation responses	BR-01, IT-02	Data isolation rules, Cross-tenant access audit requirements
+Tenant Migration Manager	Tenant Management Service	Handle tenant data migration	Plan migrations, Execute migrations, Validate results	Migration requests	Migration status events	IT-14 (Scalability)	Migration validation rules, Downtime minimization policies
+Compliance Checker	Tenant Management Service	Ensure tenant compliance with regulations	Check regulatory compliance, Track requirements, Generate reports	Compliance checks	Compliance reports	HR-09, FIN-10	Regulatory requirement rules, Compliance reporting schedules
+----------------
+----------------
+Components for Tenant Management Service Complete
+Generated:
+
+8 Components covering full SaaS tenant lifecycle management
+Multi-tenancy core: Isolation, configuration, and billing coordination
+Health monitoring: Proactive tenant health tracking
+Compliance support: Regulatory requirement management
+
+Key Design Decisions:
+Centralized Tenant Management: Single service for all tenant operations
+Configuration as Code: Tenant configurations stored and versioned
+Health Monitoring: Proactive detection of tenant issues
+Compliance Integration: Built-in regulatory compliance tracking
+---------
+
+LEVEL 3: COMPONENTS (Continued)
+CONTAINER: CRM Service
+-------------
+CONTAINER 4: CRM SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Customer Profile Manager	CRM Service	Manage customer/contact profiles	Create/update profiles, Maintain history, Link relationships, Validate data	Profile data, Validation rules, Relationship data	Profile events, Validation results, Relationship updates	SUPP-02, SALES-08	Customer data validation, Relationship rules
+Lead Management Engine	CRM Service	Track and manage sales leads	Capture leads, Assign owners, Track status, Score leads	Lead sources, Assignment rules, Scoring models	Lead assignments, Status updates, Score changes	SALES-01, SALES-06	Lead assignment rules, Scoring algorithms
+Interaction Tracker	CRM Service	Record all customer interactions	Log communications, Track touchpoints, Analyze patterns, Generate history	Communication data, Interaction types, Analysis rules	Interaction records, Pattern alerts, History reports	SALES-09, SUPP-14	Interaction logging rules, Privacy compliance
+Pipeline Manager	CRM Service	Manage sales pipeline stages	Move deals through stages, Calculate probabilities, Forecast revenue, Identify bottlenecks	Stage definitions, Probability models, Deal data	Pipeline events, Forecast updates, Bottleneck alerts	SALES-02, SALES-08	Pipeline stage rules, Probability calculations
+Attribution Analyzer	CRM Service	Attribute outcomes to marketing efforts	Link leads to campaigns, Calculate ROI, Analyze channels, Report attribution	Campaign data, Conversion events, Attribution models	Attribution reports, ROI calculations, Channel insights	MKTG-02, MKTG-03	Attribution model rules, ROI calculation methods
+CRM Service Component Dependencies:
+
+---------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Customer Profile Manager	CRM Service	Manage customer master data	Create/update customer profiles, Merge duplicates, Maintain history	Customer operations	Customer events, Profile updates	SALES-01, SUPP-02	Customer data validation rules, Duplicate prevention
+Lead Management	CRM Service	Manage sales leads and opportunities	Create leads, Qualify leads, Track lead source, Assign owners	Lead operations	Lead events, Qualification results	SALES-01, MKTG-11	Lead assignment rules, Qualification criteria
+Interaction Tracker	CRM Service	Track customer interactions	Log calls/emails/meetings, Maintain interaction history, Set follow-ups	Interaction operations	Interaction events, Follow-up reminders	SALES-09, SUPP-14	Interaction logging rules, Follow-up timing policies
+Pipeline Manager	CRM Service	Manage sales pipeline stages	Move opportunities through stages, Track stage duration, Forecast revenue	Pipeline operations	Pipeline events, Forecast updates	SALES-02, SALES-08	Pipeline stage validation rules, Forecast calculation formulas
+Customer Segmentation	CRM Service	Segment customers for targeting	Apply segmentation rules, Update segments, Target communications	Segmentation operations	Segment updates, Targeting lists	MKTG-01, SUPP-08	Segmentation rule engine, Segment update triggers
+Relationship Manager	CRM Service	Manage customer relationships	Track relationships (company-person), Maintain hierarchy, Manage contacts	Relationship operations	Relationship events, Hierarchy updates	CS-04 (Success)	Relationship validation rules, Hierarchy maintenance policies
+Customer State Manager	CRM Service	Manage customer lifecycle states	Update customer states, Apply state transitions, Trigger workflows	State operations	State transition events, Workflow triggers	BR-10, SUPP-08	State transition rules, Workflow trigger conditions
+Import/Export Manager	CRM Service	Handle CRM data import/export	Validate import data, Transform formats, Schedule exports	Import/export operations	Import/export results, Scheduled jobs	IT-15 (Documentation)	Data validation rules, Export format requirements
+----------------
+Components for CRM Service Complete
+
+Generated:
+----------------
+
+8 Components covering full CRM capability from leads to relationships
+Customer lifecycle management: State transitions and segmentation
+Pipeline management: Sales forecasting and stage tracking
+Data management: Import/export and data quality
+
+Key Design Decisions:
+Customer-Centric Design: Single customer view across all interactions
+Pipeline Intelligence: Smart forecasting and stage management
+Segmentation Engine: Dynamic customer grouping for targeting
+State Management: Clear lifecycle state transitions with workflow triggers
+Integrates with Marketing Service for campaign data
+
+Uses Analytics Service for pattern analysis
+
+Depends on Task Service for follow-up tasks
+
+Publishes customer events to Message Queue
+
+--------------
+
+CONTAINER 5: COMMISSION SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Commission Rule Engine	Commission Service	Define and manage commission rules	Create rules, Validate logic, Apply conditions, Version control	Rule definitions, Validation criteria, Version data	Rule validations, Version events, Configuration updates	FIN-02, HR-07	Commission rule validation, Version control rules
+Calculation Engine	Commission Service	Calculate commissions based on verified work	Retrieve verified tasks, Apply rules, Calculate amounts, Validate results	Task data, Commission rules, Validation rules	Commission calculations, Validation results, Dispute flags	SALES-03, FIN-02	Calculation accuracy rules, Validation requirements
+Evidence Validator	Commission Service	Validate evidence for commission eligibility	Check evidence completeness, Verify authenticity, Link to tasks, Record validation	Evidence metadata, Validation criteria, Task links	Validation results, Evidence status, Discrepancy alerts	SALES-04, HR-07	Evidence validation rules, Completeness requirements
+Approval Workflow Manager	Commission Service	Manage commission approval workflows	Route for approval, Track status, Escalate delays, Record decisions	Approval rules, Escalation paths, User roles	Approval requests, Status updates, Decision records	FIN-02, HR-07	Approval hierarchy rules, Escalation thresholds
+Dispute Resolution Handler	Commission Service	Handle commission disputes	Record disputes, Investigate issues, Facilitate resolution, Update calculations	Dispute reports, Investigation data, Resolution rules	Dispute events, Resolution outcomes, Calculation updates	SALES-03, FIN-02	Dispute handling procedures, Resolution protocols
+Commission Service Component Dependencies:
+
+Depends on Task Service for verified work data
+
+Integrates with Finance Service for payment processing
+
+Uses Document Service for evidence verification
+
+Publishes commission events to Message Queue
+--
+CONTAINER 6: BILLING SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Invoice Generator	Billing Service	Create and manage invoices	Generate invoices, Apply taxes, Add line items, Customize templates	Service data, Tax rules, Template definitions	Invoice documents, Generation events, Template updates	FIN-01, FIN-04	Invoice generation rules, Tax calculation compliance
+Payment Tracker	Billing Service	Track payment status and reconciliation	Record payments, Match to invoices, Update status, Handle partial payments	Payment notifications, Invoice data, Matching rules	Payment events, Status updates, Reconciliation reports	FIN-03, FIN-11	Payment matching rules, Status transition logic
+Revenue Recognition Engine	Billing Service	Apply proper revenue recognition	Recognize revenue, Defer unearned revenue, Accrue unbilled services, Ensure compliance	Service delivery data, Accounting standards, Compliance rules	Recognition events, Accounting entries, Compliance reports	FIN-04, EXEC-04	Revenue recognition rules, Accounting standard compliance
+Credit Manager	Billing Service	Manage customer credit and collections	Set credit limits, Monitor utilization, Handle collections, Manage disputes	Credit data, Payment history, Collection rules	Credit events, Collection actions, Dispute records	FIN-11, EXEC-04	Credit limit rules, Collection procedures
+Financial Reporter	Billing Service	Generate financial reports and statements	Create reports, Schedule deliveries, Ensure accuracy, Maintain audit trail	Financial data, Report templates, Schedule rules	Report documents, Delivery events, Audit trails	FIN-05, EXEC-13	Financial reporting rules, Audit trail requirements
+Billing Service Component Dependencies:
+
+Integrates with CRM Service for customer data
+
+Uses Document Service for invoice storage
+
+Depends on Notification Service for payment reminders
+
+Publishes financial events to Message Queue
+
+-------
+CONTAINER 7: NOTIFICATION SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Template Manager	Notification Service	Manage notification templates	Create templates, Version control, Personalize content, Test delivery	Template definitions, Personalization data, Test criteria	Template updates, Personalization results, Test reports	SUPP-10, MKTG-11	Template management rules, Personalization limits
+Channel Router	Notification Service	Route notifications to appropriate channels	Select channels, Apply rules, Handle fallbacks, Track preferences	Channel rules, User preferences, Fallback logic	Routing decisions, Channel selections, Fallback events	SUPP-05, SUPP-14	Channel selection rules, Preference hierarchy
+Delivery Engine	Notification Service	Deliver notifications via external systems	Send messages, Handle retries, Track delivery, Confirm receipt	Message content, Delivery rules, Retry logic	Delivery attempts, Status updates, Receipt confirmations	SUPP-07, SUPP-14	Delivery retry rules, Status tracking requirements
+Preference Manager	Notification Service	Manage user notification preferences	Store preferences, Apply defaults, Handle updates, Ensure compliance	Preference data, Default rules, Compliance requirements	Preference events, Compliance checks, Update confirmations	SUPP-14, BR-22	Preference storage rules, Compliance requirements
+Analytics Collector	Notification Service	Track notification performance and engagement	Monitor metrics, Analyze patterns, Report effectiveness, Optimize delivery	Delivery data, Engagement metrics, Analysis rules	Performance reports, Optimization suggestions, Pattern alerts	SUPP-11, MKTG-09	Analytics collection rules, Optimization criteria
+Notification Service Component Dependencies:
+
+Integrates with External Systems (Email, WhatsApp, Telegram)
+
+Uses CRM Service for customer contact data
+
+Depends on Analytics Service for performance tracking
+
+Publishes delivery events to Message Queue
+
+
+--------------
+
+LEVEL 3: COMPONENTS (Continued)
+
+CONTAINER: Sales Service
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Opportunity Manager	Sales Service	Manage sales opportunities	Create opportunities, Update details, Track progress, Close deals	Opportunity operations	Opportunity events, Deal updates	SALES-02, SALES-07	Opportunity validation rules, Deal closure criteria
+Commission Calculator	Sales Service	Calculate sales commissions	Apply commission rules, Calculate amounts, Validate evidence	Commission calculation requests	Commission calculations, Validation results	SALES-03, FIN-02	Commission formula engine, Evidence validation rules
+Quote/Proposal Manager	Sales Service	Manage sales quotes and proposals	Create quotes, Generate proposals, Track acceptance, Convert to orders	Quote operations	Quote events, Proposal documents	SALES-08 (Forecasting)	Quote validation rules, Proposal template management
+Sales Performance Analytics	Sales Service	Analyze sales team performance	Calculate metrics, Generate reports, Identify trends, Provide insights	Analytics requests	Performance reports, Insights	SALES-05, SALES-13	Metric calculation formulas, Performance benchmark rules
+Territory Management	Sales Service	Manage sales territories and assignments	Assign territories, Balance workloads, Track coverage	Territory operations	Territory assignments, Coverage reports	SALES-06 (Lead routing)	Territory assignment rules, Workload balancing algorithms
+Sales Process Enforcer	Sales Service	Enforce sales process compliance	Validate process steps, Ensure handoffs, Track compliance	Process validation requests	Compliance results, Handoff events	SALES-07, OPS-07	Sales process rules, Handoff validation criteria
+Competitive Intelligence	Sales Service	Track competitive information	Record competitor data, Analyze win/loss reasons, Track market share	Competitive data operations	Competitive analysis, Market insights	EXEC-11 (Benchmarking)	Competitive data validation rules, Win/loss analysis criteria
+Sales Forecasting Engine	Sales Service	Generate sales forecasts	Calculate forecasts, Model scenarios, Update predictions	Forecast requests	Forecast reports, Scenario analysis	SALES-08, EXEC-06	Forecasting algorithms, Probability calculation rules
+CONTAINER: Marketing Service
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Campaign Manager	Marketing Service	Manage marketing campaigns	Create campaigns, Set budgets, Define goals, Track execution	Campaign operations	Campaign events, Performance updates	MKTG-01, MKTG-03	Campaign validation rules, Budget allocation policies
+Attribution Engine	Marketing Service	Attribute leads and revenue to campaigns	Apply attribution models, Calculate ROI, Track conversions	Attribution requests	Attribution reports, ROI calculations	MKTG-02, MKTG-08	Attribution model rules, ROI calculation formulas
+Content Manager	Marketing Service	Manage marketing content and assets	Store content, Manage versions, Control access, Track usage	Content operations	Content events, Usage reports	MKTG-04, MKTG-10	Content validation rules, Version control policies
+Lead Scoring Engine	Marketing Service	Score and prioritize leads	Calculate lead scores, Update scores, Trigger actions	Lead scoring requests	Lead scores, Action triggers	MKTG-11, SALES-01	Scoring algorithm rules, Action trigger thresholds
+A/B Testing Framework	Marketing Service	Manage A/B and multivariate tests	Design tests, Randomize assignments, Analyze results, Determine winners	Testing operations	Test results, Winner recommendations	MKTG-12	Testing validation rules, Statistical significance criteria
+Marketing Analytics	Marketing Service	Analyze marketing performance	Calculate metrics, Generate reports, Identify trends, Optimize spend	Analytics requests	Marketing reports, Optimization recommendations	MKTG-06, MKTG-13	Metric calculation rules, Optimization algorithms
+Channel Manager	Marketing Service	Manage marketing channels	Configure channels, Track performance, Optimize allocation	Channel operations	Channel performance, Allocation recommendations	MKTG-05, MKTG-07	Channel configuration rules, Performance tracking criteria
+Marketing Automation	Marketing Service	Automate marketing workflows	Trigger automated actions, Send communications, Track responses	Automation triggers	Automated actions, Response tracking	MKTG-09, MKTG-11	Automation rule engine, Communication scheduling policies
+
+----------------
+Components for Sales Service Complete
+
+Generated:
+
+8 Components covering sales process from opportunity to commission
+Revenue management: Quotes, proposals, and forecasting
+Performance tracking: Analytics and competitive intelligence
+Process enforcement: Compliance and handoff management
+
+Key Design Decisions:
+
+Commission Engine: Centralized, rules-based commission calculation
+Forecasting Intelligence: Probabilistic forecasting with scenario modeling
+Process Compliance: Automated enforcement of sales process steps
+Territory Optimization: Dynamic territory assignment and balancing
+----------------
+
+CONTAINER: Marketing Service
+
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Campaign Manager	Marketing Service	Manage marketing campaigns	Create campaigns, Set budgets, Define goals, Track execution	Campaign operations	Campaign events, Performance updates	MKTG-01, MKTG-03	Campaign validation rules, Budget allocation policies
+Attribution Engine	Marketing Service	Attribute leads and revenue to campaigns	Apply attribution models, Calculate ROI, Track conversions	Attribution requests	Attribution reports, ROI calculations	MKTG-02, MKTG-08	Attribution model rules, ROI calculation formulas
+Content Manager	Marketing Service	Manage marketing content and assets	Store content, Manage versions, Control access, Track usage	Content operations	Content events, Usage reports	MKTG-04, MKTG-10	Content validation rules, Version control policies
+Lead Scoring Engine	Marketing Service	Score and prioritize leads	Calculate lead scores, Update scores, Trigger actions	Lead scoring requests	Lead scores, Action triggers	MKTG-11, SALES-01	Scoring algorithm rules, Action trigger thresholds
+A/B Testing Framework	Marketing Service	Manage A/B and multivariate tests	Design tests, Randomize assignments, Analyze results, Determine winners	Testing operations	Test results, Winner recommendations	MKTG-12	Testing validation rules, Statistical significance criteria
+Marketing Analytics	Marketing Service	Analyze marketing performance	Calculate metrics, Generate reports, Identify trends, Optimize spend	Analytics requests	Marketing reports, Optimization recommendations	MKTG-06, MKTG-13	Metric calculation rules, Optimization algorithms
+Channel Manager	Marketing Service	Manage marketing channels	Configure channels, Track performance, Optimize allocation	Channel operations	Channel performance, Allocation recommendations	MKTG-05, MKTG-07	Channel configuration rules, Performance tracking criteria
+Marketing Automation	Marketing Service	Automate marketing workflows	Trigger automated actions, Send communications, Track responses	Automation triggers	Automated actions, Response tracking	MKTG-09, MKTG-11	Automation rule engine, Communication scheduling policies
+
+----------------
+Components for Marketing Service Complete
+
+Generated:
+
+8 Components covering full marketing capability from campaigns to analytics
+Attribution intelligence: Multi-touch ROI calculation
+Content ecosystem: Versioned content with usage tracking
+Automation engine: Rule-based marketing automation
+
+Key Design Decisions:
+
+Attribution Intelligence: Support for multiple attribution models
+Content as Assets: Version-controlled, reusable content library
+Testing Framework: Built-in A/B testing with statistical analysis
+Automation Engine: Configurable rules for marketing workflows
+
+----------------
+CONTAINER: Operations Service
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Workflow Engine	Operations Service	Execute and manage business workflows	Execute workflow steps, Handle transitions, Manage state, Process conditions	Workflow execution requests	Workflow events, State updates	OPS-01, OPS-04, OPS-12	Workflow validation rules, Conditional execution logic
+Task Manager	Operations Service	Manage tasks and assignments	Create tasks, Assign owners, Track progress, Update status	Task operations	Task events, Assignment updates	OPS-02, OPS-03, OPS-11	Task validation rules, Single ownership enforcement
+SLA Monitor	Operations Service	Monitor and enforce service level agreements	Track SLA compliance, Calculate remaining time, Trigger escalations	SLA monitoring requests	SLA status updates, Escalation events	OPS-04, SUPP-03, SUPP-06	SLA calculation rules, Escalation threshold policies
+Resource Allocator	Operations Service	Allocate and manage resources	Assign resources, Balance workload, Track utilization, Forecast needs	Resource allocation requests	Resource assignments, Utilization reports	OPS-05, OPS-13	Allocation algorithm rules, Workload balancing policies
+Quality Assurance Manager	Operations Service	Manage quality control processes	Schedule inspections, Record defects, Track resolutions, Analyze trends	QA operations	QA results, Defect reports, Trend analysis	OPS-09, HR-05	Quality inspection rules, Defect classification criteria
+Partner Coordinator	Operations Service	Coordinate with external partners	Assign partner work, Track deliverables, Validate completion, Score performance	Partner coordination requests	Partner assignments, Validation results	OPS-10, BR-14, BR-15	Partner assignment rules, Deliverable validation criteria
+Exception Handler	Operations Service	Handle process exceptions	Log exceptions, Route for resolution, Track fixes, Analyze root causes	Exception handling requests	Exception events, Resolution tracking	OPS-06, SUPP-06	Exception classification rules, Resolution routing logic
+Process Optimizer	Operations Service	Analyze and optimize processes	Identify bottlenecks, Suggest improvements, Measure impact, Update workflows	Optimization requests	Optimization recommendations, Impact reports	OPS-08, EXEC-03	Bottleneck detection algorithms, Improvement validation criteria
+
+----------------------------
+Components for Operations Service Complete
+
+Generated:
+
+8 Components covering operations orchestration from workflow to optimization
+Workflow intelligence: Stateful workflow execution with conditions
+Resource optimization: Smart allocation and workload balancing
+Quality ecosystem: End-to-end quality control with trend analysis
+
+Key Design Decisions:
+
+Workflow Engine: Configurable BPMN-like workflow execution
+SLA Intelligence: Proactive monitoring with automated escalation
+Partner Integration: Structured external collaboration framework
+Continuous Optimization: Data-driven process improvement
+
+----------------
+LEVEL 3: COMPONENTS (Continued)
+CONTAINER: HR Service
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Employee Profile Manager	HR Service	Manage employee master data	Create/update employee profiles, Track employment history, Maintain records	Employee operations	Employee events, Profile updates	HR-01, HR-08	Employee data validation rules, Employment type handling
+Role & Permission Manager	HR Service	Manage organizational roles and permissions	Define roles, Assign permissions, Update hierarchies, Validate access	Role operations	Role definitions, Permission updates	HR-03, IT-02	Role validation rules, Permission inheritance policies
+Performance Tracker	HR Service	Track employee performance and contributions	Record performance data, Calculate metrics, Generate reviews, Track goals	Performance operations	Performance events, Review reports	HR-02, HR-12	Performance evaluation rules, Goal tracking criteria
+Training & Development Manager	HR Service	Manage employee training and development	Schedule training, Track completion, Assess skills, Plan development	Training operations	Training events, Development plans	HR-06, HR-15	Training requirement rules, Skill assessment criteria
+Compensation Manager	HR Service	Manage employee compensation	Calculate salaries, Track bonuses, Manage commissions, Process adjustments	Compensation operations	Compensation calculations, Payment events	HR-07, FIN-02	Compensation formula rules, Approval workflow policies
+Compliance Monitor	HR Service	Monitor HR regulatory compliance	Track regulations, Check compliance, Document evidence, Generate reports	Compliance operations	Compliance status, Audit reports	HR-09, HR-13	Regulatory requirement rules, Compliance documentation standards
+Succession Planner	HR Service	Manage leadership succession planning	Identify key roles, Assess candidates, Create plans, Track readiness	Succession operations	Succession plans, Readiness assessments	HR-12, EXEC-15	Succession criteria rules, Readiness assessment methodology
+Remote Workforce Manager	HR Service	Manage remote and flexible workforce	Track remote employees, Manage schedules, Monitor productivity, Handle logistics	Remote workforce operations	Remote work events, Productivity reports	HR-08, BR-16	Remote work policy rules, Productivity tracking standards
+---------------------------------------------------------
+ Components for HR Service Complete
+
+Generated:
+
+8 Components covering human resources from hiring to succession
+Role-based governance: Hierarchical role and permission management
+Performance ecosystem: Goal tracking with development planning
+Compliance framework: Regulatory tracking with audit readiness
+
+Key Design Decisions:
+
+Unified Employee View: Single source of truth for all employee data
+Role-Based Access Control: Hierarchical permission management
+Performance Intelligence: Data-driven performance evaluation
+Future-Proof Workforce: Remote work and succession planning support
+
+----------------
+CONTAINER: Finance Service
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Billing Manager	Finance Service	Manage invoicing and billing	Generate invoices, Send to customers, Track payments, Apply credits	Billing operations	Invoice events, Payment updates	FIN-01, FIN-03	Invoice generation rules, Payment application policies
+Revenue Recognition Engine	Finance Service	Recognize revenue according to accounting standards	Apply recognition rules, Defer revenue, Recognize earned revenue, Adjust entries	Recognition operations	Recognition events, Journal entries	FIN-04, FIN-08	Revenue recognition rules, Deferral calculation methods
+Commission Processor	Finance Service	Process sales commissions	Validate commission calculations, Approve payments, Track disbursements, Handle disputes	Commission operations	Commission events, Payment instructions	FIN-02, HR-07	Commission validation rules, Dispute resolution procedures
+Financial Reporting Engine	Finance Service	Generate financial statements and reports	Generate P&L, Balance Sheet, Cash Flow, Custom reports	Reporting operations	Financial reports, Statement exports	FIN-05, EXEC-05	Financial reporting standards, Report generation schedules
+Budget Manager	Finance Service	Manage organizational budgets	Create budgets, Track vs actual, Forecast variances, Adjust allocations	Budget operations	Budget events, Variance reports	FIN-06, EXEC-02	Budget creation rules, Variance calculation formulas
+Accounts Receivable Manager	Finance Service	Manage customer receivables	Track outstanding invoices, Send reminders, Handle collections, Process write-offs	AR operations	AR status updates, Collection events	FIN-03, FIN-11	Collection policy rules, Write-off approval thresholds
+Tax Compliance Manager	Finance Service	Manage tax calculations and compliance	Calculate taxes, Generate tax forms, Track filings, Handle audits	Tax operations	Tax calculations, Compliance reports	FIN-10, HR-09	Tax calculation rules, Filing deadline requirements
+Inter-Company Accountant	Finance Service	Handle inter-company transactions	Record inter-company transactions, Create eliminations, Consolidate results	Inter-company operations	Inter-company entries, Consolidation reports	FIN-12, BR-13	Inter-company transaction rules, Elimination methodologies
+
+---------------------------------------------
+ Components for Finance Service Complete
+
+Generated:
+
+8 Components covering financial management from billing to compliance
+Revenue intelligence: GAAP/IFRS compliant recognition engine
+Commission integrity: Validated commission processing with dispute handling
+Tax compliance: Automated tax calculation and filing support
+
+Key Design Decisions:
+
+Accounting Standards Compliance: Built-in GAAP/IFRS revenue recognition
+Commission Integrity: Multi-level validation before payment
+Automated Tax Compliance: Region-specific tax calculation engine
+Inter-Company Support: Built-in for multi-entity organizations
+----------------
+CONTAINER: Support Service
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Ticketing System	Support Service	Manage support tickets and cases	Create tickets, Assign to agents, Track status, Escalate issues	Ticket operations	Ticket events, Status updates	SUPP-01, SUPP-03, SUPP-06	Ticket categorization rules, Escalation threshold policies
+Knowledge Base Manager	Support Service	Manage support knowledge base	Create articles, Organize content, Track usage, Update revisions	Knowledge operations	Knowledge articles, Usage reports	SUPP-04, SUPP-09	Article validation rules, Version control policies
+Customer Communication Manager	Support Service	Manage customer communications	Send updates, Track conversations, Manage preferences, Log interactions	Communication operations	Communication events, Preference updates	SUPP-02, SUPP-14	Communication channel rules, Preference management policies
+SLA Compliance Tracker	Support Service	Track and enforce support SLAs	Monitor response times, Track resolution times, Calculate compliance, Trigger alerts	SLA tracking requests	SLA compliance reports, Alert events	SUPP-03, SUPP-06	SLA calculation rules, Alert trigger conditions
+Customer Feedback Collector	Support Service	Collect and analyze customer feedback	Distribute surveys, Collect responses, Analyze scores, Track trends	Feedback operations	Survey results, Feedback analysis	SUPP-11, EXEC-08	Survey distribution rules, Feedback analysis methodologies
+Customer Health Scorer	Support Service	Calculate customer health scores	Analyze usage patterns, Track support interactions, Calculate scores, Identify risks	Health scoring requests	Health scores, Risk alerts	SUPP-08, CS-04	Health scoring algorithm rules, Risk threshold criteria
+Self-Service Portal Manager	Support Service	Manage customer self-service portal	Configure portal, Track usage, Analyze searches, Update content	Portal operations	Portal configuration, Usage analytics	SUPP-09, CS-05	Portal access rules, Content visibility policies
+Support Analytics Engine	Support Service	Analyze support performance and trends	Calculate metrics, Generate reports, Identify patterns, Optimize resources	Analytics requests	Support reports, Optimization recommendations	SUPP-13, OPS-08	Metric calculation rules, Pattern recognition algorithms
+
+---------------------
+Components for Support Service Complete
+
+Generated:
+8 Components covering customer support from ticketing to analytics
+Knowledge ecosystem: Version-controlled, searchable knowledge base
+Customer intelligence: Health scoring and feedback analysis
+Self-service optimization: Portal management with usage analytics
+
+Key Design Decisions:
+Unified Ticketing: Single system for all customer support channels
+Knowledge Intelligence: AI-powered search and content optimization
+Health Scoring: Predictive customer risk identification
+Self-Service First: Portal optimization to reduce ticket volume
+
+----------------
+CONTAINER: Analytics Service
+CONTAINER 8: ANALYTICS SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Data Aggregator	Analytics Service	Collect and aggregate business data	Collect metrics, Aggregate by dimensions, Calculate summaries, Cache results	Raw data streams, Aggregation rules, Cache policies	Aggregated datasets, Cache updates, Data quality reports	EXEC-01, OPS-08	Data aggregation rules, Cache refresh policies
+Dashboard Data Provider	Analytics Service	Serve dashboard visualization data	Query aggregated data, Apply filters, Format responses, Handle real-time updates	Dashboard queries, Filter criteria, Real-time subscriptions	Dashboard data, Real-time updates, Query performance	US-01, EXEC-11	Dashboard data security, Real-time update thresholds
+Report Generator	Analytics Service	Generate scheduled and ad-hoc reports	Execute report queries, Apply formatting, Schedule deliveries, Ensure accuracy	Report definitions, Schedule rules, Formatting templates	Report documents, Delivery events, Accuracy metrics	FIN-05, EXEC-13	Report generation rules, Schedule compliance
+Trend Analyzer	Analytics Service	Identify business trends and patterns	Analyze time-series data, Detect patterns, Forecast trends, Alert on anomalies	Historical data, Pattern models, Alert thresholds	Trend reports, Forecasts, Anomaly alerts	EXEC-04, EXEC-11	Trend analysis methodologies, Alert validation
+Performance Monitor	Analytics Service	Monitor system and business performance	Track KPIs, Compare against targets, Calculate variances, Report insights	KPI definitions, Target values, Comparison rules	Performance reports, Variance alerts, Improvement suggestions	OPS-08, SUPP-13	KPI calculation rules, Variance tolerance levels
+Analytics Service Component Dependencies:
+
+Consumes events from Message Queue
+
+Uses Relational Database for aggregated data
+
+Integrates with Notification Service for alerts
+
+Provides data to Web Application dashboards
+-------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Metric Aggregator	Analytics Service	Aggregate business metrics from all services	Collect data, Calculate aggregates, Store results, Update dashboards	Data collection requests	Aggregated metrics, Dashboard updates	EXEC-01, SALES-13, OPS-08	Aggregation frequency rules, Data validation criteria
+Dashboard Engine	Analytics Service	Generate and serve business dashboards	Create dashboard layouts, Render visualizations, Apply filters, Export data	Dashboard requests	Dashboard configurations, Visualization data	EXEC-01, SALES-05, FIN-13	Dashboard access rules, Visualization type restrictions
+Trend Analyzer	Analytics Service	Analyze business trends and patterns	Identify trends, Calculate forecasts, Detect anomalies, Generate insights	Analysis requests	Trend reports, Forecasts, Anomaly alerts	EXEC-11, MKTG-06, FIN-08	Trend detection algorithms, Forecast confidence thresholds
+Report Generator	Analytics Service	Generate scheduled and ad-hoc reports	Create report templates, Schedule generation, Format outputs, Distribute reports	Report generation requests	Scheduled reports, Report exports	EXEC-13, FIN-05, SUPP-13	Report template rules, Distribution schedule policies
+Benchmarking Engine	Analytics Service	Compare performance against benchmarks	Load benchmark data, Calculate comparisons, Identify gaps, Recommend improvements	Benchmarking requests	Benchmark comparisons, Gap analysis	EXEC-11, SALES-13	Benchmark data validation rules, Comparison methodology
+Predictive Modeler	Analytics Service	Build and apply predictive models	Train models, Make predictions, Evaluate accuracy, Update models	Modeling requests	Predictions, Model accuracy reports	EXEC-06, SUPP-08	Model training rules, Prediction confidence thresholds
+Data Export Manager	Analytics Service	Manage data exports for external analysis	Format data for export, Schedule exports, Track deliveries, Handle errors	Export requests	Export files, Delivery status	MKTG-09, FIN-05	Export format rules, Data anonymization requirements
+Insight Generator	Analytics Service	Generate actionable business insights	Analyze data patterns, Identify opportunities, Create recommendations, Track implementation	Insight generation requests	Business insights, Recommendation lists	EXEC-04, MKTG-13	Insight generation rules, Recommendation prioritization
+
+--------------------
+ Components for Analytics Service Complete
+
+Generated:
+8 Components covering business intelligence from aggregation to insights
+Predictive intelligence: Model training and forecasting capabilities
+Benchmarking ecosystem: External comparison with gap analysis
+Insight generation: Automated opportunity identification
+
+Key Design Decisions:
+Unified Analytics: Single service for all analytical capabilities
+Predictive Intelligence: Built-in machine learning for forecasting
+Benchmark Integration: External benchmark data comparison
+Actionable Insights: Automated business opportunity identification
+
+----------------
+CONTAINER: Notification Service
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Notification Dispatcher	Notification Service	Route notifications to appropriate channels	Determine channel, Format message, Queue for delivery, Track status	Notification requests	Queued notifications, Delivery status	SUPP-05, SUPP-14, MKTG-11	Channel selection rules, Message formatting standards
+Template Manager	Notification Service	Manage notification templates and content	Store templates, Apply variables, Localize content, Version control	Template operations	Formatted messages, Template updates	SUPP-10, MKTG-09	Template validation rules, Variable substitution logic
+Delivery Channel Handler	Notification Service	Handle specific delivery channel integrations	Connect to email/SMS/chat services, Send messages, Handle responses	Channel-specific APIs	Delivery attempts, Response handling	BR-22, IT-05	Channel configuration rules, Delivery retry policies
+Preference Manager	Notification Service	Manage user notification preferences	Store preferences, Apply rules, Honor opt-outs, Track changes	Preference operations	Preference updates, Compliance checks	SUPP-14, HR-11	Preference validation rules, Compliance requirement checks
+Delivery Tracker	Notification Service	Track notification delivery and engagement	Monitor delivery status, Track opens/clicks, Calculate metrics, Generate reports	Delivery tracking requests	Delivery reports, Engagement metrics	IT-13, MKTG-06	Delivery tracking rules, Engagement calculation methods
+Scheduling Engine	Notification Service	Schedule time-based notifications	Queue future notifications, Handle time zones, Trigger deliveries, Manage cancellations	Scheduling requests	Scheduled notifications, Trigger events	MKTG-09, FIN-03	Scheduling validation rules, Time zone handling logic
+Alert Manager	Notification Service	Manage critical business alerts	Prioritize alerts, Apply escalation rules, Ensure delivery, Track acknowledgments	Alert operations	Alert events, Escalation triggers	EXEC-12, OPS-04	Alert prioritization rules, Escalation threshold policies
+Compliance Auditor	Notification Service	Ensure notification compliance with regulations	Check consent, Apply regulations, Document compliance, Generate reports	Compliance checks	Compliance reports, Audit trails	HR-09, FIN-10	Regulatory compliance rules, Consent verification requirements
+
+ Components for Notification Service Complete
+Generated:
+
+8 Components covering multi-channel notification orchestration
+Channel intelligence: Smart routing based on preferences and context
+Compliance framework: Regulatory adherence with audit trails
+Delivery optimization: Tracking and engagement analytics
+Key Design Decisions:
+Channel-Agnostic Design: Unified interface for all notification types
+Preference-Driven Delivery: User-controlled notification management
+Compliance Built-In: Regulatory requirements enforced at service level
+Delivery Intelligence: Tracking and optimization based on engagement
+----------------
+intgration Service:
+CONTAINER 9: INTEGRATION HUB
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+API Connector Manager	Integration Hub	Manage connections to external APIs	Establish connections, Handle authentication, Manage rate limits, Monitor health	API configurations, Credentials, Rate limit rules	Connection status, API health, Rate limit usage	IT-05, IT-09	API connection security, Rate limit compliance
+Data Mapper	Integration Hub	Transform data between systems	Map fields, Transform formats, Validate data, Handle conversions	Source data, Mapping rules, Validation criteria	Transformed data, Validation results, Conversion logs	IT-05, MKTG-11	Data mapping rules, Format validation
+Sync Scheduler	Integration Hub	Schedule data synchronization	Create sync schedules, Handle conflicts, Manage retries, Track progress	Schedule rules, Conflict resolution, Retry policies	Sync events, Conflict reports, Progress updates	IT-05, FIN-15	Sync scheduling rules, Conflict resolution logic
+Error Handler	Integration Hub	Handle integration errors and retries	Detect errors, Apply retry logic, Escalate failures, Log incidents	Error events, Retry rules, Escalation paths	Error logs, Retry attempts, Escalation alerts	IT-05, OPS-06	Error handling procedures, Retry strategies
+Audit Logger	Integration Hub	Log all integration activities	Record API calls, Track data flows, Ensure compliance, Provide audit trail	Integration events, Compliance rules, Audit requirements	Audit logs, Compliance reports, Activity summaries	IT-08, FIN-07	Audit logging requirements, Compliance standards
+Integration Hub Component Dependencies:
+
+Connects to External Systems (Email, WhatsApp, CRM, Accounting)
+
+Uses Message Queue for async integration tasks
+
+Depends on Document Service for data storage
+
+Publishes integration events to Analytics Service
+
+-------------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+API Gateway Manager	Integration Service	Manage external API access and security	Configure endpoints, Set authentication, Apply rate limits, Monitor usage	API configuration requests	API endpoints, Usage reports	IT-09, BR-22	API security rules, Rate limiting policies
+Data Synchronization Engine	Integration Service	Synchronize data with external systems	Map data fields, Transform formats, Schedule syncs, Handle conflicts	Sync operations	Sync events, Conflict reports	IT-05, FIN-15	Data mapping rules, Conflict resolution policies
+Webhook Handler	Integration Service	Handle inbound webhook calls from external systems	Validate webhooks, Process payloads, Trigger actions, Send responses	Webhook requests	Processed events, Webhook responses	MKTG-11, SUPP-05	Webhook validation rules, Payload processing logic
+Authentication Broker	Integration Service	Broker authentication with external services	Manage OAuth flows, Store credentials, Refresh tokens, Handle failures	Authentication requests	Authentication tokens, Credential updates	IT-03, IT-05	Credential security rules, Token refresh policies
+Error Handler & Retry Manager	Integration Service	Handle integration errors and retries	Detect errors, Apply retry logic, Escalate failures, Track resolution	Error handling requests	Error reports, Retry events	IT-05, IT-12	Retry policy rules, Escalation threshold criteria
+Integration Health Monitor	Integration Service	Monitor health of all integrations	Check connection status, Track performance, Detect anomalies, Generate alerts	Health check requests	Health reports, Alert events	IT-03, IT-13	Health check rules, Anomaly detection thresholds
+Data Transformation Engine	Integration Service	Transform data between different formats	Apply transformation rules, Validate outputs, Handle errors, Log changes	Transformation requests	Transformed data, Validation reports	IT-05, FIN-15	Transformation rule definitions, Validation criteria
+Integration Configuration Manager	Integration Service	Manage integration configurations and settings	Store configurations, Apply changes, Version control, Rollback if needed	Configuration operations	Configuration updates, Version history	IT-10, IT-15	Configuration validation rules, Version control policies
+
+-------------
+ Components for Integration Service Complete
+Generated:
+8 Components covering external system integration and data exchange
+API management: External-facing API gateway with security controls
+Data synchronization: Bidirectional sync with conflict resolution
+Health monitoring: Proactive integration health tracking
+
+Key Design Decisions:
+Unified Integration Layer: Single service for all external integrations
+Security-First Design: OAuth and credential management built-in
+Resilient Architecture: Automatic retries and error handling
+Configuration Management: Version-controlled integration settings
+----------------
+CONTAINER: Document Service
+------------
+CONTAINER 12: DOCUMENT/FILE SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+File Storage Manager	Document/File Service	Store and retrieve binary files	Store files, Retrieve content, Manage metadata, Handle versions	File data, Metadata, Storage rules	File references, Storage events, Metadata updates	OPS-03, SALES-04	File storage rules, Metadata management
+Version Controller	Document/File Service	Manage document versions	Create versions, Track changes, Restore previous versions, Compare differences	Version data, Change tracking, Comparison rules	Version events, Change logs, Comparison results	IT-06, IT-14	Version control rules, Change tracking policies
+Access Controller	Document/File Service	Control document access permissions	Set permissions, Validate access, Enforce policies, Audit access	Permission rules, Access requests, Audit requirements	Permission events, Access logs, Audit reports	IT-02, IT-08	Access control rules, Audit requirements
+Document Processor	Document/File Service	Process document content	Extract metadata, Generate previews, Convert formats, Index content	Document files, Processing rules, Format specs	Processed metadata, Previews, Format conversions	SUPP-04, IT-13	Document processing rules, Format standards
+Retention Manager	Document/File Service	Manage document retention policies	Apply retention rules, Handle deletions, Archive documents, Ensure compliance	Retention policies, Compliance rules, Archive criteria	Retention events, Deletion logs, Archive reports	IT-06, HR-09	Retention policy rules, Compliance requirements
+Document Service Component Dependencies:
+
+Uses Object Storage for file storage
+
+Integrates with Search Service for indexing
+
+Depends on Authentication Service for access control
+
+Provides files to Web Application and other services
+
+--------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Document Storage Manager	Document Service	Store and retrieve documents and files	Upload files, Retrieve files, Manage metadata, Control access	Document operations	Document metadata, Access logs	OPS-03, HR-02, FIN-14	File size limits, Storage quota rules, Access control policies
+Version Control System	Document Service	Manage document versions and history	Create versions, Track changes, Compare versions, Restore previous versions	Version operations	Version history, Change reports	MKTG-04, IT-15	Version creation rules, Retention policies, Change tracking requirements
+Evidence Manager	Document Service	Manage task evidence and verification	Store evidence files, Link to tasks, Validate submissions, Track approvals	Evidence operations	Evidence records, Validation results	OPS-03, SALES-04	Evidence type validation rules, Approval workflow requirements
+Document Processing Engine	Document Service	Process and extract data from documents	Parse documents, Extract text/data, Generate previews, Apply OCR	Processing requests	Processed content, Extraction results	FIN-14, HR-02	Processing format support rules, Data extraction accuracy requirements
+Search Indexer	Document Service	Index document content for search	Index text content, Update indexes, Optimize search, Handle reindexing	Indexing requests	Search indexes, Index status	SUPP-04, MKTG-10	Indexing frequency rules, Search optimization criteria
+Access Control Manager	Document Service	Manage document access permissions	Set permissions, Validate access, Audit usage, Apply retention policies	Access control operations	Permission updates, Audit logs	IT-08, HR-11	Permission inheritance rules, Audit logging requirements
+Archive Manager	Document Service	Manage document archiving and retention	Apply retention policies, Archive documents, Restore from archive, Purge expired documents	Archive operations	Archive status, Retention reports	HR-09, FIN-10	Retention policy rules, Archive storage requirements
+Document Security Scanner	Document Service	Scan documents for security issues	Scan for malware, Check for sensitive data, Validate file types, Generate security reports	Security scan requests	Security scan results, Threat reports	IT-04, IT-13	Security scan rules, Sensitive data detection criteria
+
+--------------------
+ Components for Document Service Complete
+
+Generated:
+8 Components covering document management from storage to security
+Evidence ecosystem: Task verification with approval workflows
+Version intelligence: Complete change tracking and restoration
+Security compliance: Malware scanning and sensitive data detection
+
+Key Design Decisions:
+Unified Document Store: Single service for all document types
+Evidence-First Design: Built-in verification and approval workflows
+Security by Design: Malware scanning and data protection
+Compliance Ready: Retention policies and audit trails
+----------------
+CONTAINER 13: SEARCH SERVICE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Index Manager	Search Service	Create and manage search indexes	Build indexes, Update indexes, Optimize performance, Monitor health	Indexing data, Optimization rules, Health checks	Index events, Performance reports, Health status	SUPP-04, IT-13	Indexing rules, Performance optimization
+Query Processor	Search Service	Process search queries	Parse queries, Execute searches, Apply filters, Rank results	Search queries, Filter criteria, Ranking rules	Search results, Query performance, Ranking scores	SUPP-04, MKTG-10	Query processing rules, Ranking algorithms
+Autocomplete Engine	Search Service	Provide search suggestions	Generate suggestions, Predict intent, Learn from usage, Improve accuracy	Search patterns, Prediction models, Learning data	Suggestions, Accuracy reports, Model updates	SUPP-04, BR-21	Suggestion generation rules, Learning algorithms
+Facet Manager	Search Service	Manage search facets and filtering	Create facets, Apply filters, Handle ranges, Support aggregations	Facet definitions, Filter rules, Aggregation logic	Filtered results, Facet data, Aggregation reports	MKTG-10, SALES-01	Facet management rules, Filter application logic
+Relevance Tuner	Search Service	Tune search relevance	Analyze click-through, Adjust rankings, Test improvements, Measure impact	User behavior, Relevance models, Test criteria	Relevance adjustments, Test results, Impact reports	SUPP-04, MKTG-12	Relevance tuning rules, Testing methodologies
+Search Service Component Dependencies:
+
+Indexes data from multiple services
+
+Uses NoSQL Database for index storage
+
+Integrates with Analytics Service for usage analysis
+
+Provides search to Web Application and other services
+
+
+----------------
+
+CONTAINER: Event Bus
+--------------------------------
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Event Publisher	Event Bus	Publish events from services to the bus	Validate events, Serialize payloads, Route to topics, Ensure delivery	Event publishing requests	Published events, Delivery confirmations	All event-driven stories	Event validation rules, Serialization format standards
+Event Consumer	Event Bus	Consume events from the bus for processing	Subscribe to topics, Deserialize payloads, Process events, Acknowledge receipt	Event streams	Consumed events, Processing results	All event-driven stories	Subscription management rules, Processing acknowledgment policies
+Topic Manager	Event Bus	Manage event topics and partitions	Create topics, Configure partitions, Set retention policies, Monitor usage	Topic operations	Topic configurations, Usage metrics	IT-10, IT-14	Topic creation rules, Partition configuration guidelines
+Schema Registry	Event Bus	Manage event schemas and compatibility	Register schemas, Validate compatibility, Enforce contracts, Version schemas	Schema operations	Schema validations, Compatibility reports	IT-15, BR-08	Schema evolution rules, Backward compatibility requirements
+Dead Letter Queue Handler	Event Bus	Handle failed event processing	Detect failures, Move to DLQ, Notify administrators, Enable reprocessing	Failure detection	DLQ events, Notification alerts	IT-04, IT-12	Failure detection rules, DLQ retention policies
+Event Replay Manager	Event Bus	Manage event replay and reprocessing	Store event history, Enable replay, Control replay rate, Validate outcomes	Replay operations	Replay streams, Replay status	IT-12, IT-15	Event retention rules, Replay rate limitations
+Monitoring & Metrics Collector	Event Bus	Monitor event bus performance and metrics	Collect metrics, Track throughput, Monitor latency, Generate alerts	Monitoring requests	Performance metrics, Alert events	IT-03, IT-13	Metric collection rules, Alert threshold policies
+Security & Access Controller	Event Bus	Control access to event bus resources	Authenticate services, Authorize topics, Audit access, Enforce policies	Security operations	Access grants, Audit logs	IT-02, IT-08	Access control rules, Audit logging requirements
+---------------------------------------------------
+ Components for Event Bus Complete
+Generated:
+
+8 Components covering event-driven architecture foundation
+Schema governance: Contract enforcement with compatibility checking
+Failure resilience: Dead letter queue with reprocessing capabilities
+Observability: Comprehensive monitoring and metrics collection
+
+Key Design Decisions:
+Event-First Architecture: Foundation for microservices communication
+Schema Evolution: Managed contract evolution with compatibility enforcement
+Resilient Processing: Built-in failure handling with reprocessing
+Security & Observability: End-to-end security and monitoring
+---------------------------------------------------
+SECTION 1 — EVENT BUS CONTAINER CONTEXT
+---------------------------------------------------
+
+Element	Description	Responsibilities	Interactions	Related Systems
+Event Bus Container	Central event distribution backbone for microservices communication	Event routing, reliability, ordering, multi-tenant isolation, monitoring	All microservices publish/consume events, External systems via Integration Service	All business services (CRM, Sales, Ops, HR, Finance, Support, Analytics), Integration Service, Monitoring systems
+Position in System	Core infrastructure component enabling event-driven architecture	Decouples services, ensures eventual consistency, enables workflow orchestration	Receives events from publishers, routes to subscribers, manages reliability	Foundation for all asynchronous workflows and cross-service coordination
+SECTION 2 — CORE EVENT BUS COMPONENTS
+MASTER COMPONENTS TABLE
+Component Name	Belongs To Container	Responsibility	Events Handled	Inputs	Outputs	Related Business Flows	Failure Handling	Notes
+Event Publisher Gateway	Event Bus	Validate and accept events from publishing services	All business events (CustomerCreated, TaskAssigned, InvoiceGenerated, etc.)	Raw events from services, Tenant context	Validated events with metadata	All event-driven workflows	Reject invalid events, log failures, notify publishers	First line of defense, validates tenant isolation
+Tenant Context Resolver	Event Bus	Extract and validate tenant context for multi-tenancy	All events requiring tenant isolation	Events with tenant identifiers	Verified tenant context, Isolation violations	Multi-tenant operations	Reject cross-tenant events, quarantine suspicious events	Enforces BR-01 (Multi-org governance)
+Event Router	Event Bus	Route events to appropriate topics based on type and tenant	All categorized events	Validated events with tenant context	Routed events to topic partitions	Event distribution	Dead-letter routing for unroutable events	Uses tenant-aware topic naming
+Topic Partition Manager	Event Bus	Manage topic partitions for scalability and ordering	Partitioned events	Events requiring ordering guarantees	Partition assignments	Sales pipeline updates, Task workflows	Rebalance partitions on failure	Ensures ordering within business entities
+Subscription Manager	Event Bus	Manage consumer subscriptions and load balancing	Subscription requests	Consumer registration, Topic subscriptions	Balanced consumer assignments	Real-time dashboard updates, Notifications	Reassign subscriptions on consumer failure	Supports consumer group patterns
+Event Consumer Adapter	Event Bus	Adapt events for different consumer types	Events for specific consumers	Raw events, Consumer capabilities	Transformed events, Consumer acknowledgments	External system integrations	Retry transformation failures	Handles protocol differences (REST, gRPC, WebSocket)
+Retry Handler	Event Bus	Manage retries for failed event processing	Failed processing attempts	Consumer failure notifications	Retry schedules, Escalation events	Commission calculations, Payment processing	Exponential backoff, max retry limits	Critical for financial operations
+Dead Letter Handler	Event Bus	Manage permanently failed events	Exhausted retry events	Failed events after retries	DLQ events, Admin notifications, Reprocessing triggers	Critical business transactions	Alert administrators, enable manual intervention	Required for audit compliance (BR-08)
+Idempotency Manager	Event Bus	Prevent duplicate event processing	All business transactions	Events with transaction IDs	Idempotency checks, Duplicate detection	Commission payments, Billing events	Reject duplicates, log duplicates for audit	Essential for financial integrity
+Ordering Coordinator	Event Bus	Ensure event ordering within business entities	Entity-scoped events (Customer updates, Task state changes)	Events with entity identifiers	Ordered event sequences	Customer state transitions, Task workflows	Detect and correct ordering violations	Critical for workflow consistency
+Security & Access Validator	Event Bus	Validate event publishing/consuming permissions	All security-sensitive events	Event permissions, Service identities	Access grants/denials, Security audits	HR data changes, Financial transactions	Reject unauthorized events, trigger security alerts	Enforces BR-02 (Role-based authority)
+Schema Registry	Event Bus	Manage event schemas and compatibility	Schema registration/validation	Event schemas, Compatibility rules	Schema validations, Compatibility reports	Event version upgrades	Reject incompatible events, provide migration guidance	Supports BR-04 (Configurable workflows)
+Event Store	Event Bus	Store events for replay and audit	All business events	Published events	Stored events, Replay streams	Audit compliance, Disaster recovery	Replicate across regions, backup regularly	Required for BR-08 (Evidence-based completion)
+Monitoring & Metrics Emitter	Event Bus	Emit metrics and monitoring data	System health events	Performance data, Error rates	Metrics streams, Health alerts	System monitoring, Performance optimization	Degraded mode operation on monitoring failure	Supports BR-21 (Event-driven notifications)
+SECTION 3 — SUPPORTING & GOVERNANCE COMPONENTS
+Component Name	Responsibility	Business Risk Addressed	Events Affected
+Audit Logger	Log all event bus operations for compliance	Regulatory non-compliance, Audit failures	All security and financial events
+Compliance Enforcer	Enforce regulatory requirements on event flow	Legal violations, Data privacy breaches	GDPR-sensitive, Financial reporting events
+Replay & Backfill Manager	Manage event replay for recovery and testing	Data loss, Testing gaps	All stored events
+Versioning Manager	Manage event version compatibility	System breakage during upgrades	Versioned events
+Tenant Isolation Auditor	Audit tenant isolation enforcement	Cross-tenant data leakage	All multi-tenant events
+Performance Monitor	Monitor and alert on performance degradation	Service level violations, User experience degradation	High-volume, time-sensitive events
+Capacity Planner	Plan and allocate event bus resources	System overload, Scaling failures	All events during peak loads
+SECTION 4 — COMPONENT INTERACTION FLOWS
+NORMAL PUBLISH FLOW
+Flow Name	Trigger Event	Components Involved (in order)	Decision Points	Failure Scenarios	Business Impact
+Standard Event Publishing	Service publishes business event (e.g., TaskCompleted)	1. Event Publisher Gateway
+2. Tenant Context Resolver
+3. Security & Access Validator
+4. Schema Registry
+5. Event Router
+6. Topic Partition Manager
+7. Event Store	- Tenant validation
+- Security authorization
+- Schema compatibility
+- Topic routing	- Invalid tenant: Event rejected
+- Security violation: Alert triggered
+- Schema mismatch: Event quarantined
+- Routing failure: Dead-letter queue	Delayed workflow execution, Incomplete business processes
+CONSUMER FAILURE & RETRY
+Flow Name	Trigger Event	Components Involved (in order)	Decision Points	Failure Scenarios	Business Impact
+Consumer Processing Failure	Consumer fails to process event (e.g., CommissionCalculator fails)	1. Event Consumer Adapter
+2. Retry Handler
+3. Monitoring & Metrics Emitter
+4. Dead Letter Handler (if retries exhausted)	- Retry count check
+- Error type classification
+- Escalation threshold	- Transient error: Retry succeeds
+- Permanent error: DLQ
+- Retry exhaustion: Admin alert	Delayed commissions, Financial reporting inaccuracies
+EVENT VERSION MISMATCH
+Flow Name	Trigger Event	Components Involved (in order)	Decision Points	Failure Scenarios	Business Impact
+Schema Incompatibility	New event version published, old consumer subscribes	1. Schema Registry
+2. Versioning Manager
+3. Event Consumer Adapter
+4. Monitoring & Metrics Emitter	- Compatibility check
+- Consumer capability assessment
+- Fallback strategy	- Backward compatible: Process with adapter
+- Incompatible: Reject event, notify
+- Partial compatibility: Transform event	Service disruption, Data inconsistency, Workflow breakdown
+TENANT ISOLATION BREACH ATTEMPT
+Flow Name	Trigger Event	Components Involved (in order)	Decision Points	Failure Scenarios	Business Impact
+Cross-Tenant Event Detection	Service attempts to publish event for wrong tenant	1. Tenant Context Resolver
+2. Security & Access Validator
+3. Tenant Isolation Auditor
+4. Monitoring & Metrics Emitter	- Tenant ID validation
+- Service permission check
+- Breach severity assessment	- Accidental: Reject, log warning
+- Malicious: Reject, security alert, block service
+- Ambiguous: Quarantine, manual review	Data leakage, Legal liability, Loss of customer trust
+SECTION 5 — NON-FUNCTIONAL RESPONSIBILITIES
+Concern	Responsible Components	Strategy	Notes
+Scalability	Topic Partition Manager, Subscription Manager, Event Router	Partition by tenant and business entity, Horizontal scaling of consumers	Supports BR-16 (Multi-employment models) scaling
+Ordering	Ordering Coordinator, Topic Partition Manager	Partition-level ordering, Sequence numbers for entity events	Critical for BR-07 (Explicit task ownership) sequence
+Idempotency	Idempotency Manager, Event Store	Transaction ID tracking, Deduplication windows	Essential for BR-17 (Commission tracking) accuracy
+Fault Tolerance	Retry Handler, Dead Letter Handler, Event Store	Exponential backoff, DLQ with manual intervention, Event replay	Supports BR-06 (Exception handling) requirements
+Latency	Event Router, Topic Partition Manager, Event Consumer Adapter	Direct routing, Low-latency protocols for critical events	Important for BR-21 (Event-driven notifications) timing
+Auditability	Event Store, Audit Logger, Tenant Isolation Auditor	Immutable event log, Comprehensive audit trail	Required for BR-08 (Evidence-based completion)
+Multi-tenancy Isolation	Tenant Context Resolver, Security & Access Validator, Tenant Isolation Auditor	Tenant-aware routing, Strict access controls, Regular audits	Core to BR-01 (Multi-org governance)
+TRACEABILITY MATRIX
+Business Requirement	Event	Event Bus Component	Responsibility	Business Outcome
+BR-01: Multi-org Governance	TenantContextValidated	Tenant Context Resolver	Validate tenant isolation	Prevent cross-tenant data leakage
+BR-02: Role-based Authority	SecurityCheckCompleted	Security & Access Validator	Validate event permissions	Enforce role-based access control
+BR-04: Configurable Workflows	WorkflowEventPublished	Event Router, Schema Registry	Route workflow events, Manage schemas	Support dynamic workflow changes
+BR-06: Exception Handling	ProcessingFailed, RetryScheduled	Retry Handler, Dead Letter Handler	Manage retries, handle failures	Ensure business continuity during failures
+BR-07: Explicit Task Ownership	TaskAssigned, TaskCompleted	Ordering Coordinator	Ensure task event ordering	Maintain clear task ownership sequence
+BR-08: Evidence-based Completion	EvidenceSubmitted, TaskVerified	Event Store, Audit Logger	Store evidence events, Log operations	Create auditable evidence trail
+BR-12: Customer-to-Workflow Binding	CustomerStateChanged, WorkflowTriggered	Event Router, Topic Partition Manager	Route customer events to workflows	Connect customer actions to processes
+BR-16: Multi-employment Models	RemoteTaskAssigned, FreelancerPaid	Subscription Manager, Event Consumer Adapter	Support diverse consumer types	Enable flexible workforce management
+BR-17: Commission & Contribution Tracking	CommissionCalculated, PaymentProcessed	Idempotency Manager, Ordering Coordinator	Prevent duplicate payments, Ensure order	Accurate commission processing
+BR-21: Event-driven Notifications	NotificationTriggered, AlertGenerated	Event Router, Monitoring & Metrics Emitter	Route notification events, Monitor delivery	Timely business alerts and updates
+BR-22: External Communication Integration	ExternalMessageSent, IntegrationEvent	Event Consumer Adapter, Schema Registry	Adapt events for external systems, Manage schemas	Reliable external system integration
+ARCHITECTURE SUMMARY
+Event Bus Design Principles:
+
+Business Event-First: Events reflect real business operations from BRD workflows
+
+Tenant Isolation Core: Multi-tenancy enforced at event routing level
+
+Reliability by Design: Built-in retry, DLQ, and replay capabilities
+
+Audit Trail Mandatory: Complete event storage for compliance evidence
+
+Schema Governance: Managed evolution for system stability
+
+Critical Business Flows Supported:
+
+Sales commission calculation with idempotency
+
+Multi-tenant workflow execution with isolation
+
+Real-time dashboard updates with ordering
+
+External system integration with reliability
+
+Compliance auditing with complete trail
+
+Failure Mode Protections:
+
+Duplicate prevention for financial transactions
+
+Ordering maintenance for workflow consistency
+
+Tenant isolation enforcement for data security
+
+Schema compatibility for system evolution
+
+Comprehensive monitoring for operational awareness
+
+**This Event Bus architecture directly enables the event-driven, multi-tenant SaaS platform required by the Bassan.os business requirements, with specific components addressing each BRD requirement through controlled event flow and guaranteed reliability.
+
+
+---------------------------------------------------
+Bassan.os – C4 Model: Level 3 – Components (Final Infrastructure Containers)
+
+----------------
+
+CONTAINER 14: API GATEWAY
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Request Router	API Gateway	Route incoming API requests to appropriate services	Parse requests, Match routes, Forward to services, Handle versioning	HTTP requests, Route definitions, Version mappings	Routed requests, Version headers, Route metrics	IT-09, BR-22	Routing rules, Version management policies
+Authentication Filter	API Gateway	Validate authentication for all requests	Validate tokens, Check permissions, Enforce authentication, Handle unauthorized	Token validations, Permission checks, Auth rules	Authentication results, Permission validations, Auth events	IT-01, BR-02	Authentication enforcement, Token validation rules
+Rate Limiter	API Gateway	Enforce rate limits per client/tenant	Track request counts, Apply limits, Handle throttling, Report usage	Request counts, Rate limit rules, Client identifiers	Rate limit decisions, Throttling events, Usage reports	IT-09, BR-01	Rate limiting rules, Throttling strategies
+Request Transformer	API Gateway	Transform requests and responses	Modify headers, Transform payloads, Handle content negotiation, Apply policies	Request/response data, Transformation rules, Content types	Transformed data, Content negotiation results, Policy applications	IT-05, BR-22	Transformation rules, Content negotiation policies
+Monitoring Collector	API Gateway	Collect API usage and performance metrics	Track latencies, Monitor errors, Collect metrics, Generate reports	Request data, Error events, Performance metrics	Usage reports, Performance alerts, Error summaries	IT-13, EXEC-01	Monitoring collection rules, Performance thresholds
+API Gateway Component Dependencies:
+
+Integrates with Authentication Service for token validation
+
+Routes to all internal microservices
+
+Uses Analytics Service for metric collection
+
+Provides unified API surface to Web Application
+
+CONTAINER 15: MESSAGE QUEUE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Queue Manager	Message Queue	Manage message queues and topics	Create queues, Configure topics, Set policies, Monitor health	Queue definitions, Topic configurations, Health checks	Queue events, Health status, Policy updates	OPS-12, MKTG-11	Queue management rules, Health monitoring
+Message Publisher	Message Queue	Handle message publishing	Accept messages, Validate schemas, Route to queues, Ensure delivery	Message data, Schema definitions, Routing rules	Publishing confirmations, Validation errors, Routing events	OPS-08, FIN-15	Message validation rules, Routing logic
+Message Consumer	Message Queue	Handle message consumption	Poll for messages, Deliver to consumers, Handle acknowledgments, Manage offsets	Consumer subscriptions, Polling intervals, Ack rules	Delivered messages, Consumer offsets, Ack events	SUPP-07, IT-05	Consumption rules, Acknowledgment policies
+Retry Handler	Message Queue	Handle failed message deliveries	Detect failures, Apply retry logic, Dead letter handling, Escalate issues	Failure events, Retry policies, Escalation rules	Retry attempts, Dead letter events, Escalation alerts	IT-05, OPS-06	Retry strategy rules, Dead letter handling
+Monitoring Agent	Message Queue	Monitor queue performance and health	Track metrics, Detect bottlenecks, Report status, Alert on issues	Performance data, Bottleneck detection, Alert rules	Performance reports, Bottleneck alerts, Status updates	IT-03, IT-07	Monitoring rules, Alert thresholds
+Message Queue Component Dependencies:
+
+Used by all microservices for event distribution
+
+Integrates with Monitoring Systems for health checks
+
+Supports Analytics Service for event processing
+
+Provides async communication backbone
+
+CONTAINER 16: RELATIONAL DATABASE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Transaction Manager	Relational Database	Manage ACID transactions	Begin transactions, Commit changes, Rollback failures, Ensure consistency	Transaction requests, Consistency rules, Rollback criteria	Transaction results, Consistency reports, Rollback events	FIN-04, HR-02	Transaction management rules, Consistency requirements
+Query Optimizer	Relational Database	Optimize SQL query performance	Parse queries, Create execution plans, Optimize joins, Cache results	SQL queries, Optimization rules, Cache policies	Execution plans, Performance reports, Cache updates	EXEC-01, SUPP-13	Query optimization rules, Caching strategies
+Replication Manager	Relational Database	Manage database replication	Sync replicas, Handle failover, Monitor lag, Ensure consistency	Replication rules, Failover triggers, Lag thresholds	Replication events, Failover actions, Lag reports	IT-06, IT-12	Replication rules, Failover procedures
+Backup Coordinator	Relational Database	Coordinate database backups	Schedule backups, Verify integrity, Manage retention, Handle restores	Backup schedules, Integrity checks, Retention policies	Backup events, Integrity reports, Restore operations	IT-06, HR-09	Backup scheduling rules, Retention policies
+Security Enforcer	Relational Database	Enforce database security	Control access, Encrypt data, Audit operations, Prevent injection	Access rules, Encryption policies, Audit requirements	Access logs, Encryption reports, Audit trails	IT-02, IT-08	Security rules, Encryption standards
+Relational Database Component Dependencies:
+
+Stores structured business data for all services
+
+Supports Analytics Service for reporting
+
+Integrates with Backup Systems for disaster recovery
+
+Provides data persistence for transactional operations
+
+CONTAINER 17: NOSQL DATABASE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Document Store	NoSQL Database	Store flexible document data	Store documents, Retrieve by ID, Update fields, Delete documents	Document data, Storage rules, Update criteria	Document references, Storage events, Update results	SUPP-04, MKTG-10	Document storage rules, Update validation
+Index Manager	NoSQL Database	Manage secondary indexes	Create indexes, Update indexes, Query using indexes, Monitor performance	Index definitions, Query patterns, Performance metrics	Index events, Query results, Performance reports	IT-13, SALES-01	Index management rules, Performance optimization
+Sharding Controller	NoSQL Database	Manage data sharding and distribution	Distribute data, Balance load, Handle rebalancing, Monitor distribution	Sharding rules, Load metrics, Rebalance triggers	Sharding events, Load reports, Rebalance operations	IT-14, BR-16	Sharding rules, Load balancing strategies
+Cache Manager	NoSQL Database	Manage in-memory caching	Cache hot data, Invalidate stale data, Manage memory, Monitor hit rates	Cache rules, Invalidation triggers, Memory limits	Cache operations, Invalidation events, Hit rate reports	EXEC-01, SUPP-04	Caching rules, Invalidation policies
+TTL Manager	NoSQL Database	Manage time-to-live for data	Set TTLs, Expire data, Clean up expired, Report statistics	TTL rules, Expiration criteria, Cleanup schedules	Expiration events, Cleanup reports, Statistics	IT-13, HR-09	TTL rules, Expiration handling
+NoSQL Database Component Dependencies:
+
+Stores semi-structured data (sessions, logs, metrics)
+
+Supports Search Service for indexing
+
+Integrates with Analytics Service for real-time data
+
+Provides flexible data storage for high-volume operations
+
+CONTAINER 18: OBJECT STORAGE
+Components Table
+Component Name	Belongs To Container	Responsibility	Key Operations	Consumed Interfaces	Produced Interfaces	Related User Stories	Related Business Rules
+Bucket Manager	Object Storage	Manage storage buckets/containers	Create buckets, Set policies, Configure access, Monitor usage	Bucket definitions, Policy rules, Access configurations	Bucket events, Policy updates, Usage reports	IT-06, OPS-03	Bucket management rules, Policy enforcement
+Object Handler	Object Storage	Handle object storage operations	Store objects, Retrieve objects, Delete objects, List objects	Object data, Operation requests, List criteria	Object references, Operation results, List responses	SALES-04, HR-02	Object operation rules, Storage limits
+CDN Integrator	Object Storage	Integrate with content delivery networks	Distribute content, Invalidate caches, Monitor performance, Report usage	Content data, Invalidation rules, Performance metrics	Distribution events, Cache invalidations, Performance reports	SUPP-09, MKTG-10	CDN integration rules, Cache invalidation policies
+Lifecycle Manager	Object Storage	Manage object lifecycle policies	Apply policies, Transition storage classes, Archive data, Delete expired	Lifecycle rules, Transition criteria, Archive schedules	Lifecycle events, Transition operations, Archive reports	IT-06, HR-09	Lifecycle rules, Storage class policies
+Encryption Manager	Object Storage	Manage object encryption	Encrypt at rest, Manage keys, Handle decryption, Audit access	Encryption rules, Key management, Audit requirements	Encryption events, Key operations, Audit logs	IT-02, FIN-07	Encryption rules, Key management policies
+Object Storage Component Dependencies:
+
+Stores binary files (evidence, documents, backups)
+
+Integrates with CDN Providers for content delivery
+
+Supports Document Service for file management
+
+Provides scalable storage for large files
+
+ C4 MODEL LEVEL 3 COMPLETE
+COMPLETION SUMMARY
+Total Analysis:
+18 Containers fully analyzed
+
+83 Components defined with clear responsibilities
+
+100% Traceability to User Stories and Business Rules
+
+Complete Interface Definitions for all components
+
+Architecture Patterns Identified:
+Microservices Architecture: Each container represents a bounded context
+
+Event-Driven Design: Message Queue enables loose coupling
+
+Polyglot Persistence: Multiple database technologies for different needs
+
+API-First Design: Clear interface definitions for all components
+
+Multi-Tenant Foundation: Tenant isolation built into all components
+
+Critical Integration Points:
+Integration Point	Components Involved	Business Capability
+Workflow → Task → Commission	Workflow Engine, Task Service, Commission Service	End-to-end service delivery with payment
+CRM → Analytics → Dashboard	CRM Service, Analytics Service, Web Dashboard	Customer intelligence and reporting
+Authentication → API Gateway → All Services	Auth Service, API Gateway, All Microservices	Secure, multi-tenant access control
+Document → Search → Web App	Document Service, Search Service, Web Application	Evidence management and discovery
+Scalability Considerations Per Component Type:
+Component Type	Scaling Strategy	Data Consistency	Availability Target
+User Interface	Horizontal, CDN	Eventual	99.5%
+Business Logic	Horizontal, Stateless	Strong for financial, Eventual for others	99.9%
+Data Storage	Sharding, Partitioning	Strong (RDBMS), Eventual (NoSQL)	99.95%
+Infrastructure	Auto-scaling, Queue-based	Eventual	99.9%
+-------------------------
+
+TRACEABILITY MATRIX (SUMMARY)
+Business Requirement Category	Primary Containers	Key Components	User Stories Covered
+Multi-Tenant Governance	Tenant Management, Authentication, API Gateway	Tenant Provisioner, Isolation Enforcer, Authentication Filter	IT-01, EXEC-01, BR-01
+Workflow Orchestration	Workflow Engine, Task Service, Notification	Process Orchestrator, Task Creator, Channel Router	OPS-01, OPS-02, OPS-04
+Revenue Management	Billing Service, Commission Service, CRM	Invoice Generator, Calculation Engine, Pipeline Manager	FIN-01, SALES-03, EXEC-04
+Customer Experience	CRM Service, Support Services, Client Portal	Customer Profile, Ticket Management, Portal Interface	SUPP-02, SUPP-08, US-21
+Analytics & Reporting	Analytics Service, Search Service, Dashboard	Data Aggregator, Query Processor, Dashboard Module	EXEC-01, FIN-05, SUPP-13
+Integration & Extensibility	Integration Hub, Message Queue, API Gateway	API Connector, Message Publisher, Request Router	IT-05, IT-09, BR-22
+Security & Compliance	Authentication, Document Service, Security Services	Access Controller, Encryption Manager, Audit Logger	IT-02, IT-08, HR-09
+ARCHITECTURE APPROVAL REQUEST
+✅ C4 Model Levels 1-3 Complete
+
+Deliverables Completed:
+
+Level 1: System Context – Business actors, external systems, boundaries
+
+Level 2: Containers – 18 technical building blocks with responsibilities
+
+Level 3: Components – 83 logical components with full traceability
+----------------
+Bassan.os – Architecture Validation Review
+SECTION 1 — CONTEXT → CONTAINER CONSISTENCY
+Context Actor / System	Expected Responsibility	Container Mapping	Gap / Overlap	Risk
+Company Owner / CEO	Strategic oversight, performance monitoring, risk management	Analytics Service, Executive Dashboard (Web App), Workflow Engine	GAP: No dedicated "Executive Decision Support" container. Analytics Service handles data but not decision workflows.	MEDIUM: Executive decision processes may become manual
+Sales Director	Pipeline management, commission tracking, team performance	CRM Service, Commission Service, Analytics Service	OVERLAP: Pipeline management split between CRM Service and Workflow Engine	LOW: Managed via clear interfaces
+Marketing Manager	Campaign ROI, attribution, budget management	Analytics Service, CRM Service, Billing Service	GAP: No dedicated "Marketing Automation" container. Campaign execution scattered.	MEDIUM: Marketing workflows may be complex to implement
+Operations Manager	Workflow design, SLA monitoring, resource allocation	Workflow Engine, Task Service, Analytics Service	ALIGNED: Clear mapping, all responsibilities covered	LOW: Well-structured
+HR Manager	Performance tracking, role management, compliance	Tenant Management, Authentication, Document Service	GAP: No dedicated "HR Service" for core HR functions beyond auth	HIGH: HR capabilities spread thin, risk of inadequate support
+Finance Manager	Billing, commission calculation, financial reporting	Billing Service, Commission Service, Analytics Service	ALIGNED: Clear separation of concerns	LOW: Well-structured
+Customer Support Agent	Ticket handling, knowledge access, communication	Notification Service, Document Service, CRM Service	GAP: No dedicated "Support Service" container	MEDIUM: Support workflows may be complex across containers
+External Partner Manager	Deliverable tracking, communication, milestone validation	Integration Hub, Document Service, Task Service	ALIGNED: Integration Hub handles external collaboration	LOW: Appropriate
+End Customer / Client	Service tracking, communication, self-service	Client Portal (Web App), Notification Service, CRM Service	ALIGNED: Clear separation between internal and external interfaces	LOW: Appropriate
+Email/WhatsApp Systems	Notification delivery	Notification Service	ALIGNED: Single point of integration	LOW: Appropriate
+External CRM/Accounting	Data synchronization, integration	Integration Hub	ALIGNED: Clear integration boundary	LOW: Appropriate
+Payment Gateway	Payment processing (EXCLUDED)	NOT MAPPED - Explicitly excluded	BY DESIGN: Out of scope per BRD	NONE: Intentional exclusion
+Key Findings:
+
+HR Capability Gap: No dedicated HR service for core HR functions
+
+Marketing Automation Gap: Campaign execution lacks dedicated container
+
+Support Service Gap: No centralized support service container
+
+SECTION 2 — CONTAINER RESPONSIBILITY REVIEW
+Container	Intended Responsibility	Actual Responsibilities	Smell (Yes/No)	Notes
+Web Application	User interface layer	UI rendering, client-side logic, portal hosting, dashboard logic	YES - Multiple responsibilities	Risk of becoming "God Container." Should separate portal vs admin vs client interfaces
+API Gateway	Request routing and security	Routing, auth, rate limiting, transformation, monitoring	YES - Overloaded	Monitoring should be separate. Transformation logic too heavy for gateway
+Workflow Engine	Business process orchestration	Workflow execution, SLA monitoring, condition evaluation, exception handling	NO - Cohesive	All responsibilities relate to process orchestration
+Task Management Service	Task lifecycle management	Task creation, tracking, evidence handling, assignment, completion	NO - Cohesive	All about task management
+CRM Service	Customer relationship management	Customer profiles, lead management, interaction tracking, pipeline, attribution	YES - Multiple domains	Attribution and pipeline are separate domains from core CRM
+Commission Service	Commission calculation and management	Rule management, calculation, evidence validation, approval workflows, dispute handling	NO - Cohesive	All commission-related
+Billing Service	Financial operations	Invoicing, payment tracking, revenue recognition, credit management, reporting	YES - Overloaded	Credit management and reporting are separate concerns
+Notification Service	Multi-channel notifications	Template management, channel routing, delivery, preference management, analytics	YES - Analytics is separate concern	Should not handle analytics
+Analytics Service	Business intelligence	Data aggregation, dashboard serving, reporting, trend analysis, performance monitoring	YES - Multiple concerns	Performance monitoring separate from business analytics
+Integration Hub	External system integration	API connections, data mapping, synchronization, error handling, audit logging	NO - Cohesive	All integration-related
+Authentication Service	Identity and access management	Authentication, session management, MFA, SSO, password management	NO - Cohesive	All auth-related
+Tenant Management Service	Multi-tenant organization management	Tenant provisioning, isolation enforcement, subscription management, feature flags, usage tracking	YES - Subscription management separate concern	Subscription/billing should be in Billing Service
+Document/File Service	Document storage and management	File storage, version control, access control, document processing, retention	NO - Cohesive	All document-related
+Search Service	Search capabilities	Index management, query processing, autocomplete, facets, relevance tuning	NO - Cohesive	All search-related
+Message Queue	Event distribution	Queue management, publishing, consumption, retry handling, monitoring	NO - Cohesive	All messaging-related
+Relational Database	Structured data storage	Transaction management, query optimization, replication, backup, security	NO - Cohesive	All database-related
+NoSQL Database	Flexible data storage	Document storage, indexing, sharding, caching, TTL management	NO - Cohesive	All NoSQL-related
+Object Storage	Binary file storage	Bucket management, object handling, CDN integration, lifecycle, encryption	NO - Cohesive	All object storage-related
+Architectural Smells Identified:
+
+Web Application God Container: Hosts admin, client portal, and business interfaces
+
+API Gateway Overloaded: Doing routing, transformation, and monitoring
+
+CRM Service Domain Mix: Mixes core CRM with attribution and pipeline
+
+Billing Service Overloaded: Credit management separate from invoicing
+
+Notification Service Scope Creep: Includes analytics
+
+Analytics Service Mixed Concerns: Business analytics mixed with system monitoring
+
+Tenant Management Overloaded: Includes subscription management
+
+SECTION 3 — COMPONENT COHESION & BOUNDARIES
+Component	Parent Container	Single Responsibility?	Depends On	Risk Level
+Dashboard Module	Web Application	NO (rendering + data handling)	Analytics Service, User Preferences	MEDIUM: Mixes presentation and data
+Workflow Designer UI	Web Application	YES (visual design interface)	Workflow Engine	LOW: Clear responsibility
+Task Management UI	Web Application	YES (task interface)	Task Service	LOW: Clear responsibility
+Pipeline Manager	CRM Service	NO (pipeline + forecasting)	Analytics Service, Workflow Engine	HIGH: Pipeline execution separate from CRM
+Attribution Analyzer	CRM Service	YES (attribution analysis)	Marketing data, Analytics	LOW: Clear responsibility
+Commission Rule Engine	Commission Service	YES (rule management)	Validation Service	LOW: Clear responsibility
+Calculation Engine	Commission Service	YES (commission calculation)	Task Service, Rule Engine	LOW: Clear responsibility
+Invoice Generator	Billing Service	YES (invoice creation)	CRM Service, Tax Service	LOW: Clear responsibility
+Payment Tracker	Billing Service	YES (payment tracking)	Integration Hub	LOW: Clear responsibility
+Revenue Recognition Engine	Billing Service	YES (revenue recognition)	Accounting rules	LOW: Clear responsibility
+Credit Manager	Billing Service	YES (credit management)	CRM Service	MEDIUM: Should be separate service
+Financial Reporter	Billing Service	NO (reporting + scheduling)	Analytics Service	MEDIUM: Reporting separate concern
+Template Manager	Notification Service	YES (template management)	Document Service	LOW: Clear responsibility
+Channel Router	Notification Service	YES (channel routing)	Preference Service	LOW: Clear responsibility
+Delivery Engine	Notification Service	YES (notification delivery)	External systems	LOW: Clear responsibility
+Analytics Collector	Notification Service	NO (delivery + analytics)	Analytics Service	HIGH: Analytics not notification concern
+Data Aggregator	Analytics Service	YES (data aggregation)	Message Queue	LOW: Clear responsibility
+Dashboard Data Provider	Analytics Service	YES (dashboard data)	Aggregator, Cache	LOW: Clear responsibility
+Report Generator	Analytics Service	YES (report generation)	Data sources, Templates	LOW: Clear responsibility
+Trend Analyzer	Analytics Service	YES (trend analysis)	Historical data	LOW: Clear responsibility
+Performance Monitor	Analytics Service	NO (business + system monitoring)	System metrics	HIGH: Mixes business and system concerns
+API Connector Manager	Integration Hub	YES (API connection management)	External APIs	LOW: Clear responsibility
+Data Mapper	Integration Hub	YES (data transformation)	Mapping rules	LOW: Clear responsibility
+Identity Provider	Authentication Service	YES (identity management)	User store, SSO	LOW: Clear responsibility
+Session Manager	Authentication Service	YES (session management)	Token store	LOW: Clear responsibility
+Tenant Provisioner	Tenant Management	YES (tenant creation)	Database, Billing Service	LOW: Clear responsibility
+Isolation Enforcer	Tenant Management	YES (isolation enforcement)	All services	HIGH: Cross-cutting concern
+Subscription Manager	Tenant Management	NO (tenant + subscription)	Billing Service	HIGH: Subscription belongs to Billing
+File Storage Manager	Document Service	YES (file storage)	Object Storage	LOW: Clear responsibility
+Version Controller	Document Service	YES (version control)	File storage	LOW: Clear responsibility
+Access Controller	Document Service	YES (access control)	Auth Service	LOW: Clear responsibility
+Index Manager	Search Service	YES (index management)	Data sources	LOW: Clear responsibility
+Query Processor	Search Service	YES (query processing)	Index, Ranking	LOW: Clear responsibility
+Request Router	API Gateway	YES (request routing)	Route definitions	LOW: Clear responsibility
+Authentication Filter	API Gateway	YES (auth validation)	Auth Service	LOW: Clear responsibility
+Rate Limiter	API Gateway	YES (rate limiting)	Usage data	LOW: Clear responsibility
+Request Transformer	API Gateway	YES (request transformation)	Transformation rules	LOW: Clear responsibility
+Monitoring Collector	API Gateway	NO (routing + monitoring)	Monitoring Service	HIGH: Monitoring separate concern
+Queue Manager	Message Queue	YES (queue management)	Storage, Config	LOW: Clear responsibility
+Message Publisher	Message Queue	YES (message publishing)	Producers	LOW: Clear responsibility
+Transaction Manager	Relational DB	YES (transaction management)	Storage engine	LOW: Clear responsibility
+Query Optimizer	Relational DB	YES (query optimization)	Statistics, Indexes	LOW: Clear responsibility
+Cohesion Issues: 12/83 components (14%) have mixed responsibilities
+
+SECTION 4 — EVENT FLOW & SYNCHRONIZATION RISKS
+Event Source	Consumers	Sync / Async	Failure Impact	Mitigation
+Task Completion	Commission Service, Analytics, Notification	Async (Queue)	HIGH: Commission calculations delayed	Dead letter queue, manual reprocessing
+Invoice Generation	Billing Service, Notification, CRM	Sync (API)	HIGH: Customer billing delays	Retry with exponential backoff
+Payment Received	Billing Service, Commission, Analytics	Async (Queue)	MEDIUM: Revenue recognition delayed	Idempotent processing, reconciliation job
+Customer Created	CRM, Analytics, Task Service	Async (Queue)	LOW: Welcome flow delayed	Event replay capability
+Workflow State Change	Task Service, Notification, Analytics	Async (Queue)	HIGH: Process stalls	State machine with timeout rollback
+Commission Calculated	Billing Service, Notification, Analytics	Sync (API)	HIGH: Payment delays	Synchronous with fallback queue
+Evidence Submitted	Task Service, Commission Service	Sync (API)	MEDIUM: Task completion blocked	Immediate validation with async processing
+SLA Breach Detected	Notification, Escalation, Analytics	Async (Queue)	HIGH: Customer impact	Priority queue, immediate processing
+External API Call	Integration Hub, Notification	Async (Queue)	MEDIUM: Data sync delays	Circuit breaker, retry with backoff
+Critical Synchronization Risks:
+
+Commission → Billing Sync: Financial accuracy requires strong consistency
+
+Task → Workflow Coordination: Process integrity requires coordination
+
+Payment Processing: Requires idempotency and reconciliation
+
+SECTION 5 — NON-FUNCTIONAL READINESS
+NFR	Covered By Which Containers	Gaps	Risk
+Scalability	All services designed horizontally, Message Queue for decoupling	Web Application stateful components, Relational DB writes	MEDIUM: DB write scaling needs sharding strategy
+Availability	Multi-region possible, queue-based async	Single Message Queue instance, cross-region data sync	HIGH: Message Queue SPOF, cross-region latency
+Security	Auth Service, API Gateway, Encryption components	No dedicated "Security Service" for policy management	MEDIUM: Security policies scattered
+Multi-tenancy isolation	Tenant Management, Database layer, Auth	Cross-tenant queries in shared services, cache isolation	HIGH: Data leakage risk in shared caches
+Observability	API Gateway monitoring, Analytics Service	No centralized logging, tracing, or metrics aggregation	HIGH: Debugging distributed system will be difficult
+Performance	Caching layers, CDN, Search optimization	No performance SLA enforcement, no load testing framework	MEDIUM: Performance regressions likely
+Disaster Recovery	Database replication, backup systems	No DR runbook, no automated failover testing	HIGH: Recovery time undefined
+Compliance	Audit logging, retention policies	No compliance reporting, no automated compliance checks	MEDIUM: Audit readiness uncertain
+Critical Gaps:
+
+Observability: No centralized logging/tracing/monitoring
+
+Disaster Recovery: No tested recovery procedures
+
+Multi-tenancy: Cache isolation not addressed
+
+Security: No centralized policy management
+
+SECTION 6 — INFRASTRUCTURE READINESS CHECK
+Layer	Architectural Expectation	Risk	Notes
+Compute	Containerized microservices, auto-scaling	MEDIUM: No container orchestration specified	Need Kubernetes/ECS strategy
+Data	Polyglot persistence, appropriate storage types	HIGH: Data consistency across stores undefined	Need cross-store transaction strategy
+Networking	Service mesh, API Gateway, load balancing	MEDIUM: No service mesh specified	Need Istio/Linkerd decision
+Messaging	Persistent queues, event streaming	HIGH: Single Message Queue implementation	Need Kafka/RabbitMQ/Redis decision
+Auth boundaries	Zero-trust, service-to-service auth	HIGH: No mTLS or service auth specified	Need service identity strategy
+Caching	Multi-level caching (CDN, in-memory, DB)	MEDIUM: Caching strategy undefined	Need cache invalidation strategy
+CDN/Edge	Global distribution for static assets	LOW: Object Storage includes CDN	Acceptable
+Backup/DR	Automated backups, cross-region replication	HIGH: No backup automation specified	Need backup orchestration
+Monitoring	Centralized metrics, logs, tracing	HIGH: No observability platform	Need ELK/DataDog/Prometheus decision
+Infrastructure Risks: 5/9 layers have HIGH risk
+
+SECTION 7 — IMPLEMENTATION READINESS SCORE
+Area	Score (1-5)	Blocking Issues
+Business Capability Coverage	4	HR, Marketing, Support services need refinement
+Architectural Cohesion	3	Multiple overloaded containers, mixed responsibilities
+Scalability Design	4	Database scaling strategy needed
+Security Architecture	2	No centralized security, service auth undefined
+Observability	1	No logging, tracing, or monitoring strategy
+Disaster Recovery	1	No DR plan or testing strategy
+Multi-tenancy	3	Cache isolation missing, cross-tenant queries risk
+Infrastructure Readiness	2	No container orchestration, service mesh, or backup strategy
+Team Implementation Readiness	3	Complex distributed system requires experienced team
+Overall Readiness	2.4	NOT READY FOR IMPLEMENTATION
+Critical Blocking Issues:
+
+No observability strategy (logging, tracing, monitoring)
+
+No disaster recovery plan
+
+No service authentication strategy
+
+Overloaded containers need refactoring
+
+No container orchestration strategy
+
+SECTION 8 — GO / NO-GO DECISION
+Decision	Reason	Mandatory Fixes Before Coding
+NO-GO	Architecture has critical gaps in observability, security, and infrastructure that make production deployment risky	1. Define Observability Strategy: Centralized logging (ELK), tracing (Jaeger), metrics (Prometheus)
+2. Design Security Layer: Service-to-service auth (mTLS), centralized policy service
+3. Refactor Overloaded Containers: Split Web App, API Gateway, CRM, Billing, Analytics
+4. Define Infrastructure Stack: Container orchestration (K8s), service mesh, message broker
+5. Create DR Plan: Backup automation, cross-region replication, failover testing
+6. Address Multi-tenancy Gaps: Cache isolation, cross-tenant query prevention
+7. Define Data Consistency Strategy: Cross-store transactions, eventual consistency boundaries
+----------------
+
+LEVEL 2: CONTAINERS
+
+----------------
+
