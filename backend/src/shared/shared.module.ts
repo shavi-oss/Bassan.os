@@ -1,6 +1,6 @@
-import { Global, Module } from '@nestjs/common';
-import { ClsModule } from 'nestjs-cls';
-import { TenantGuard } from './guards/tenant.guard';
+import { Global, Module } from "@nestjs/common";
+import { ClsModule } from "nestjs-cls";
+import { TenantGuard } from "./guards/tenant.guard";
 
 @Global()
 @Module({
@@ -14,4 +14,3 @@ import { TenantGuard } from './guards/tenant.guard';
   exports: [ClsModule, TenantGuard],
 })
 export class SharedModule {}
-

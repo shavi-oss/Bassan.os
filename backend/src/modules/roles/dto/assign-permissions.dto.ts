@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsArray } from 'class-validator';
+import { IsNotEmpty, IsArray } from "class-validator";
 
 export class AssignPermissionsDto {
   @IsArray()

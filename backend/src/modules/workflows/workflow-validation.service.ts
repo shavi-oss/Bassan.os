@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { WorkflowDefinition, WorkflowState, WorkflowTransition } from '@prisma/client';
+import { Injectable } from "@nestjs/common";
+import {
+  WorkflowDefinition,
+  WorkflowState,
+  WorkflowTransition,
+} from "@prisma/client";
 
 /**
  * WorkflowValidationService
- * 
+ *
  * PURE DOMAIN SERVICE (per VALIDATION ENGINE LAWS):
  * - NO database writes/mutations
  * - NO HTTP/controller awareness
@@ -27,7 +31,7 @@ export interface ValidationResult {
 export class WorkflowValidationService {
   /**
    * Validate workflow definition before activation
-   * 
+   *
    * Checks:
    * 1. Exactly ONE start state
    * 2. At least ONE end state
@@ -45,13 +49,13 @@ export class WorkflowValidationService {
     const startStates = states.filter((s) => s.isStart);
     if (startStates.length === 0) {
       errors.push({
-        code: 'NO_START_STATE',
-        message: 'Workflow must have exactly one start state',
+        code: "NO_START_STATE",
+        message: "Workflow must have exactly one start state",
       });
     } else if (startStates.length > 1) {
       errors.push({
-        code: 'MULTIPLE_START_STATES',
-        message: 'Workflow must have exactly one start state',
+        code: "MULTIPLE_START_STATES",
+        message: "Workflow must have exactly one start state",
         details: { count: startStates.length },
       });
     }
@@ -60,20 +64,24 @@ export class WorkflowValidationService {
     const endStates = states.filter((s) => s.isEnd);
     if (endStates.length === 0) {
       errors.push({
-        code: 'NO_END_STATE',
-        message: 'Workflow must have at least one end state',
+        code: "NO_END_STATE",
+        message: "Workflow must have at least one end state",
       });
     }
 
     // Check 3 & 4: Reachability and orphan detection
     if (startStates.length === 1 && states.length > 0) {
-      const reachable = this.getReachableStates(startStates[0].id, states, transitions);
+      const reachable = this.getReachableStates(
+        startStates[0].id,
+        states,
+        transitions,
+      );
       const orphans = states.filter((s) => !reachable.has(s.id));
 
       if (orphans.length > 0) {
         errors.push({
-          code: 'ORPHAN_STATES',
-          message: 'All states must be reachable from the start state',
+          code: "ORPHAN_STATES",
+          message: "All states must be reachable from the start state",
           details: {
             orphanStates: orphans.map((s) => ({ id: s.id, name: s.name })),
           },
@@ -89,8 +97,8 @@ export class WorkflowValidationService {
 
     if (invalidTransitions.length > 0) {
       errors.push({
-        code: 'INVALID_TRANSITIONS',
-        message: 'Transitions reference non-existent states',
+        code: "INVALID_TRANSITIONS",
+        message: "Transitions reference non-existent states",
         details: {
           invalidTransitions: invalidTransitions.map((t) => ({
             id: t.id,

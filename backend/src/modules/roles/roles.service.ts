@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { AssignPermissionsDto } from './dto/assign-permissions.dto';
-import { ClsService } from 'nestjs-cls';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CreateRoleDto } from "./dto/create-role.dto";
+import { AssignPermissionsDto } from "./dto/assign-permissions.dto";
+import { ClsService } from "nestjs-cls";
 
 /**
  * RolesService
- * 
+ *
  * SECURITY CRITICAL: Permission queries MUST use relation-based filters.
  * This is enforced by security linter (L2).
  */
@@ -43,15 +43,13 @@ export class RolesService {
   }
 
   async assignPermissions(roleId: string, dto: AssignPermissionsDto) {
-    const orgId = this.cls.get('orgId');
-
     // Verify role belongs to current org
     const role = await this.prisma.client.role.findUnique({
       where: { id: roleId },
     });
 
     if (!role) {
-      throw new NotFoundException('Role not found');
+      throw new NotFoundException("Role not found");
     }
 
     // Create permissions
@@ -64,18 +62,18 @@ export class RolesService {
       skipDuplicates: true,
     });
 
-    return { message: 'Permissions assigned successfully' };
+    return { message: "Permissions assigned successfully" };
   }
 
   async getPermissions(roleId: string) {
-    const orgId = this.cls.get('orgId');
+    const orgId = this.cls.get("orgId");
 
     /**
      * SECURITY CRITICAL: Relation-based tenant filter
-     * 
+     *
      * Permission model has NO organizationId column.
      * We MUST filter via role.organizationId to enforce tenant isolation.
-     * 
+     *
      * This is enforced by security linter (L2).
      */
     const permissions = await this.prisma.client.permission.findMany({

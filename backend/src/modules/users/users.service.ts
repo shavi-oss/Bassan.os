@@ -1,11 +1,11 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
+import { Injectable, ConflictException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import * as bcrypt from "bcrypt";
 
 /**
  * UsersService
- * 
+ *
  * SECURITY: All operations use prisma.client (tenant-scoped).
  * organizationId comes from CLS context set by TenantGuard.
  */
@@ -20,7 +20,7 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Email already registered');
+      throw new ConflictException("Email already registered");
     }
 
     // Hash password
@@ -69,6 +69,7 @@ export class UsersService {
   }
 
   private sanitizeUser(user: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...sanitized } = user;
     return {
       ...sanitized,
