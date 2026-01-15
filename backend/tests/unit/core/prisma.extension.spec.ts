@@ -154,4 +154,63 @@ describe("PrismaTenantExtension Integration", () => {
       });
     });
   });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 🔐 WORKFLOW SCOPING (Stage 2.1 Patch Verification)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  describe("Workflow Scoping", () => {
+    describe("Fail-Closed Enforcement", () => {
+      it("should THROW TENANT_ISOLATION_VIOLATION when no CLS context", async () => {
+        // Clear CLS context
+        clsService.set("orgId", null);
+        clsService.set("userId", null);
+
+        // Attempt to query WorkflowDefinition without context
+        await expect(
+          extendedPrisma.workflowDefinition.findMany(),
+        ).rejects.toThrow("TENANT_ISOLATION_VIOLATION");
+      });
+    });
+
+    describe("Success with Context", () => {
+      it("should CREATE WorkflowDefinition with organizationId injected", async () => {
+        // Set CLS context
+        clsService.set("orgId", org1Id);
+        clsService.set("userId", "test-user-id");
+
+        // Create workflow
+        const workflow = await extendedPrisma.workflowDefinition.create({
+          data: {
+            name: "Test Workflow",
+            description: "Test workflow description",
+          },
+        });
+
+        // Verify organizationId was injected
+        expect(workflow.organizationId).toBe(org1Id);
+      });
+    });
+
+    describe("Injection Blocking", () => {
+      it("should BLOCK organizationId injection on WorkflowDefinition create", async () => {
+        // Set CLS context to org1
+        clsService.set("orgId", org1Id);
+        clsService.set("userId", "test-user-id");
+
+        // Try to inject org2Id - should be overwritten
+        const workflow = await extendedPrisma.workflowDefinition.create({
+          data: {
+            name: "Hacked Workflow",
+            description: "Malicious workflow",
+            organizationId: org2Id, // ⚠️ MALICIOUS INJECTION
+          },
+        });
+
+        // Should be org1Id, NOT org2Id
+        expect(workflow.organizationId).toBe(org1Id);
+        expect(workflow.organizationId).not.toBe(org2Id);
+      });
+    });
+  });
 });

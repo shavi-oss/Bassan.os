@@ -48,6 +48,8 @@ const INDIRECTLY_SCOPED_MODELS = [
   "Permission", // Scoped via Role -> Organization (roleId required)
   "UserRole", // Scoped via User -> Organization (userId required)
   "RefreshToken", // Scoped via User -> Organization (userId required)
+  "WorkflowState", // Scoped via WorkflowDefinition -> Organization (workflowDefinitionId required)
+  "WorkflowTransition", // Scoped via WorkflowDefinition -> Organization (workflowDefinitionId required)
 ];
 
 /**
@@ -55,7 +57,13 @@ const INDIRECTLY_SCOPED_MODELS = [
  *
  * These models have organizationId column and get auto-filtering.
  */
-const DIRECTLY_SCOPED_MODELS = ["User", "Role", "Lead", "Task"];
+const DIRECTLY_SCOPED_MODELS = [
+  "User",
+  "Role",
+  "Lead",
+  "Task",
+  "WorkflowDefinition",
+];
 
 export interface TenantContext {
   orgId: string | null;
