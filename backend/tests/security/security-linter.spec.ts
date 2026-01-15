@@ -198,7 +198,7 @@ describe("Security Linter", () => {
   });
 
   describe("S2-L4: Controller guard enforcement", () => {
-    it("should enforce @UseGuards(JwtAuthGuard, TenantGuard) on controllers", () => {
+    it("should enforce @UseGuards(JwtAuthGuard, TenantGuard) on handlers", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
 
@@ -206,30 +206,92 @@ describe("Security Linter", () => {
         if (!file.endsWith(".controller.ts")) return;
 
         const content = fs.readFileSync(file, "utf-8");
-        const routeMatches = content.matchAll(
-          /@(Get|Post|Put|Patch|Delete)\s*\([^)]*\)/g,
+        const lines = content.split("\n");
+
+        // Check if controller class has guards
+        // Look for @Controller followed by @UseGuards with both guards
+        const controllerIndex = content.indexOf("@Controller");
+        const firstClassLine = content.indexOf("class ", controllerIndex);
+        const classHeader = content.substring(
+          controllerIndex,
+          firstClassLine + 100,
         );
-        const routes = Array.from(routeMatches);
+        const hasClassLevelGuards =
+          classHeader.includes("@UseGuards") &&
+          classHeader.includes("JwtAuthGuard") &&
+          classHeader.includes("TenantGuard");
 
-        if (routes.length === 0) return;
+        // Find all route handlers
+        lines.forEach((line, index) => {
+          const routeMatch = line.match(
+            /@(Get|Post|Put|Patch|Delete)\s*\([^)]*\)/,
+          );
+          if (!routeMatch) return;
 
-        const hasJwtGuard = /@UseGuards\([^)]*JwtAuthGuard/.test(content);
-        const hasTenantGuard = /@UseGuards\([^)]*TenantGuard/.test(content);
-        const hasPublicRoute =
-          /@Public\(\)/.test(content) || content.includes("/login");
+          // Check if this is the login endpoint (known public route)
+          const isLoginEndpoint =
+            routeMatch[1] === "Post" &&
+            line.includes('"login"') &&
+            file.includes("auth.controller");
 
-        if (!hasPublicRoute && routes.length > 0) {
-          if (!hasJwtGuard || !hasTenantGuard) {
+          // If login endpoint, it's explicitly allowed to be public - PASS
+          if (isLoginEndpoint) return;
+
+          // Look backwards for @Public() decorator (within 5 lines)
+          let hasPublic = false;
+          for (let i = Math.max(0, index - 5); i < index; i++) {
+            if (lines[i].includes("@Public()")) {
+              hasPublic = true;
+              break;
+            }
+          }
+
+          // If @Public(), this handler is explicitly public - PASS
+          if (hasPublic) return;
+
+          // Look for method-level guards (within 10 lines before OR 3 lines after)
+          let hasMethodGuards = false;
+
+          // Check backwards
+          for (let i = Math.max(0, index - 10); i < index; i++) {
+            const guardMatch = lines[i].match(
+              /@UseGuards\([^)]*JwtAuthGuard[^)]*TenantGuard[^)]*\)/,
+            );
+            if (guardMatch) {
+              hasMethodGuards = true;
+              break;
+            }
+          }
+
+          // Check forwards (guards can be on next line after route decorator)
+          if (!hasMethodGuards) {
+            for (
+              let i = index + 1;
+              i < Math.min(lines.length, index + 4);
+              i++
+            ) {
+              const guardMatch = lines[i].match(
+                /@UseGuards\([^)]*JwtAuthGuard[^)]*TenantGuard[^)]*\)/,
+              );
+              if (guardMatch) {
+                hasMethodGuards = true;
+                break;
+              }
+            }
+          }
+
+          // If no class guards AND no method guards -> VIOLATION
+          if (!hasClassLevelGuards && !hasMethodGuards) {
             violations.push(
-              `${file} - Controller missing @UseGuards(JwtAuthGuard, TenantGuard)`,
+              `${file}:${index + 1} - Route handler missing guards (no @UseGuards or @Public)`,
             );
           }
-        }
+        });
       });
 
       if (violations.length > 0) {
         throw new Error(
-          `S2-L4 VIOLATION: Controllers must use @UseGuards(JwtAuthGuard, TenantGuard):\n${violations.join("\n")}`,
+          `S2-L4 VIOLATION: Route handlers must have @UseGuards(JwtAuthGuard, TenantGuard) or @Public():\n${violations.join("\n")}`,
         );
       }
     });
