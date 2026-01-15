@@ -45,11 +45,15 @@ describe("Security Fixes Verification", () => {
   beforeEach(async () => {
     await resetDb();
 
-    // Create test organization
-    const org1 = await prisma.organization.create({
-      data: { name: "Security Test Org", slug: "security-test" },
+    // Use fixed ID to prevent FK violations
+    org1Id = "security-test-org-uuid";
+
+    // Upsert test organization with fixed ID
+    await prisma.organization.upsert({
+      where: { id: org1Id },
+      update: {},
+      create: { id: org1Id, name: "Security Test Org", slug: "security-test" },
     });
-    org1Id = org1.id;
   });
 
   afterAll(async () => {

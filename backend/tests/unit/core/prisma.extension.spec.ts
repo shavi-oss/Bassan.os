@@ -38,16 +38,22 @@ describe("PrismaTenantExtension Integration", () => {
   beforeEach(async () => {
     await resetDb();
 
-    // Create test organizations
-    const org1 = await prisma.organization.create({
-      data: { name: "Test Org 1", slug: "test-org-1" },
-    });
-    org1Id = org1.id;
+    // Use fixed IDs to prevent FK violations
+    org1Id = "test-org-1-uuid";
+    org2Id = "test-org-2-uuid";
 
-    const org2 = await prisma.organization.create({
-      data: { name: "Test Org 2", slug: "test-org-2" },
+    // Upsert test organizations with fixed IDs
+    await prisma.organization.upsert({
+      where: { id: org1Id },
+      update: {},
+      create: { id: org1Id, name: "Test Org 1", slug: "test-org-1" },
     });
-    org2Id = org2.id;
+
+    await prisma.organization.upsert({
+      where: { id: org2Id },
+      update: {},
+      create: { id: org2Id, name: "Test Org 2", slug: "test-org-2" },
+    });
   });
 
   afterAll(async () => {
@@ -162,54 +168,57 @@ describe("PrismaTenantExtension Integration", () => {
   describe("Workflow Scoping", () => {
     describe("Fail-Closed Enforcement", () => {
       it("should THROW TENANT_ISOLATION_VIOLATION when no CLS context", async () => {
-        // Clear CLS context
-        clsService.set("orgId", null);
-        clsService.set("userId", null);
-
-        // Attempt to query WorkflowDefinition without context
-        await expect(
-          extendedPrisma.workflowDefinition.findMany(),
-        ).rejects.toThrow("TENANT_ISOLATION_VIOLATION");
+        await clsService.run(async () => {
+          // DO NOT set orgId - test fail-closed behavior
+          // Attempt to query WorkflowDefinition without context
+          await expect(
+            extendedPrisma.workflowDefinition.findMany(),
+          ).rejects.toThrow("TENANT_ISOLATION_VIOLATION");
+        });
       });
     });
 
     describe("Success with Context", () => {
       it("should CREATE WorkflowDefinition with organizationId injected", async () => {
-        // Set CLS context
-        clsService.set("orgId", org1Id);
-        clsService.set("userId", "test-user-id");
+        await clsService.run(async () => {
+          // Set CLS context
+          clsService.set("orgId", org1Id);
+          clsService.set("userId", "test-user-id");
 
-        // Create workflow
-        const workflow = await extendedPrisma.workflowDefinition.create({
-          data: {
-            name: "Test Workflow",
-            description: "Test workflow description",
-          },
+          // Create workflow
+          const workflow = await extendedPrisma.workflowDefinition.create({
+            data: {
+              name: "Test Workflow",
+              description: "Test workflow description",
+            },
+          });
+
+          // Verify organizationId was injected
+          expect(workflow.organizationId).toBe(org1Id);
         });
-
-        // Verify organizationId was injected
-        expect(workflow.organizationId).toBe(org1Id);
       });
     });
 
     describe("Injection Blocking", () => {
       it("should BLOCK organizationId injection on WorkflowDefinition create", async () => {
-        // Set CLS context to org1
-        clsService.set("orgId", org1Id);
-        clsService.set("userId", "test-user-id");
+        await clsService.run(async () => {
+          // Set CLS context to org1
+          clsService.set("orgId", org1Id);
+          clsService.set("userId", "test-user-id");
 
-        // Try to inject org2Id - should be overwritten
-        const workflow = await extendedPrisma.workflowDefinition.create({
-          data: {
-            name: "Hacked Workflow",
-            description: "Malicious workflow",
-            organizationId: org2Id, // ⚠️ MALICIOUS INJECTION
-          },
+          // Try to inject org2Id - should be overwritten
+          const workflow = await extendedPrisma.workflowDefinition.create({
+            data: {
+              name: "Hacked Workflow",
+              description: "Malicious workflow",
+              organizationId: org2Id, // ⚠️ MALICIOUS INJECTION
+            },
+          });
+
+          // Should be org1Id, NOT org2Id
+          expect(workflow.organizationId).toBe(org1Id);
+          expect(workflow.organizationId).not.toBe(org2Id);
         });
-
-        // Should be org1Id, NOT org2Id
-        expect(workflow.organizationId).toBe(org1Id);
-        expect(workflow.organizationId).not.toBe(org2Id);
       });
     });
   });
