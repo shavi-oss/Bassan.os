@@ -1,0 +1,15 @@
+# Auto-normalize line endings to LF on commit
+* text=auto eol=lf
+
+# Explicit LF for source files
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
