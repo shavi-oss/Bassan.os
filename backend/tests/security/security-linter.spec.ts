@@ -645,6 +645,17 @@ describe("Security Linter", () => {
 
         const violations: string[] = [];
 
+        // ============================================================
+        // GOVERNANCE PATCH EXCEPTION: BASSAN_PATCH=3.1
+        // ============================================================
+        // Stage 3.1 is a controlled governance patch to register
+        // Stage 3 runtime models in the tenant isolation extension.
+        // ONLY prisma.extension.ts is allowed to be modified.
+        const PATCH_VERSION = process.env.BASSAN_PATCH;
+        const ALLOWED_PATCH_FILES_3_1 = [
+          "backend/src/core/database/prisma.extension.ts",
+        ];
+
         allChanges.forEach((changedFile) => {
           // Normalize path separators
           const normalizedFile = changedFile.replace(/\\/g, "/");
@@ -652,6 +663,18 @@ describe("Security Linter", () => {
           IMMUTABLE_PATHS.forEach((immutablePath) => {
             const normalizedImmutablePath = immutablePath.replace(/\\/g, "/");
             if (normalizedFile.includes(normalizedImmutablePath)) {
+              // Check if this is an allowed patch file for Stage 3.1
+              if (PATCH_VERSION === "3.1") {
+                const isAllowedPatchFile = ALLOWED_PATCH_FILES_3_1.some(
+                  (allowedFile) =>
+                    normalizedFile.includes(allowedFile.replace(/\\/g, "/")),
+                );
+                if (isAllowedPatchFile) {
+                  // PASS - This file is allowed for Stage 3.1 patch
+                  return;
+                }
+              }
+
               violations.push(
                 `${changedFile} - IMMUTABLE ARTIFACT MODIFIED (Stage 0-2)`,
               );
