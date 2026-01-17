@@ -130,6 +130,18 @@ describe("🚀 Stage 3: Workflow Execution Runtime", () => {
     tokenB = loginB.body.accessToken;
 
     // ============================================================
+    // SETUP INTEGRITY ASSERTIONS (Meaningful, Non-Behavioral)
+    // ============================================================
+    expect(orgAId).toBeDefined();
+    expect(orgBId).toBeDefined();
+    expect(userAId).toBeDefined();
+    expect(userBId).toBeDefined();
+
+    // Ensure tenants/users are distinct (prevents false positives in isolation tests)
+    expect(orgAId).not.toEqual(orgBId);
+    expect(userAId).not.toEqual(userBId);
+
+    // ============================================================
     // CREATE ACTIVE WORKFLOW DEFINITION (with states + transitions)
     // ============================================================
     const activeDefinition = await prisma.workflowDefinition.create({
