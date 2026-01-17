@@ -23,6 +23,8 @@ export async function resetDb() {
     // Preferred: TRUNCATE for speed and CASCADE handling
     await prismaUnsafe.$executeRawUnsafe(`
       TRUNCATE TABLE 
+        workflow_execution_logs,
+        workflow_instances,
         workflow_transitions,
         workflow_states,
         workflow_definitions,
@@ -40,6 +42,8 @@ export async function resetDb() {
     // Fallback: deleteMany in FK-safe order
     console.warn("TRUNCATE failed, falling back to deleteMany:", error);
     await prismaUnsafe.$transaction([
+      prismaUnsafe.workflowExecutionLog.deleteMany(),
+      prismaUnsafe.workflowInstance.deleteMany(),
       prismaUnsafe.workflowTransition.deleteMany(),
       prismaUnsafe.workflowState.deleteMany(),
       prismaUnsafe.workflowDefinition.deleteMany(),

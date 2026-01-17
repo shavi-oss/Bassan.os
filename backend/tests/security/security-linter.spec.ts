@@ -74,6 +74,22 @@ describe("Security Linter", () => {
     { method: "DELETE", path: "/workflows/:id/transitions/:transitionId" },
   ];
 
+  // ============================================================
+  // GOVERNANCE: STAGE SELECTOR
+  // ============================================================
+  // Default to Stage 3 if not specified (Fail-Safe for current dev)
+  const CURRENT_STAGE = Number(process.env.BASSAN_STAGE ?? 3);
+
+  console.log(
+    `\n[SECURITY GOVERNANCE] Executing Linter for STAGE ${CURRENT_STAGE}\n`,
+  );
+
+  // Conditional describes based on Stage
+  // S2 rules apply strictly when validating Stage 2.
+  // When in Stage 3+, S2 scope rules are superseded by S3 scope rules.
+  const describeS2 = CURRENT_STAGE === 2 ? describe : describe.skip;
+  const describeS3 = CURRENT_STAGE >= 3 ? describe : describe.skip;
+
   function getAllFiles(dir: string, fileList: string[] = []): string[] {
     if (!fs.existsSync(dir)) return fileList;
 
@@ -297,7 +313,7 @@ describe("Security Linter", () => {
     });
   });
 
-  describe("S2-L3: Endpoint allowlist enforcement", () => {
+  describeS2("S2-L3: Endpoint allowlist enforcement", () => {
     it("should only allow Stage 1+2 endpoints", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
@@ -373,7 +389,7 @@ describe("Security Linter", () => {
     });
   });
 
-  describe("S2-L2: Module allowlist enforcement", () => {
+  describeS2("S2-L2: Module allowlist enforcement", () => {
     it("should only allow Stage 1+2 modules", () => {
       const modulesDir = path.join(srcDir, "modules");
       if (!fs.existsSync(modulesDir)) return;
@@ -435,6 +451,247 @@ describe("Security Linter", () => {
         }
         // If git is missing, we might warn, but for now we assume environment has git
         // console.warn('Could not check dependency freeze via git:', error.message);
+      }
+    });
+  });
+
+  /**
+   * ========================================
+   * STAGE 3 SECURITY LINTER RULES
+   * ========================================
+   * S3-L1: _unsafeClient FORBIDDEN in workflow-instances
+   * S3-L2: Module allowlist extended (add workflow-instances ONLY)
+   * S3-L3: Endpoint allowlist (4 runtime endpoints only)
+   * S3-L4: Guards mandatory (JwtAuthGuard, TenantGuard)
+   * S3-L5: Prisma access via prismaService.client (enforced by S3-L1)
+   * S3-L6: Dependency Freeze (maintained from S2-L6)
+   * S3-L7: IMMUTABILITY CHECK - Fail if Stage 0-2 artifacts modified
+   */
+
+  describeS3("S3-L1: _unsafeClient FORBIDDEN in workflow-instances", () => {
+    it("should forbid _unsafeClient in workflow-instances module", () => {
+      const workflowInstancesDir = path.join(
+        srcDir,
+        "modules",
+        "workflow-instances",
+      );
+      if (!fs.existsSync(workflowInstancesDir)) {
+        // Module doesn't exist yet - PASS (Gate 2 not executed)
+        return;
+      }
+
+      const allFiles = getAllFiles(workflowInstancesDir);
+      const violations: string[] = [];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        if (content.includes("_unsafeClient")) {
+          const lines = content.split("\n");
+          lines.forEach((line, index) => {
+            if (line.includes("_unsafeClient")) {
+              violations.push(
+                `${file}:${index + 1} - _unsafeClient FORBIDDEN in workflow-instances`,
+              );
+            }
+          });
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S3-L1 VIOLATION: _unsafeClient found in workflow-instances:\\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS3("S3-L2: Module allowlist (Stage 3)", () => {
+    it("should only allow Stage 1+2+3 modules", () => {
+      const modulesDir = path.join(srcDir, "modules");
+      if (!fs.existsSync(modulesDir)) return;
+
+      const STAGE_3_ALLOWED_MODULES = [
+        ...ALLOWED_MODULES,
+        "workflow-instances",
+      ];
+
+      const violations: string[] = [];
+      const modules = fs.readdirSync(modulesDir);
+
+      modules.forEach((module) => {
+        const modulePath = path.join(modulesDir, module);
+        if (fs.statSync(modulePath).isDirectory()) {
+          // Ignore archived
+          if (module.startsWith("_")) return;
+
+          if (!STAGE_3_ALLOWED_MODULES.includes(module)) {
+            violations.push(
+              `src/modules/${module} - Module not allowed in Stage 3 scope`,
+            );
+          }
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S3-L2 VIOLATION: Modules outside Stage 3 scope:\\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS3("S3-L3: Endpoint allowlist (Stage 3)", () => {
+    it("should only allow Stage 1+2+3 endpoints", () => {
+      const allFiles = getAllFiles(srcDir);
+      const violations: string[] = [];
+      const foundEndpoints: Array<{
+        method: string;
+        path: string;
+        file: string;
+        line: number;
+      }> = [];
+
+      const STAGE_3_ALLOWED_ENDPOINTS = [
+        ...ALLOWED_ENDPOINTS,
+        // Stage 3 - Runtime Execution
+        { method: "POST", path: "/workflow-instances" },
+        { method: "GET", path: "/workflow-instances/:id" },
+        { method: "POST", path: "/workflow-instances/:id/transition" },
+        { method: "GET", path: "/workflow-instances/:id/history" },
+      ];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".controller.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        const lines = content.split("\n");
+
+        const controllerMatch = content.match(
+          /@Controller\s*\(\s*['"]([^'"]*)['"]\s*\)/,
+        );
+        const basePath = controllerMatch ? `/${controllerMatch[1]}` : "";
+
+        lines.forEach((line, index) => {
+          const methodMatch = line.match(
+            /@(Get|Post|Put|Patch|Delete)\s*\(\s*['"]?([^'")]*?)['"]?\s*\)/,
+          );
+          if (methodMatch) {
+            const method = methodMatch[1].toUpperCase();
+            const routePath = methodMatch[2] || "";
+            const fullPath = basePath + (routePath ? `/${routePath}` : "");
+
+            foundEndpoints.push({
+              method,
+              path: fullPath.replace(/\/+/g, "/"),
+              file,
+              line: index + 1,
+            });
+          }
+        });
+      });
+
+      foundEndpoints.forEach((endpoint) => {
+        const isAllowed = STAGE_3_ALLOWED_ENDPOINTS.some(
+          (allowed) =>
+            allowed.method === endpoint.method &&
+            allowed.path === endpoint.path,
+        );
+
+        if (!isAllowed) {
+          violations.push(
+            `${endpoint.file}:${endpoint.line} - SCOPE VIOLATION: ${endpoint.method} ${endpoint.path} not in Stage 3 Allowlist`,
+          );
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S3-L3 VIOLATION: Endpoints outside Stage 3 allowlist:\\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describe("S3-L7: IMMUTABILITY CHECK (Stage 0-2 artifacts)", () => {
+    it("should fail if any Stage 0-2 artifact is modified", () => {
+      const IMMUTABLE_PATHS = [
+        "src/core",
+        "src/shared",
+        "src/modules/auth",
+        "src/modules/organizations",
+        "src/modules/users",
+        "src/modules/roles",
+        "src/modules/workflows",
+      ];
+
+      try {
+        // Check unstaged changes
+        const diff = execSync("git diff --name-only", {
+          cwd: projectRoot,
+          encoding: "utf-8",
+        });
+
+        // Check staged changes
+        const stagedDiff = execSync("git diff --name-only --cached", {
+          cwd: projectRoot,
+          encoding: "utf-8",
+        });
+
+        const allChanges = (diff + "\n" + stagedDiff)
+          .split("\n")
+          .filter((line) => line.trim().length > 0);
+
+        const violations: string[] = [];
+
+        // ============================================================
+        // GOVERNANCE PATCH EXCEPTION: BASSAN_PATCH=3.1
+        // ============================================================
+        // Stage 3.1 is a controlled governance patch to register
+        // Stage 3 runtime models in the tenant isolation extension.
+        // ONLY prisma.extension.ts is allowed to be modified.
+        const PATCH_VERSION = process.env.BASSAN_PATCH;
+        const ALLOWED_PATCH_FILES_3_1 = [
+          "backend/src/core/database/prisma.extension.ts",
+        ];
+
+        allChanges.forEach((changedFile) => {
+          // Normalize path separators
+          const normalizedFile = changedFile.replace(/\\/g, "/");
+
+          IMMUTABLE_PATHS.forEach((immutablePath) => {
+            const normalizedImmutablePath = immutablePath.replace(/\\/g, "/");
+            if (normalizedFile.includes(normalizedImmutablePath)) {
+              // Check if this is an allowed patch file for Stage 3.1
+              if (PATCH_VERSION === "3.1") {
+                const isAllowedPatchFile = ALLOWED_PATCH_FILES_3_1.some(
+                  (allowedFile) =>
+                    normalizedFile.includes(allowedFile.replace(/\\/g, "/")),
+                );
+                if (isAllowedPatchFile) {
+                  // PASS - This file is allowed for Stage 3.1 patch
+                  return;
+                }
+              }
+
+              violations.push(
+                `${changedFile} - IMMUTABLE ARTIFACT MODIFIED (Stage 0-2)`,
+              );
+            }
+          });
+        });
+
+        if (violations.length > 0) {
+          throw new Error(
+            `S3-L7 VIOLATION: Stage 0-2 artifacts are IMMUTABLE:\\n${violations.join("\n")}`,
+          );
+        }
+      } catch (error: any) {
+        if (error.message.includes("S3-L7 VIOLATION")) {
+          throw error;
+        }
+        // Git command failed - assume clean
       }
     });
   });

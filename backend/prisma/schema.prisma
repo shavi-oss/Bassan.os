@@ -22,32 +22,35 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users User[]
-  roles Role[]
-  leads Lead[]
-  tasks Task[]
+  users               User[]
+  roles               Role[]
+  leads               Lead[]
+  tasks               Task[]
   workflowDefinitions WorkflowDefinition[]
+  workflowInstances   WorkflowInstance[]
+  workflowExecutions  WorkflowExecutionLog[]
 
   @@map("organizations")
 }
 
 model User {
-  id             String    @id @default(uuid())
-  email          String    @unique
+  id             String   @id @default(uuid())
+  email          String   @unique
   passwordHash   String
   firstName      String?
   lastName       String?
-  isActive       Boolean   @default(true)
+  isActive       Boolean  @default(true)
   organizationId String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  organization   Organization   @relation(fields: [organizationId], references: [id])
-  roles          UserRole[]
-  refreshTokens  RefreshToken[]
-  leadsOwned     Lead[]         @relation("LeadOwner")
-  tasksAssigned  Task[]         @relation("TaskAssignee")
-  tasksCreated   Task[]         @relation("TaskCreator")
+  organization       Organization           @relation(fields: [organizationId], references: [id])
+  roles              UserRole[]
+  refreshTokens      RefreshToken[]
+  leadsOwned         Lead[]                 @relation("LeadOwner")
+  tasksAssigned      Task[]                 @relation("TaskAssignee")
+  tasksCreated       Task[]                 @relation("TaskCreator")
+  workflowExecutions WorkflowExecutionLog[]
 
   @@index([organizationId])
   @@map("users")
@@ -92,11 +95,11 @@ model Permission {
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
+  id        String    @id @default(uuid())
+  token     String    @unique
   userId    String
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   revokedAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -111,7 +114,7 @@ model RefreshToken {
 // ============================================================
 
 model Lead {
-  id             String    @id @default(uuid())
+  id             String     @id @default(uuid())
   firstName      String
   lastName       String
   email          String?
@@ -122,8 +125,8 @@ model Lead {
   notes          String?
   organizationId String
   ownerId        String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
   owner        User?        @relation("LeadOwner", fields: [ownerId], references: [id])
@@ -146,18 +149,18 @@ enum LeadStatus {
 // ============================================================
 
 model Task {
-  id             String     @id @default(uuid())
+  id             String       @id @default(uuid())
   title          String
   description    String?
-  status         TaskStatus @default(PENDING)
+  status         TaskStatus   @default(PENDING)
   priority       TaskPriority @default(MEDIUM)
   dueDate        DateTime?
   organizationId String
   assigneeId     String?
   createdById    String
   completedAt    DateTime?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
   assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
@@ -196,9 +199,10 @@ model WorkflowDefinition {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  organization Organization       @relation(fields: [organizationId], references: [id])
+  organization Organization         @relation(fields: [organizationId], references: [id])
   states       WorkflowState[]
   transitions  WorkflowTransition[]
+  instances    WorkflowInstance[]
 
   @@index([organizationId])
   @@index([status])
@@ -215,9 +219,12 @@ model WorkflowState {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  workflowDefinition WorkflowDefinition   @relation(fields: [workflowDefinitionId], references: [id], onDelete: Cascade)
-  transitionsFrom    WorkflowTransition[] @relation("TransitionsFrom")
-  transitionsTo      WorkflowTransition[] @relation("TransitionsTo")
+  workflowDefinition   WorkflowDefinition     @relation(fields: [workflowDefinitionId], references: [id], onDelete: Cascade)
+  transitionsFrom      WorkflowTransition[]   @relation("TransitionsFrom")
+  transitionsTo        WorkflowTransition[]   @relation("TransitionsTo")
+  instancesAtThisState WorkflowInstance[]
+  executionLogsFrom    WorkflowExecutionLog[] @relation("ExecutionLogFromState")
+  executionLogsTo      WorkflowExecutionLog[] @relation("ExecutionLogToState")
 
   @@index([workflowDefinitionId])
   @@map("workflow_states")
@@ -248,3 +255,54 @@ enum WorkflowStatus {
   ARCHIVED
 }
 
+// ============================================================
+// WORKFLOW RUNTIME (Stage 3 - Execution)
+// ============================================================
+
+model WorkflowInstance {
+  id                   String                 @id @default(uuid())
+  workflowDefinitionId String
+  currentStateId       String
+  status               WorkflowInstanceStatus @default(RUNNING)
+  context              Json? // Minimal data passing
+  version              Int                    @default(1) // Optimistic locking
+  organizationId       String
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  workflowDefinition WorkflowDefinition     @relation(fields: [workflowDefinitionId], references: [id])
+  currentState       WorkflowState          @relation(fields: [currentStateId], references: [id])
+  executionLogs      WorkflowExecutionLog[]
+  Organization       Organization           @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([workflowDefinitionId])
+  @@index([status])
+  @@map("workflow_instances")
+}
+
+model WorkflowExecutionLog {
+  id                 String   @id @default(uuid())
+  workflowInstanceId String
+  fromStateId        String? // Nullable for initial creation
+  toStateId          String
+  triggeredById      String
+  timestamp          DateTime @default(now())
+  organizationId     String
+
+  workflowInstance WorkflowInstance @relation(fields: [workflowInstanceId], references: [id], onDelete: Cascade)
+  fromState        WorkflowState?   @relation("ExecutionLogFromState", fields: [fromStateId], references: [id])
+  toState          WorkflowState    @relation("ExecutionLogToState", fields: [toStateId], references: [id])
+  triggeredBy      User             @relation(fields: [triggeredById], references: [id])
+  Organization     Organization     @relation(fields: [organizationId], references: [id])
+
+  @@index([workflowInstanceId])
+  @@index([organizationId])
+  @@map("workflow_execution_logs")
+}
+
+enum WorkflowInstanceStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+}
