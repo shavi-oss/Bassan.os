@@ -74,6 +74,22 @@ describe("Security Linter", () => {
     { method: "DELETE", path: "/workflows/:id/transitions/:transitionId" },
   ];
 
+  // ============================================================
+  // GOVERNANCE: STAGE SELECTOR
+  // ============================================================
+  // Default to Stage 3 if not specified (Fail-Safe for current dev)
+  const CURRENT_STAGE = Number(process.env.BASSAN_STAGE ?? 3);
+
+  console.log(
+    `\n[SECURITY GOVERNANCE] Executing Linter for STAGE ${CURRENT_STAGE}\n`,
+  );
+
+  // Conditional describes based on Stage
+  // S2 rules apply strictly when validating Stage 2.
+  // When in Stage 3+, S2 scope rules are superseded by S3 scope rules.
+  const describeS2 = CURRENT_STAGE === 2 ? describe : describe.skip;
+  const describeS3 = CURRENT_STAGE >= 3 ? describe : describe.skip;
+
   function getAllFiles(dir: string, fileList: string[] = []): string[] {
     if (!fs.existsSync(dir)) return fileList;
 
@@ -297,7 +313,7 @@ describe("Security Linter", () => {
     });
   });
 
-  describe("S2-L3: Endpoint allowlist enforcement", () => {
+  describeS2("S2-L3: Endpoint allowlist enforcement", () => {
     it("should only allow Stage 1+2 endpoints", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
@@ -373,7 +389,7 @@ describe("Security Linter", () => {
     });
   });
 
-  describe("S2-L2: Module allowlist enforcement", () => {
+  describeS2("S2-L2: Module allowlist enforcement", () => {
     it("should only allow Stage 1+2 modules", () => {
       const modulesDir = path.join(srcDir, "modules");
       if (!fs.existsSync(modulesDir)) return;
@@ -452,7 +468,7 @@ describe("Security Linter", () => {
    * S3-L7: IMMUTABILITY CHECK - Fail if Stage 0-2 artifacts modified
    */
 
-  describe("S3-L1: _unsafeClient FORBIDDEN in workflow-instances", () => {
+  describeS3("S3-L1: _unsafeClient FORBIDDEN in workflow-instances", () => {
     it("should forbid _unsafeClient in workflow-instances module", () => {
       const workflowInstancesDir = path.join(
         srcDir,
@@ -491,7 +507,7 @@ describe("Security Linter", () => {
     });
   });
 
-  describe("S3-L2: Module allowlist (Stage 3)", () => {
+  describeS3("S3-L2: Module allowlist (Stage 3)", () => {
     it("should only allow Stage 1+2+3 modules", () => {
       const modulesDir = path.join(srcDir, "modules");
       if (!fs.existsSync(modulesDir)) return;
@@ -526,7 +542,7 @@ describe("Security Linter", () => {
     });
   });
 
-  describe("S3-L3: Endpoint allowlist (Stage 3)", () => {
+  describeS3("S3-L3: Endpoint allowlist (Stage 3)", () => {
     it("should only allow Stage 1+2+3 endpoints", () => {
       const allFiles = getAllFiles(srcDir);
       const violations: string[] = [];
