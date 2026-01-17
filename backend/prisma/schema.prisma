@@ -22,13 +22,15 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users               User[]
-  roles               Role[]
-  leads               Lead[]
-  tasks               Task[]
-  workflowDefinitions WorkflowDefinition[]
-  workflowInstances   WorkflowInstance[]
-  workflowExecutions  WorkflowExecutionLog[]
+  users                 User[]
+  roles                 Role[]
+  leads                 Lead[]
+  tasks                 Task[]
+  workflowDefinitions   WorkflowDefinition[]
+  workflowInstances     WorkflowInstance[]
+  workflowExecutions    WorkflowExecutionLog[]
+  workflowTriggers      WorkflowTrigger[] // Stage 4
+  workflowTriggerEvents WorkflowTriggerEvent[] // Stage 4
 
   @@map("organizations")
 }
@@ -51,6 +53,7 @@ model User {
   tasksAssigned      Task[]                 @relation("TaskAssignee")
   tasksCreated       Task[]                 @relation("TaskCreator")
   workflowExecutions WorkflowExecutionLog[]
+  triggerEventsFired WorkflowTriggerEvent[] @relation("TriggerEventTriggeredBy") // Stage 4
 
   @@index([organizationId])
   @@map("users")
@@ -203,6 +206,7 @@ model WorkflowDefinition {
   states       WorkflowState[]
   transitions  WorkflowTransition[]
   instances    WorkflowInstance[]
+  triggers     WorkflowTrigger[] // Stage 4
 
   @@index([organizationId])
   @@index([status])
@@ -274,6 +278,7 @@ model WorkflowInstance {
   currentState       WorkflowState          @relation(fields: [currentStateId], references: [id])
   executionLogs      WorkflowExecutionLog[]
   Organization       Organization           @relation(fields: [organizationId], references: [id])
+  triggerEvents      WorkflowTriggerEvent[] // Stage 4
 
   @@index([organizationId])
   @@index([workflowDefinitionId])
@@ -305,4 +310,47 @@ enum WorkflowInstanceStatus {
   RUNNING
   COMPLETED
   FAILED
+}
+
+// ============================================================
+// WORKFLOW TRIGGERS & AUTOMATION (Stage 4)
+// ============================================================
+
+model WorkflowTrigger {
+  id                   String   @id @default(uuid())
+  eventKey             String // Unique per tenant (e.g., "lead.created")
+  workflowDefinitionId String
+  description          String?
+  isActive             Boolean  @default(true)
+  organizationId       String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  workflowDefinition WorkflowDefinition     @relation(fields: [workflowDefinitionId], references: [id])
+  organization       Organization           @relation(fields: [organizationId], references: [id])
+  events             WorkflowTriggerEvent[]
+
+  @@unique([organizationId, eventKey])
+  @@index([organizationId])
+  @@index([eventKey])
+  @@map("workflow_triggers")
+}
+
+model WorkflowTriggerEvent {
+  id                 String   @id @default(uuid())
+  workflowTriggerId  String
+  workflowInstanceId String
+  payload            Json? // Context data passed to instance
+  triggeredById      String
+  organizationId     String
+  createdAt          DateTime @default(now())
+
+  workflowTrigger  WorkflowTrigger  @relation(fields: [workflowTriggerId], references: [id])
+  workflowInstance WorkflowInstance @relation(fields: [workflowInstanceId], references: [id])
+  triggeredBy      User             @relation("TriggerEventTriggeredBy", fields: [triggeredById], references: [id])
+  organization     Organization     @relation(fields: [organizationId], references: [id])
+
+  @@index([workflowTriggerId])
+  @@index([organizationId])
+  @@map("workflow_trigger_events")
 }
