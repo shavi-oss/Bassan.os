@@ -65,6 +65,8 @@ const DIRECTLY_SCOPED_MODELS = [
   "WorkflowDefinition",
   "WorkflowInstance", // Stage 3 - Runtime
   "WorkflowExecutionLog", // Stage 3 - Runtime (immutable history)
+  "WorkflowTrigger", // Stage 4 - Triggers
+  "WorkflowTriggerEvent", // Stage 4 - Trigger Events (immutable audit)
 ];
 
 export interface TenantContext {
