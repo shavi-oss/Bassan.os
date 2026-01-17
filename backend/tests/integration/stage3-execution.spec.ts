@@ -24,12 +24,10 @@ describe("🚀 Stage 3: Workflow Execution Runtime", () => {
 
   // Organization A (Primary Test Tenant)
   let orgAId: string;
-  let userAId: string;
   let tokenA: string;
 
   // Organization B (Cross-Tenant Test)
   let orgBId: string;
-  let userBId: string;
   let tokenB: string;
 
   // Workflow fixtures
@@ -79,7 +77,7 @@ describe("🚀 Stage 3: Workflow Execution Runtime", () => {
     orgAId = orgA.id;
 
     const passwordHash = await bcrypt.hash("TestPass123!", 10);
-    const userA = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: "user.a@test.com",
         passwordHash,
@@ -89,7 +87,7 @@ describe("🚀 Stage 3: Workflow Execution Runtime", () => {
         isActive: true,
       },
     });
-    userAId = userA.id;
+    // userAId not needed
 
     // Login User A
     const loginA = await request(app.getHttpServer())
@@ -110,7 +108,7 @@ describe("🚀 Stage 3: Workflow Execution Runtime", () => {
     });
     orgBId = orgB.id;
 
-    const userB = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: "user.b@test.com",
         passwordHash,
@@ -120,7 +118,7 @@ describe("🚀 Stage 3: Workflow Execution Runtime", () => {
         isActive: true,
       },
     });
-    userBId = userB.id;
+    // userBId not needed
 
     // Login User B
     const loginB = await request(app.getHttpServer())
