@@ -31,6 +31,9 @@ model Organization {
   workflowExecutions    WorkflowExecutionLog[]
   workflowTriggers      WorkflowTrigger[] // Stage 4
   workflowTriggerEvents WorkflowTriggerEvent[] // Stage 4
+  scheduledTriggers     ScheduledTrigger[] // Stage 5
+  deferredExecutions    DeferredExecution[] // Stage 5
+  executionAttempts     ExecutionAttempt[] // Stage 5
 
   @@map("organizations")
 }
@@ -202,11 +205,13 @@ model WorkflowDefinition {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  organization Organization         @relation(fields: [organizationId], references: [id])
-  states       WorkflowState[]
-  transitions  WorkflowTransition[]
-  instances    WorkflowInstance[]
-  triggers     WorkflowTrigger[] // Stage 4
+  organization       Organization         @relation(fields: [organizationId], references: [id])
+  states             WorkflowState[]
+  transitions        WorkflowTransition[]
+  instances          WorkflowInstance[]
+  triggers           WorkflowTrigger[] // Stage 4
+  scheduledTriggers  ScheduledTrigger[] // Stage 5
+  deferredExecutions DeferredExecution[] // Stage 5
 
   @@index([organizationId])
   @@index([status])
@@ -353,4 +358,96 @@ model WorkflowTriggerEvent {
   @@index([workflowTriggerId])
   @@index([organizationId])
   @@map("workflow_trigger_events")
+}
+
+// ============================================================
+// ASYNCHRONOUS EXECUTION & DEFERRED AUTOMATION (Stage 5)
+// ============================================================
+
+model ScheduledTrigger {
+  id                   String    @id @default(uuid())
+  cronExpression       String? // Cron expression for recurring schedules
+  delaySeconds         Int? // One-time delay in seconds
+  timezone             String    @default("UTC")
+  workflowDefinitionId String
+  description          String?
+  isActive             Boolean   @default(true)
+  lastExecutedAt       DateTime?
+  nextExecutionAt      DateTime?
+  organizationId       String
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  workflowDefinition WorkflowDefinition  @relation(fields: [workflowDefinitionId], references: [id])
+  organization       Organization        @relation(fields: [organizationId], references: [id])
+  deferredExecutions DeferredExecution[]
+
+  @@index([organizationId])
+  @@index([isActive])
+  @@index([nextExecutionAt])
+  @@map("scheduled_triggers")
+}
+
+model DeferredExecution {
+  id                   String                  @id @default(uuid())
+  scheduledTriggerId   String?
+  workflowDefinitionId String
+  idempotencyKey       String                  @unique
+  status               DeferredExecutionStatus @default(PENDING)
+  scheduledFor         DateTime
+  payload              Json?
+  retryCount           Int                     @default(0)
+  maxRetries           Int                     @default(3)
+  lastAttemptAt        DateTime?
+  organizationId       String
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  scheduledTrigger   ScheduledTrigger?  @relation(fields: [scheduledTriggerId], references: [id])
+  workflowDefinition WorkflowDefinition @relation(fields: [workflowDefinitionId], references: [id])
+  organization       Organization       @relation(fields: [organizationId], references: [id])
+  attempts           ExecutionAttempt[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([idempotencyKey])
+  @@map("deferred_executions")
+}
+
+model ExecutionAttempt {
+  id                  String                 @id @default(uuid())
+  deferredExecutionId String
+  attemptNumber       Int
+  startedAt           DateTime               @default(now())
+  completedAt         DateTime?
+  status              ExecutionAttemptStatus @default(RUNNING)
+  errorMessage        String?
+  errorCode           String?
+  workflowInstanceId  String? // Reference only, no FK constraint
+  organizationId      String
+  createdAt           DateTime               @default(now())
+
+  deferredExecution DeferredExecution @relation(fields: [deferredExecutionId], references: [id], onDelete: Cascade)
+  organization      Organization      @relation(fields: [organizationId], references: [id])
+
+  @@index([deferredExecutionId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("execution_attempts")
+}
+
+enum DeferredExecutionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  DEAD_LETTER
+}
+
+enum ExecutionAttemptStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+  TIMEOUT
 }

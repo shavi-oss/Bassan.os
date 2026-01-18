@@ -91,6 +91,7 @@ describe("Security Linter", () => {
   const describeS2 = CURRENT_STAGE === 2 ? describe : describe.skip;
   const describeS3 = CURRENT_STAGE === 3 ? describe : describe.skip;
   const describeS4 = CURRENT_STAGE >= 4 ? describe : describe.skip;
+  const describeS5 = CURRENT_STAGE >= 5 ? describe : describe.skip;
 
   function getAllFiles(dir: string, fileList: string[] = []): string[] {
     if (!fs.existsSync(dir)) return fileList;
@@ -871,6 +872,304 @@ describe("Security Linter", () => {
         }
       } catch (error: any) {
         if (error.message.includes("S3-L7 VIOLATION")) {
+          throw error;
+        }
+        // Git command failed - assume clean
+      }
+    });
+  });
+
+  /**
+   * ========================================
+   * STAGE 5 SECURITY LINTER RULES
+   * ========================================
+   * S5-L1: _unsafeClient FORBIDDEN in scheduled-triggers and deferred-execution
+   * S5-L2: Module allowlist extended (add scheduled-triggers, deferred-execution ONLY)
+   * S5-L3: Endpoint allowlist (Stage 5 async execution endpoints only)
+   * S5-L7: IMMUTABILITY CHECK - Fail if Stage 0-4 artifacts modified
+   */
+
+  describeS5("S5-L1: _unsafeClient FORBIDDEN in Stage 5 modules", () => {
+    it("should forbid _unsafeClient in scheduled-triggers module", () => {
+      const scheduledTriggersDir = path.join(
+        srcDir,
+        "modules",
+        "scheduled-triggers",
+      );
+      if (!fs.existsSync(scheduledTriggersDir)) {
+        // Module doesn't exist yet - PASS (Gate 3 not executed)
+        return;
+      }
+
+      const allFiles = getAllFiles(scheduledTriggersDir);
+      const violations: string[] = [];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        if (content.includes("_unsafeClient")) {
+          const lines = content.split("\n");
+          lines.forEach((line, index) => {
+            if (line.includes("_unsafeClient")) {
+              violations.push(
+                `${file}:${index + 1} - _unsafeClient FORBIDDEN in scheduled-triggers`,
+              );
+            }
+          });
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S5-L1 VIOLATION: _unsafeClient found in scheduled-triggers:\n${violations.join("\n")}`,
+        );
+      }
+    });
+
+    it("should forbid _unsafeClient in deferred-execution module", () => {
+      const deferredExecutionDir = path.join(
+        srcDir,
+        "modules",
+        "deferred-execution",
+      );
+      if (!fs.existsSync(deferredExecutionDir)) {
+        // Module doesn't exist yet - PASS (Gate 3 not executed)
+        return;
+      }
+
+      const allFiles = getAllFiles(deferredExecutionDir);
+      const violations: string[] = [];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        if (content.includes("_unsafeClient")) {
+          const lines = content.split("\n");
+          lines.forEach((line, index) => {
+            if (line.includes("_unsafeClient")) {
+              violations.push(
+                `${file}:${index + 1} - _unsafeClient FORBIDDEN in deferred-execution`,
+              );
+            }
+          });
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S5-L1 VIOLATION: _unsafeClient found in deferred-execution:\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS5("S5-L2: Module allowlist (Stage 5)", () => {
+    it("should only allow Stage 1+2+3+4+5 modules", () => {
+      const modulesDir = path.join(srcDir, "modules");
+      if (!fs.existsSync(modulesDir)) return;
+
+      const STAGE_5_ALLOWED_MODULES = [
+        ...ALLOWED_MODULES,
+        "workflow-instances",
+        "workflow-triggers",
+        "scheduled-triggers",
+        "deferred-execution",
+      ];
+
+      const violations: string[] = [];
+      const modules = fs.readdirSync(modulesDir);
+
+      modules.forEach((module) => {
+        const modulePath = path.join(modulesDir, module);
+        if (fs.statSync(modulePath).isDirectory()) {
+          // Ignore archived
+          if (module.startsWith("_")) return;
+
+          if (!STAGE_5_ALLOWED_MODULES.includes(module)) {
+            violations.push(
+              `src/modules/${module} - Module not allowed in Stage 5 scope`,
+            );
+          }
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S5-L2 VIOLATION: Modules outside Stage 5 scope:\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS5("S5-L3: Endpoint allowlist (Stage 5)", () => {
+    it("should only allow Stage 1+2+3+4+5 endpoints", () => {
+      const allFiles = getAllFiles(srcDir);
+      const violations: string[] = [];
+      const foundEndpoints: Array<{
+        method: string;
+        path: string;
+        file: string;
+        line: number;
+      }> = [];
+
+      const STAGE_5_ALLOWED_ENDPOINTS = [
+        ...ALLOWED_ENDPOINTS,
+        // Stage 3 - Runtime Execution
+        { method: "POST", path: "/workflow-instances" },
+        { method: "GET", path: "/workflow-instances/:id" },
+        { method: "POST", path: "/workflow-instances/:id/transition" },
+        { method: "GET", path: "/workflow-instances/:id/history" },
+        // Stage 4 - Triggers & Automation
+        { method: "POST", path: "/workflow-triggers" },
+        { method: "GET", path: "/workflow-triggers" },
+        { method: "GET", path: "/workflow-triggers/:id" },
+        { method: "PATCH", path: "/workflow-triggers/:id" },
+        { method: "POST", path: "/workflow-triggers/events" },
+        { method: "GET", path: "/workflow-triggers/events/:id" },
+        // Stage 5 - Scheduled Triggers
+        { method: "POST", path: "/scheduled-triggers" },
+        { method: "GET", path: "/scheduled-triggers" },
+        { method: "GET", path: "/scheduled-triggers/:id" },
+        { method: "PATCH", path: "/scheduled-triggers/:id" },
+        { method: "DELETE", path: "/scheduled-triggers/:id" },
+        // Stage 5 - Deferred Execution
+        { method: "GET", path: "/deferred-executions" },
+        { method: "GET", path: "/deferred-executions/:id" },
+        { method: "GET", path: "/deferred-executions/:id/attempts" },
+        { method: "POST", path: "/deferred-executions/:id/retry" },
+      ];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".controller.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        const lines = content.split("\n");
+
+        const controllerMatch = content.match(
+          /@Controller\s*\(\s*['"]([^'"]*)['"]\s*\)/,
+        );
+        const basePath = controllerMatch ? `/${controllerMatch[1]}` : "";
+
+        lines.forEach((line, index) => {
+          const methodMatch = line.match(
+            /@(Get|Post|Put|Patch|Delete)\s*\(\s*['"]?([^'")]*?)['"]?\s*\)/,
+          );
+          if (methodMatch) {
+            const method = methodMatch[1].toUpperCase();
+            const routePath = methodMatch[2] || "";
+            const fullPath = basePath + (routePath ? `/${routePath}` : "");
+
+            foundEndpoints.push({
+              method,
+              path: fullPath.replace(/\/+/g, "/"),
+              file,
+              line: index + 1,
+            });
+          }
+        });
+      });
+
+      foundEndpoints.forEach((endpoint) => {
+        const isAllowed = STAGE_5_ALLOWED_ENDPOINTS.some(
+          (allowed) =>
+            allowed.method === endpoint.method &&
+            allowed.path === endpoint.path,
+        );
+
+        if (!isAllowed) {
+          violations.push(
+            `${endpoint.file}:${endpoint.line} - SCOPE VIOLATION: ${endpoint.method} ${endpoint.path} not in Stage 5 Allowlist`,
+          );
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S5-L3 VIOLATION: Endpoints outside Stage 5 allowlist:\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS5("S5-L7: IMMUTABILITY CHECK (Stage 0-4 artifacts)", () => {
+    it("should fail if any Stage 0-4 artifact is modified", () => {
+      const IMMUTABLE_PATHS = [
+        "src/core",
+        "src/shared",
+        "src/modules/auth",
+        "src/modules/organizations",
+        "src/modules/users",
+        "src/modules/roles",
+        "src/modules/workflows",
+        "src/modules/workflow-instances",
+        "src/modules/workflow-triggers",
+      ];
+
+      try {
+        // Check unstaged changes
+        const diff = execSync("git diff --name-only", {
+          cwd: projectRoot,
+          encoding: "utf-8",
+        });
+
+        // Check staged changes
+        const stagedDiff = execSync("git diff --name-only --cached", {
+          cwd: projectRoot,
+          encoding: "utf-8",
+        });
+
+        const allChanges = (diff + "\n" + stagedDiff)
+          .split("\n")
+          .filter((line) => line.trim().length > 0);
+
+        const violations: string[] = [];
+
+        // ============================================================
+        // GOVERNANCE PATCH EXCEPTION: BASSAN_PATCH=5.1
+        // ============================================================
+        // Stage 5.1 is a controlled governance patch to register
+        // Stage 5 async execution models in the tenant isolation extension.
+        // ONLY prisma.extension.ts is allowed to be modified.
+        const PATCH_VERSION = process.env.BASSAN_PATCH;
+        const ALLOWED_PATCH_FILES_5_1 = [
+          "backend/src/core/database/prisma.extension.ts",
+        ];
+
+        allChanges.forEach((changedFile) => {
+          // Normalize path separators
+          const normalizedFile = changedFile.replace(/\\/g, "/");
+
+          IMMUTABLE_PATHS.forEach((immutablePath) => {
+            const normalizedImmutablePath = immutablePath.replace(/\\/g, "/");
+            if (normalizedFile.includes(normalizedImmutablePath)) {
+              // Check if this is an allowed patch file for Stage 5.1
+              if (PATCH_VERSION === "5.1") {
+                const isAllowedPatchFile = ALLOWED_PATCH_FILES_5_1.some(
+                  (allowedFile) =>
+                    normalizedFile.includes(allowedFile.replace(/\\/g, "/")),
+                );
+                if (isAllowedPatchFile) {
+                  // PASS - This file is allowed for Stage 5.1 patch
+                  return;
+                }
+              }
+
+              violations.push(
+                `${changedFile} - IMMUTABLE ARTIFACT MODIFIED (Stage 0-4)`,
+              );
+            }
+          });
+        });
+
+        if (violations.length > 0) {
+          throw new Error(
+            `S5-L7 VIOLATION: Stage 0-4 artifacts are IMMUTABLE:\n${violations.join("\n")}`,
+          );
+        }
+      } catch (error: any) {
+        if (error.message.includes("S5-L7 VIOLATION")) {
           throw error;
         }
         // Git command failed - assume clean
