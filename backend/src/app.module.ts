@@ -12,6 +12,8 @@ import { RolesModule } from "./modules/roles/roles.module";
 import { WorkflowsModule } from "./modules/workflows/workflows.module";
 import { WorkflowInstancesModule } from "./modules/workflow-instances/workflow-instances.module";
 import { WorkflowTriggersModule } from "./modules/workflow-triggers/workflow-triggers.module";
+import { ScheduledTriggersModule } from "./modules/scheduled-triggers/scheduled-triggers.module";
+import { DeferredExecutionModule } from "./modules/deferred-execution/deferred-execution.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SharedModule } from "./shared/shared.module";
 import { TenantMiddleware } from "./shared/middleware/tenant.middleware";
@@ -30,6 +32,8 @@ import { TenantMiddleware } from "./shared/middleware/tenant.middleware";
     WorkflowsModule,
     WorkflowInstancesModule,
     WorkflowTriggersModule,
+    ScheduledTriggersModule,
+    DeferredExecutionModule,
   ],
 })
 export class AppModule implements NestModule {

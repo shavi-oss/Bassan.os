@@ -677,6 +677,14 @@ describe("Security Linter", () => {
         "workflow-triggers",
       ];
 
+      // HOTFIX: Allow Stage 5 modules when validating in Stage 5+
+      if (CURRENT_STAGE >= 5) {
+        STAGE_4_ALLOWED_MODULES.push(
+          "scheduled-triggers",
+          "deferred-execution",
+        );
+      }
+
       const violations: string[] = [];
       const modules = fs.readdirSync(modulesDir);
 
@@ -728,6 +736,23 @@ describe("Security Linter", () => {
         { method: "POST", path: "/workflow-triggers/events" },
         { method: "GET", path: "/workflow-triggers/events/:id" },
       ];
+
+      // HOTFIX: Allow Stage 5 endpoints when validating in Stage 5+
+      if (CURRENT_STAGE >= 5) {
+        STAGE_4_ALLOWED_ENDPOINTS.push(
+          // Scheduled Triggers
+          { method: "POST", path: "/scheduled-triggers" },
+          { method: "GET", path: "/scheduled-triggers" },
+          { method: "GET", path: "/scheduled-triggers/:id" },
+          { method: "PATCH", path: "/scheduled-triggers/:id" },
+          { method: "DELETE", path: "/scheduled-triggers/:id" },
+          // Deferred Execution
+          { method: "GET", path: "/deferred-executions" },
+          { method: "GET", path: "/deferred-executions/:id" },
+          { method: "GET", path: "/deferred-executions/:id/attempts" },
+          { method: "POST", path: "/deferred-executions/:id/retry" },
+        );
+      }
 
       allFiles.forEach((file) => {
         if (!file.endsWith(".controller.ts")) return;
