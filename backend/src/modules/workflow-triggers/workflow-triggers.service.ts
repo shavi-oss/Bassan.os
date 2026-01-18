@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from "../../prisma/prisma.service";
 import { CreateTriggerDto } from "./dto/create-trigger.dto";
 import { UpdateTriggerDto } from "./dto/update-trigger.dto";
 import { FireEventDto } from "./dto/fire-event.dto";

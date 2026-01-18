@@ -42,11 +42,7 @@ export class WorkflowTriggersController {
 
   @Post("events")
   fireEvent(@Body() dto: FireEventDto, @Req() req: any) {
-    return this.service.fireEvent(
-      dto,
-      req.user.userId,
-      req.user.organizationId,
-    );
+    return this.service.fireEvent(dto, req.user.id, req.user.organizationId);
   }
 
   @Get("events/:id")
