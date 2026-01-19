@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
+import { WorkflowStatus } from "@prisma/client";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CreateScheduledTriggerDto } from "./dto/create-scheduled-trigger.dto";
 import { UpdateScheduledTriggerDto } from "./dto/update-scheduled-trigger.dto";
@@ -21,7 +22,10 @@ export class ScheduledTriggersService {
     // Verify workflow definition exists and is active (scoped by tenant via extension/CLS)
     const workflowDefinition =
       await this.prisma.client.workflowDefinition.findFirst({
-        where: { id: createDto.workflowDefinitionId, isActive: true },
+        where: {
+          id: createDto.workflowDefinitionId,
+          status: WorkflowStatus.ACTIVE,
+        },
       });
 
     if (!workflowDefinition) {
