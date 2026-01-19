@@ -92,6 +92,7 @@ describe("Security Linter", () => {
   const describeS3 = CURRENT_STAGE === 3 ? describe : describe.skip;
   const describeS4 = CURRENT_STAGE >= 4 ? describe : describe.skip;
   const describeS5 = CURRENT_STAGE >= 5 ? describe : describe.skip;
+  const describeS6 = CURRENT_STAGE >= 6 ? describe : describe.skip;
 
   function getAllFiles(dir: string, fileList: string[] = []): string[] {
     if (!fs.existsSync(dir)) return fileList;
@@ -1195,6 +1196,272 @@ describe("Security Linter", () => {
         }
       } catch (error: any) {
         if (error.message.includes("S5-L7 VIOLATION")) {
+          throw error;
+        }
+        // Git command failed - assume clean
+      }
+    });
+  });
+
+  /**
+   * ========================================
+   * STAGE 6 SECURITY LINTER RULES
+   * ========================================
+   * S6-L1: _unsafeClient FORBIDDEN in scheduler, executor, cron-validation
+   * S6-L2: Module allowlist extended (add scheduler, executor, cron-validation ONLY)
+   * S6-L3: No new API endpoints (Stage 6 is background workers only)
+   * S6-L7: IMMUTABILITY CHECK - Fail if Stage 0-5 artifacts modified
+   */
+
+  describeS6("S6-L1: _unsafeClient FORBIDDEN in Stage 6 modules", () => {
+    it("should forbid _unsafeClient in scheduler module", () => {
+      const schedulerDir = path.join(srcDir, "modules", "scheduler");
+      if (!fs.existsSync(schedulerDir)) {
+        // Module doesn't exist yet - PASS (Gate 3 not executed)
+        return;
+      }
+
+      const allFiles = getAllFiles(schedulerDir);
+      const violations: string[] = [];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        if (content.includes("_unsafeClient")) {
+          const lines = content.split("\n");
+          lines.forEach((line, index) => {
+            if (line.includes("_unsafeClient")) {
+              violations.push(
+                `${file}:${index + 1} - _unsafeClient FORBIDDEN in scheduler`,
+              );
+            }
+          });
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S6-L1 VIOLATION: _unsafeClient found in scheduler:\n${violations.join("\n")}`,
+        );
+      }
+    });
+
+    it("should forbid _unsafeClient in executor module", () => {
+      const executorDir = path.join(srcDir, "modules", "executor");
+      if (!fs.existsSync(executorDir)) {
+        // Module doesn't exist yet - PASS (Gate 4 not executed)
+        return;
+      }
+
+      const allFiles = getAllFiles(executorDir);
+      const violations: string[] = [];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        if (content.includes("_unsafeClient")) {
+          const lines = content.split("\n");
+          lines.forEach((line, index) => {
+            if (line.includes("_unsafeClient")) {
+              violations.push(
+                `${file}:${index + 1} - _unsafeClient FORBIDDEN in executor`,
+              );
+            }
+          });
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S6-L1 VIOLATION: _unsafeClient found in executor:\n${violations.join("\n")}`,
+        );
+      }
+    });
+
+    it("should forbid _unsafeClient in cron-validation module", () => {
+      const cronValidationDir = path.join(srcDir, "modules", "cron-validation");
+      if (!fs.existsSync(cronValidationDir)) {
+        // Module doesn't exist yet - PASS (Gate 2 not executed)
+        return;
+      }
+
+      const allFiles = getAllFiles(cronValidationDir);
+      const violations: string[] = [];
+
+      allFiles.forEach((file) => {
+        if (!file.endsWith(".ts") || file.includes(".spec.ts")) return;
+
+        const content = fs.readFileSync(file, "utf-8");
+        if (content.includes("_unsafeClient")) {
+          const lines = content.split("\n");
+          lines.forEach((line, index) => {
+            if (line.includes("_unsafeClient")) {
+              violations.push(
+                `${file}:${index + 1} - _unsafeClient FORBIDDEN in cron-validation`,
+              );
+            }
+          });
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S6-L1 VIOLATION: _unsafeClient found in cron-validation:\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS6("S6-L2: Module scope (Stage 6)", () => {
+    it("should forbid any new modules beyond Stage 6 scope", () => {
+      const modulesDir = path.join(srcDir, "modules");
+      if (!fs.existsSync(modulesDir)) return;
+
+      // Known Stage 0-5 modules (immutable baseline)
+      const STAGE_0_5_MODULES = [
+        "auth",
+        "organizations",
+        "users",
+        "roles",
+        "workflows",
+        "workflow-instances",
+        "workflow-triggers",
+        "scheduled-triggers",
+        "deferred-execution",
+      ];
+
+      // Stage 6 ONLY adds these 3 modules
+      const STAGE_6_NEW_MODULES = ["scheduler", "executor", "cron-validation"];
+
+      const violations: string[] = [];
+      const modules = fs.readdirSync(modulesDir);
+
+      modules.forEach((module) => {
+        const modulePath = path.join(modulesDir, module);
+        if (fs.statSync(modulePath).isDirectory()) {
+          // Ignore archived
+          if (module.startsWith("_")) return;
+
+          // Check if module is in known Stage 0-5 OR Stage 6 new modules
+          const isKnownModule =
+            STAGE_0_5_MODULES.includes(module) ||
+            STAGE_6_NEW_MODULES.includes(module);
+
+          if (!isKnownModule) {
+            violations.push(
+              `src/modules/${module} - Unauthorized new module (not in Stage 0-5 or Stage 6 scope)`,
+            );
+          }
+        }
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S6-L2 VIOLATION: Unauthorized modules detected:\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS6("S6-L3: No controllers in Stage 6 modules", () => {
+    it("should forbid any controller files in Stage 6 modules", () => {
+      const STAGE_6_MODULE_PATHS = [
+        "modules/scheduler",
+        "modules/executor",
+        "modules/cron-validation",
+      ];
+
+      const violations: string[] = [];
+
+      STAGE_6_MODULE_PATHS.forEach((modulePath) => {
+        const fullPath = path.join(srcDir, modulePath);
+        if (!fs.existsSync(fullPath)) {
+          // Module doesn't exist yet - PASS
+          return;
+        }
+
+        const allFiles = getAllFiles(fullPath);
+        allFiles.forEach((file) => {
+          if (file.endsWith(".controller.ts")) {
+            violations.push(
+              `${file} - Controller file FORBIDDEN in Stage 6 modules (background workers only, no HTTP endpoints)`,
+            );
+          }
+        });
+      });
+
+      if (violations.length > 0) {
+        throw new Error(
+          `S6-L3 VIOLATION: Stage 6 modules must NOT contain controllers:\n${violations.join("\n")}`,
+        );
+      }
+    });
+  });
+
+  describeS6("S6-L7: IMMUTABILITY CHECK (Stage 0-5 artifacts)", () => {
+    it("should fail if any Stage 0-5 artifact is modified", () => {
+      const IMMUTABLE_PATHS = [
+        "src/core",
+        "src/shared",
+        "src/modules/auth",
+        "src/modules/organizations",
+        "src/modules/users",
+        "src/modules/roles",
+        "src/modules/workflows",
+        "src/modules/workflow-instances",
+        "src/modules/workflow-triggers",
+        "src/modules/scheduled-triggers",
+        "src/modules/deferred-execution",
+      ];
+
+      try {
+        // Check unstaged changes
+        const diff = execSync("git diff --name-only", {
+          cwd: projectRoot,
+          encoding: "utf-8",
+        });
+
+        // Check staged changes
+        const stagedDiff = execSync("git diff --name-only --cached", {
+          cwd: projectRoot,
+          encoding: "utf-8",
+        });
+
+        const allChanges = (diff + "\n" + stagedDiff)
+          .split("\n")
+          .filter((line) => line.trim().length > 0);
+
+        const violations: string[] = [];
+
+        // ============================================================
+        // NO PATCH EXCEPTIONS FOR STAGE 6
+        // ============================================================
+        // Stage 0-5 artifacts are IMMUTABLE. Any modification requires
+        // formal PATCH AUTHORIZATION. No pre-authorized patches exist.
+
+        allChanges.forEach((changedFile) => {
+          // Normalize path separators
+          const normalizedFile = changedFile.replace(/\\/g, "/");
+
+          IMMUTABLE_PATHS.forEach((immutablePath) => {
+            const normalizedImmutablePath = immutablePath.replace(/\\/g, "/");
+            if (normalizedFile.includes(normalizedImmutablePath)) {
+              violations.push(
+                `${changedFile} - IMMUTABLE ARTIFACT MODIFIED (Stage 0-5) - Requires formal PATCH AUTHORIZATION`,
+              );
+            }
+          });
+        });
+
+        if (violations.length > 0) {
+          throw new Error(
+            `S6-L7 VIOLATION: Stage 0-5 artifacts are IMMUTABLE:\n${violations.join("\n")}`,
+          );
+        }
+      } catch (error: any) {
+        if (error.message.includes("S6-L7 VIOLATION")) {
           throw error;
         }
         // Git command failed - assume clean
