@@ -1,5 +1,11 @@
-import { Injectable, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
+import { ClsService } from "nestjs-cls";
 
 /**
  * Executor Service
@@ -22,11 +28,59 @@ interface ExecutionResult {
 }
 
 @Injectable()
-export class ExecutorService {
+export class ExecutorService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ExecutorService.name);
   private readonly batchSize = 50;
+  private pollingInterval: NodeJS.Timeout | null = null;
+  private isShuttingDown = false;
+  private readonly pollIntervalMs: number;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly clsService: ClsService,
+  ) {
+    // Read and validate EXECUTOR_POLL_INTERVAL_MS from env
+    const envInterval = process.env.EXECUTOR_POLL_INTERVAL_MS;
+    const parsedInterval = envInterval ? parseInt(envInterval, 10) : 5000;
+
+    // Validate range: min 1000ms, max 60000ms
+    if (parsedInterval < 1000 || parsedInterval > 60000) {
+      this.logger.warn(
+        `Invalid EXECUTOR_POLL_INTERVAL_MS: ${parsedInterval}. Using default 5000ms.`,
+      );
+      this.pollIntervalMs = 5000;
+    } else {
+      this.pollIntervalMs = parsedInterval;
+    }
+  }
+
+  onModuleInit() {
+    this.logger.log(
+      `Executor starting with poll interval: ${this.pollIntervalMs}ms`,
+    );
+    this.startPolling();
+  }
+
+  onModuleDestroy() {
+    this.logger.log("Executor shutting down...");
+    this.stopPolling();
+  }
+
+  private startPolling() {
+    this.pollingInterval = setInterval(() => {
+      this.processDueExecutions().catch((error) => {
+        this.logger.error("Error in polling cycle", error.stack);
+      });
+    }, this.pollIntervalMs);
+  }
+
+  private stopPolling() {
+    this.isShuttingDown = true;
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+  }
 
   /**
    * Process due deferred executions
@@ -34,44 +88,75 @@ export class ExecutorService {
    * @returns Execution result summary
    */
   async processDueExecutions(): Promise<ExecutionResult> {
+    if (this.isShuttingDown) {
+      return { executed: 0, failed: 0, skipped: 0 };
+    }
+
     const result: ExecutionResult = { executed: 0, failed: 0, skipped: 0 };
 
     try {
-      // Query due executions (batch limit)
-      // Using tenant-scoped client - processes all organizations' executions
-      // via CLS context (each execution processed with its organizationId)
-      const dueExecutions = await this.prisma.client.deferredExecution.findMany(
-        {
-          where: {
-            status: "PENDING",
-            scheduledFor: {
-              lte: new Date(),
-            },
-            retryCount: {
-              lt: this.prisma.client.deferredExecution.fields.maxRetries,
-            },
-          },
-          take: this.batchSize,
-          orderBy: {
-            scheduledFor: "asc",
-          },
-        },
+      // Fetch all organizations (GLOBAL_MODEL, no CLS context required)
+      const organizations = await this.prisma.client.organization.findMany({
+        select: { id: true },
+      });
+
+      this.logger.debug(
+        `Processing deferred executions for ${organizations.length} organizations`,
       );
 
-      this.logger.debug(`Found ${dueExecutions.length} due executions`);
-
-      for (const execution of dueExecutions) {
+      // Process each organization's executions within its CLS context
+      for (const org of organizations) {
         try {
-          const wasExecuted = await this.processSingleExecution(execution);
-          if (wasExecuted) {
-            result.executed++;
-          } else {
-            result.skipped++;
-          }
+          await this.clsService.run(async () => {
+            // Set CLS context for tenant isolation
+            this.clsService.set("orgId", org.id);
+            this.clsService.set("userId", "system-worker");
+
+            // Query due executions for this organization (tenant-scoped)
+            const dueExecutions =
+              await this.prisma.client.deferredExecution.findMany({
+                where: {
+                  status: "PENDING",
+                  scheduledFor: {
+                    lte: new Date(),
+                  },
+                  retryCount: {
+                    lt: this.prisma.client.deferredExecution.fields.maxRetries,
+                  },
+                },
+                take: this.batchSize,
+                orderBy: {
+                  scheduledFor: "asc",
+                },
+              });
+
+            this.logger.debug(
+              `Found ${dueExecutions.length} due executions for org ${org.id}`,
+            );
+
+            // Process each execution for this organization
+            for (const execution of dueExecutions) {
+              try {
+                const wasExecuted =
+                  await this.processSingleExecution(execution);
+                if (wasExecuted) {
+                  result.executed++;
+                } else {
+                  result.skipped++;
+                }
+              } catch (error: any) {
+                result.failed++;
+                this.logger.error(
+                  `Failed to process execution ${execution.id} (org: ${execution.organizationId})`,
+                  error.stack,
+                );
+              }
+            }
+          });
         } catch (error: any) {
-          result.failed++;
+          // Log per-organization errors but continue processing other orgs
           this.logger.error(
-            `Failed to process execution ${execution.id} (org: ${execution.organizationId})`,
+            `Error processing executions for org ${org.id}`,
             error.stack,
           );
         }
@@ -83,7 +168,7 @@ export class ExecutorService {
         );
       }
     } catch (error: any) {
-      this.logger.error("Error querying due executions", error.stack);
+      this.logger.error("Error in processDueExecutions", error.stack);
     }
 
     return result;

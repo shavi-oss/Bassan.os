@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CronValidationService } from "../cron-validation/cron-validation.service";
+import { ClsService } from "nestjs-cls";
 
 /**
  * Scheduler Service
@@ -36,6 +37,7 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cronValidation: CronValidationService,
+    private readonly clsService: ClsService,
   ) {
     // Read and validate SCHEDULER_POLL_INTERVAL_MS from env
     const envInterval = process.env.SCHEDULER_POLL_INTERVAL_MS;
@@ -93,36 +95,64 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
     const result: ProcessingResult = { processed: 0, errors: 0, skipped: 0 };
 
     try {
-      // Query due triggers (batch limit)
-      // Using tenant-scoped client - processes all organizations' triggers
-      // via CLS context (each trigger processed with its organizationId)
-      const dueTriggers = await this.prisma.client.scheduledTrigger.findMany({
-        where: {
-          isActive: true,
-          nextExecutionAt: {
-            lte: new Date(),
-          },
-        },
-        take: this.batchSize,
-        orderBy: {
-          nextExecutionAt: "asc",
-        },
+      // Fetch all organizations (GLOBAL_MODEL, no CLS context required)
+      const organizations = await this.prisma.client.organization.findMany({
+        select: { id: true },
       });
 
-      this.logger.debug(`Found ${dueTriggers.length} due triggers`);
+      this.logger.debug(
+        `Processing scheduled triggers for ${organizations.length} organizations`,
+      );
 
-      for (const trigger of dueTriggers) {
+      // Process each organization's triggers within its CLS context
+      for (const org of organizations) {
         try {
-          const wasProcessed = await this.processSingleTrigger(trigger);
-          if (wasProcessed) {
-            result.processed++;
-          } else {
-            result.skipped++;
-          }
+          await this.clsService.run(async () => {
+            // Set CLS context for tenant isolation
+            this.clsService.set("orgId", org.id);
+            this.clsService.set("userId", "system-worker");
+
+            // Query due triggers for this organization (tenant-scoped)
+            const dueTriggers =
+              await this.prisma.client.scheduledTrigger.findMany({
+                where: {
+                  isActive: true,
+                  nextExecutionAt: {
+                    lte: new Date(),
+                  },
+                },
+                take: this.batchSize,
+                orderBy: {
+                  nextExecutionAt: "asc",
+                },
+              });
+
+            this.logger.debug(
+              `Found ${dueTriggers.length} due triggers for org ${org.id}`,
+            );
+
+            // Process each trigger for this organization
+            for (const trigger of dueTriggers) {
+              try {
+                const wasProcessed = await this.processSingleTrigger(trigger);
+                if (wasProcessed) {
+                  result.processed++;
+                } else {
+                  result.skipped++;
+                }
+              } catch (error: any) {
+                result.errors++;
+                this.logger.error(
+                  `Failed to process trigger ${trigger.id} (org: ${trigger.organizationId})`,
+                  error.stack,
+                );
+              }
+            }
+          });
         } catch (error: any) {
-          result.errors++;
+          // Log per-organization errors but continue processing other orgs
           this.logger.error(
-            `Failed to process trigger ${trigger.id} (org: ${trigger.organizationId})`,
+            `Error processing triggers for org ${org.id}`,
             error.stack,
           );
         }
@@ -134,7 +164,7 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
         );
       }
     } catch (error: any) {
-      this.logger.error("Error querying due triggers", error.stack);
+      this.logger.error("Error in processDueTriggers", error.stack);
     }
 
     return result;
