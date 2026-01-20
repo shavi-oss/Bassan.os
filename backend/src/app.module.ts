@@ -15,6 +15,7 @@ import { WorkflowTriggersModule } from "./modules/workflow-triggers/workflow-tri
 import { ScheduledTriggersModule } from "./modules/scheduled-triggers/scheduled-triggers.module";
 import { DeferredExecutionModule } from "./modules/deferred-execution/deferred-execution.module";
 import { SchedulerModule } from "./modules/scheduler/scheduler.module";
+import { ExecutorModule } from "./modules/executor/executor.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SharedModule } from "./shared/shared.module";
 import { TenantMiddleware } from "./shared/middleware/tenant.middleware";
@@ -36,6 +37,7 @@ import { TenantMiddleware } from "./shared/middleware/tenant.middleware";
     ScheduledTriggersModule,
     DeferredExecutionModule,
     SchedulerModule,
+    ExecutorModule,
   ],
 })
 export class AppModule implements NestModule {
