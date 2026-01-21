@@ -2,12 +2,22 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { SchedulerService } from "../../src/modules/scheduler/scheduler.service";
 import { PrismaService } from "../../src/prisma/prisma.service";
 import { CronValidationService } from "../../src/modules/cron-validation/cron-validation.service";
+import { ClsService } from "nestjs-cls";
 
 describe("SchedulerService", () => {
   let service: SchedulerService;
 
+  const mockClsService = {
+    get: jest.fn().mockReturnValue("test-org-id"),
+    set: jest.fn(),
+    run: jest.fn().mockImplementation((callback) => callback()),
+  };
+
   const mockPrismaService = {
     client: {
+      organization: {
+        findMany: jest.fn(),
+      },
       scheduledTrigger: {
         findMany: jest.fn(),
         updateMany: jest.fn(),
@@ -36,6 +46,10 @@ describe("SchedulerService", () => {
           provide: CronValidationService,
           useValue: mockCronValidationService,
         },
+        {
+          provide: ClsService,
+          useValue: mockClsService,
+        },
       ],
     }).compile();
 
@@ -43,6 +57,11 @@ describe("SchedulerService", () => {
 
     // Reset all mocks before each test
     jest.clearAllMocks();
+
+    // Default: mock organization.findMany to return one org for processing
+    mockPrismaService.client.organization.findMany.mockResolvedValue([
+      { id: "org-1" },
+    ]);
   });
 
   describe("processDueTriggers", () => {

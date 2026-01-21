@@ -1,12 +1,22 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ExecutorService } from "../../src/modules/executor/executor.service";
 import { PrismaService } from "../../src/prisma/prisma.service";
+import { ClsService } from "nestjs-cls";
 
 describe("ExecutorService", () => {
   let service: ExecutorService;
 
+  const mockClsService = {
+    get: jest.fn().mockReturnValue("test-org-id"),
+    set: jest.fn(),
+    run: jest.fn().mockImplementation((callback) => callback()),
+  };
+
   const mockPrismaService = {
     client: {
+      organization: {
+        findMany: jest.fn(),
+      },
       deferredExecution: {
         findMany: jest.fn(),
         updateMany: jest.fn(),
@@ -36,6 +46,10 @@ describe("ExecutorService", () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: ClsService,
+          useValue: mockClsService,
+        },
       ],
     }).compile();
 
@@ -43,6 +57,11 @@ describe("ExecutorService", () => {
 
     // Reset all mocks before each test
     jest.clearAllMocks();
+
+    // Default: mock organization.findMany to return one org for processing
+    mockPrismaService.client.organization.findMany.mockResolvedValue([
+      { id: "org-1" },
+    ]);
   });
 
   describe("processDueExecutions", () => {
