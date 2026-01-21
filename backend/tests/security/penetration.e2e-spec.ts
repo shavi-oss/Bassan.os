@@ -89,10 +89,7 @@ describe("🔓 Security Penetration Tests", () => {
   /**
    * Creates a workflow via API and returns its ID
    */
-  async function createWorkflow(
-    token: string,
-    name: string,
-  ): Promise<string> {
+  async function createWorkflow(token: string, name: string): Promise<string> {
     const res = await request(app.getHttpServer())
       .post("/api/v1/workflows")
       .set("Authorization", `Bearer ${token}`)
