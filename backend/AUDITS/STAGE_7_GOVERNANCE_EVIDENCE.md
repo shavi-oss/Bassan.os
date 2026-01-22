@@ -1,3 +1,6 @@
+PS D:\Basaan os\BassanOs> git rev-parse HEAD
+8a1c1e01bc797f098aa03c446ac6c48a030034f0
+
 PS D:\Basaan os\BassanOs> git status --porcelain
 PS D:\Basaan os\BassanOs> git show --no-patch stage7-governance-docs-complete  
 commit 8a1c1e01bc797f098aa03c446ac6c48a030034f0 (HEAD -> master, tag: stage7-governance-docs-complete)
@@ -242,5 +245,36 @@ Tests: 5 skipped, 138 passed, 143 total
 Snapshots: 0 total
 Time: 81.432 s
 Ran all test suites.
+PS D:\Basaan os\BassanOs\backend> npm run test:e2e -- --runInBand
 
+> bassan-backend@0.0.1 test:e2e
+> jest --config jest-e2e.config.js --runInBand
+
+PASS tests/security/penetration.e2e-spec.ts (18.277 s)
+🔓 Security Penetration Tests
+🎯 IDOR Attacks (Insecure Direct Object Reference)  
+ √ ATTACK: Access victim workflow by directly using their ID (878 ms)  
+ √ ATTACK: Update victim workflow by directly using their ID (703 ms)  
+ √ ATTACK: Attempt to access victim workflow states (nested IDOR) (728 ms)
+💉 organizationId Injection Attacks  
+ √ ATTACK: Inject victim orgId in request body (768 ms)  
+ √ ATTACK: Inject victim orgId in query string (714 ms)  
+ 🔐 Authentication Bypass Attacks  
+ √ ATTACK: Access without authentication (740 ms)  
+ √ ATTACK: Use invalid/expired token (713 ms)  
+ √ ATTACK: Modify token payload to access victim org (739 ms)  
+ 📊 Data Enumeration Prevention  
+ √ Should return 404 (not 403) for non-existent resources (715 ms)  
+ √ Should return 404 (not 403) for other org resources (721 ms)  
+ ✅ Legitimate Access (Control Tests)  
+ √ Victim CAN access their own workflow (809 ms)  
+ √ Victim CAN list their own workflows (748 ms)  
+ √ Victim CAN update their own workflow (757 ms)
+
+Test Suites: 1 passed, 1 total  
+Tests: 13 passed, 13 total  
+Snapshots: 0 total
+Time: 18.968 s
+Ran all test suites.
+PS D:\Basaan os\BassanOs\backend>
 package.json unchanged
