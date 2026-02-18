@@ -5,20 +5,23 @@ import {
 } from "@nestjs/common";
 import { OrganizationsService } from "../organizations/organizations.service";
 import { CreateOrganizationDto } from "../organizations/dto/create-organization.dto";
+import { AdminAuditService } from "./admin-audit.service";
 
 export interface AdminOperationMeta {
   performedBy: string;
+  performedByService?: string;
   correlationId: string;
 }
 
 /**
  * AdminService — Thin adapter for admin-safe organization bootstrap.
  *
- * PR-101: Wraps OrganizationsService.create() with mandatory audit logging.
+ * PR-101: Wraps OrganizationsService.create() with mandatory audit logging
+ * via AdminAuditService (DI-injected, not console.log).
  *
  * SECURITY CONTRACT:
  * - Calls OrganizationsService.create() — does NOT duplicate bootstrap logic.
- * - Mandatory audit log entry on every create attempt (success and failure).
+ * - Mandatory auditService.logAction() on every create attempt (success and failure).
  * - Fail-closed: if audit logging fails, the operation is aborted with 500.
  * - No organizationId accepted from caller — enforced by AdminController.
  * - Logger output does NOT include JWT tokens or secrets.
@@ -27,7 +30,10 @@ export interface AdminOperationMeta {
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
 
-  constructor(private readonly organizationsService: OrganizationsService) {}
+  constructor(
+    private readonly organizationsService: OrganizationsService,
+    private readonly auditService: AdminAuditService,
+  ) {}
 
   async createOrganization(
     dto: CreateOrganizationDto,
@@ -35,13 +41,17 @@ export class AdminService {
   ) {
     // MANDATORY AUDIT: Log the attempt before execution (fail-closed)
     try {
-      this.auditLog("admin.organization.create.attempt", {
+      this.auditService.logAction({
         correlationId: meta.correlationId,
+        entityType: "organization",
+        entityId: null,
+        action: "create",
         performedBy: meta.performedBy,
-        orgName: dto.name,
+        performedByService: meta.performedByService,
+        result: "attempt",
+        metadata: { orgName: dto.name },
       });
     } catch (auditError) {
-      // Fail-closed: if audit logging itself throws, abort the operation
       this.logger.error(
         `[AUDIT FAIL] correlationId=${meta.correlationId} performedBy=${meta.performedBy} error=audit_pre_log_failed`,
       );
@@ -56,26 +66,43 @@ export class AdminService {
       result = await this.organizationsService.create(dto);
     } catch (err) {
       // Audit the failure, then re-throw
-      this.auditLog("admin.organization.create.failure", {
-        correlationId: meta.correlationId,
-        performedBy: meta.performedBy,
-        orgName: dto.name,
-        error: err instanceof Error ? err.message : "unknown",
-      });
+      try {
+        this.auditService.logAction({
+          correlationId: meta.correlationId,
+          entityType: "organization",
+          entityId: null,
+          action: "create",
+          performedBy: meta.performedBy,
+          performedByService: meta.performedByService,
+          result: "failure",
+          metadata: {
+            orgName: dto.name,
+            error: err instanceof Error ? err.message : "unknown",
+          },
+        });
+      } catch {
+        // Audit failure on error path — log but don't mask original error
+        this.logger.error(
+          `[AUDIT FAIL] correlationId=${meta.correlationId} error=audit_failure_log_failed`,
+        );
+      }
       throw err;
     }
 
     // MANDATORY AUDIT: Log success
     try {
-      this.auditLog("admin.organization.create.success", {
+      this.auditService.logAction({
         correlationId: meta.correlationId,
+        entityType: "organization",
+        entityId: result.organization.id,
+        action: "create",
         performedBy: meta.performedBy,
-        orgName: dto.name,
-        organizationId: result.organization.id,
+        performedByService: meta.performedByService,
+        result: "success",
+        metadata: { orgName: dto.name },
       });
     } catch (auditError) {
       // Fail-closed: if post-success audit fails, abort with 500
-      // The org was created but we cannot confirm audit trail — abort.
       this.logger.error(
         `[AUDIT FAIL] correlationId=${meta.correlationId} performedBy=${meta.performedBy} error=audit_post_log_failed`,
       );
@@ -85,21 +112,5 @@ export class AdminService {
     }
 
     return result;
-  }
-
-  /**
-   * Structured audit log entry.
-   * NOTE: Does NOT log JWT tokens, passwords, or secrets.
-   * Tokens are never passed to this method.
-   */
-  private auditLog(event: string, context: Record<string, unknown>): void {
-    this.logger.log(
-      JSON.stringify({
-        audit: true,
-        event,
-        timestamp: new Date().toISOString(),
-        ...context,
-      }),
-    );
   }
 }

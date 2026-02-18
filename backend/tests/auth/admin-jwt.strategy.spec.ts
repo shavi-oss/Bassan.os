@@ -7,7 +7,10 @@ describe("AdminJwtStrategy", () => {
   let strategy: AdminJwtStrategy;
 
   const mockConfigService = {
-    get: jest.fn().mockReturnValue("test-admin-secret"),
+    get: jest.fn((key: string) => {
+      if (key === "ADMIN_JWT_SECRET") return "test-admin-secret";
+      return undefined;
+    }),
   };
 
   beforeEach(async () => {
@@ -59,7 +62,47 @@ describe("AdminJwtStrategy", () => {
       });
     });
 
-    it("should throw UnauthorizedException if type is not s2s and no bassan:admin scope", async () => {
+    it("should return principal for valid S2S token with aud:bassan:admin", async () => {
+      const payload = {
+        sub: "suite-service-003",
+        aud: "bassan:admin",
+        iss: "https://suite.bassan.io",
+      };
+
+      const result = await strategy.validate(payload);
+
+      expect(result).toEqual({
+        sub: "suite-service-003",
+        type: undefined,
+        scope: undefined,
+        iss: "https://suite.bassan.io",
+      });
+    });
+
+    it("should return principal for valid S2S token with aud as array containing bassan:admin", async () => {
+      const payload = {
+        sub: "suite-service-004",
+        aud: ["bassan:admin", "other:service"],
+        iss: "https://suite.bassan.io",
+      };
+
+      const result = await strategy.validate(payload);
+
+      expect(result).toMatchObject({ sub: "suite-service-004" });
+    });
+
+    it("should throw UnauthorizedException if sub is missing", async () => {
+      const payload = {
+        type: "s2s",
+        scope: "bassan:admin",
+      };
+
+      await expect(strategy.validate(payload as any)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it("should throw UnauthorizedException if type is not s2s and no bassan:admin scope or aud", async () => {
       const payload = {
         sub: "regular-user-001",
         type: "user",
@@ -71,7 +114,7 @@ describe("AdminJwtStrategy", () => {
       );
     });
 
-    it("should throw UnauthorizedException if payload has no type and no scope", async () => {
+    it("should throw UnauthorizedException if payload has no type, scope, or aud", async () => {
       const payload = { sub: "unknown-001" };
 
       await expect(strategy.validate(payload as any)).rejects.toThrow(

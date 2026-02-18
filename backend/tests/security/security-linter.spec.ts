@@ -304,32 +304,69 @@ describe("Security Linter", () => {
           // PR-101 EXCEPTION: Admin controllers under api/v2/admin/*
           // ============================================================
           // Admin controllers use AdminJwtAuthGuard (S2S JWT, no TenantGuard).
-          // Exception is ONLY valid when ALL three conditions hold:
+          // Exception is ONLY valid when ALL conditions hold:
           //   1. Controller file is admin.controller.ts
-          //   2. No organizationId accepted from client input (as DTO property)
-          //   3. An audit call or audit-delegating service call is present
+          //   2. DTO imported from organizations module (not a custom DTO with organizationId)
+          //   3. admin.service.ts contains auditService.logAction call
           const isAdminController = file.includes("admin.controller");
           if (isAdminController) {
-            // Match organizationId only as a DTO/class property or @Body() param,
-            // NOT inside string literals (error messages, comments).
-            // Looks for: organizationId as a property declaration or @IsString() etc.
-            const hasOrgIdInBody =
-              /^\s*(organizationId\s*[?!]?\s*:|@\w+\(\)\s*\n\s*organizationId)/m.test(
-                content,
-              );
-            // Audit call: direct auditLog(), audit:true in logger, OR delegation to adminService
-            const hasAuditCall =
-              /auditLog\s*\(|audit.*:\s*true|adminService\.\w+/i.test(content);
-            if (hasOrgIdInBody) {
+            // ---- Check 1: DTO import path verification ----
+            // Extract the DTO import path from the controller file
+            const dtoImportMatch = content.match(
+              /import\s+\{[^}]*CreateOrganizationDto[^}]*\}\s+from\s+['"]([^'"]+)['"]/,
+            );
+            const dtoImportPath = dtoImportMatch ? dtoImportMatch[1] : null;
+
+            // DTO must be imported from organizations module (not a local admin DTO)
+            const dtoFromOrganizations =
+              dtoImportPath !== null && dtoImportPath.includes("organizations");
+
+            if (!dtoFromOrganizations) {
               violations.push(
-                `${file}:${index + 1} - ADMIN VIOLATION: organizationId accepted from client (FORBIDDEN_ORGID_ACCEPTED)`,
+                `${file}:${index + 1} - ADMIN VIOLATION: admin controller must import CreateOrganizationDto from organizations module (got: ${dtoImportPath ?? "not found"})`,
+              );
+            } else {
+              // Resolve DTO file path and verify it has no organizationId property
+              const controllerDir = path.dirname(file);
+              const dtoFilePath = path.resolve(
+                controllerDir,
+                dtoImportPath + ".ts",
+              );
+              if (fs.existsSync(dtoFilePath)) {
+                const dtoContent = fs.readFileSync(dtoFilePath, "utf8");
+                // Check for organizationId as a class property declaration
+                const dtoHasOrgId = /^\s*organizationId\s*[?!]?\s*:/m.test(
+                  dtoContent,
+                );
+                if (dtoHasOrgId) {
+                  violations.push(
+                    `${file}:${index + 1} - ADMIN VIOLATION: DTO at ${dtoFilePath} contains organizationId property (FORBIDDEN_ORGID_ACCEPTED)`,
+                  );
+                }
+              }
+            }
+
+            // ---- Check 2: auditService.logAction in admin.service.ts ----
+            // Read admin.service.ts (sibling file) and verify audit call
+            const adminServicePath = path.join(
+              path.dirname(file),
+              "admin.service.ts",
+            );
+            if (fs.existsSync(adminServicePath)) {
+              const serviceContent = fs.readFileSync(adminServicePath, "utf8");
+              const hasAuditServiceLogAction =
+                /this\.auditService\.logAction\s*\(/.test(serviceContent);
+              if (!hasAuditServiceLogAction) {
+                violations.push(
+                  `${file}:${index + 1} - ADMIN VIOLATION: admin.service.ts does not contain this.auditService.logAction() call`,
+                );
+              }
+            } else {
+              violations.push(
+                `${file}:${index + 1} - ADMIN VIOLATION: admin.service.ts not found alongside admin.controller.ts`,
               );
             }
-            if (!hasAuditCall) {
-              violations.push(
-                `${file}:${index + 1} - ADMIN VIOLATION: no audit call or audit-delegating service call found in admin controller`,
-              );
-            }
+
             // Skip standard guard check for admin controllers
             return;
           }

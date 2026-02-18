@@ -52,10 +52,13 @@ describe("AdminController", () => {
       );
 
       expect(result).toEqual(mockResult);
-      expect(adminService.createOrganization).toHaveBeenCalledWith(validDto, {
-        performedBy: "service-account-001",
-        correlationId: "corr-001",
-      });
+      expect(adminService.createOrganization).toHaveBeenCalledWith(
+        validDto,
+        expect.objectContaining({
+          performedBy: "service-account-001",
+          correlationId: "corr-001",
+        }),
+      );
     });
 
     it("should generate correlationId if X-Correlation-Id header is absent", async () => {
@@ -106,6 +109,21 @@ describe("AdminController", () => {
       await expect(
         controller.createOrganization(validDto as any, mockReq, "corr-004"),
       ).rejects.toThrow("Service error");
+    });
+
+    it("should call adminService.createOrganization (audit delegation verified)", async () => {
+      // This test verifies that audit is delegated to AdminService
+      // (AdminService calls auditService.logAction — tested in AdminService unit tests)
+      mockAdminService.createOrganization.mockResolvedValue({
+        organization: { id: "org-999" },
+        user: {},
+      });
+
+      await controller.createOrganization(validDto as any, mockReq, "corr-005");
+
+      // Verify adminService.createOrganization was called exactly once
+      // (AdminService is responsible for audit — not the controller)
+      expect(adminService.createOrganization).toHaveBeenCalledTimes(1);
     });
   });
 });
