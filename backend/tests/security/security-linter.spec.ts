@@ -300,6 +300,40 @@ describe("Security Linter", () => {
             }
           }
 
+          // ============================================================
+          // PR-101 EXCEPTION: Admin controllers under api/v2/admin/*
+          // ============================================================
+          // Admin controllers use AdminJwtAuthGuard (S2S JWT, no TenantGuard).
+          // Exception is ONLY valid when ALL three conditions hold:
+          //   1. Controller file is admin.controller.ts
+          //   2. No organizationId accepted from client input (as DTO property)
+          //   3. An audit call or audit-delegating service call is present
+          const isAdminController = file.includes("admin.controller");
+          if (isAdminController) {
+            // Match organizationId only as a DTO/class property or @Body() param,
+            // NOT inside string literals (error messages, comments).
+            // Looks for: organizationId as a property declaration or @IsString() etc.
+            const hasOrgIdInBody =
+              /^\s*(organizationId\s*[?!]?\s*:|@\w+\(\)\s*\n\s*organizationId)/m.test(
+                content,
+              );
+            // Audit call: direct auditLog(), audit:true in logger, OR delegation to adminService
+            const hasAuditCall =
+              /auditLog\s*\(|audit.*:\s*true|adminService\.\w+/i.test(content);
+            if (hasOrgIdInBody) {
+              violations.push(
+                `${file}:${index + 1} - ADMIN VIOLATION: organizationId accepted from client (FORBIDDEN_ORGID_ACCEPTED)`,
+              );
+            }
+            if (!hasAuditCall) {
+              violations.push(
+                `${file}:${index + 1} - ADMIN VIOLATION: no audit call or audit-delegating service call found in admin controller`,
+              );
+            }
+            // Skip standard guard check for admin controllers
+            return;
+          }
+
           // If no class guards AND no method guards -> VIOLATION
           if (!hasClassLevelGuards && !hasMethodGuards) {
             violations.push(
@@ -694,6 +728,7 @@ describe("Security Linter", () => {
         ...ALLOWED_MODULES,
         "workflow-instances",
         "workflow-triggers",
+        "admin", // PR-101: admin module (S2S onboarding, no tenant context)
       ];
 
       // HOTFIX: Allow Stage 5 modules when validating in Stage 5+
@@ -754,6 +789,8 @@ describe("Security Linter", () => {
         { method: "PATCH", path: "/workflow-triggers/:id" },
         { method: "POST", path: "/workflow-triggers/events" },
         { method: "GET", path: "/workflow-triggers/events/:id" },
+        // PR-101: Admin S2S onboarding endpoint
+        { method: "POST", path: "/api/v2/admin/organizations" },
       ];
 
       // HOTFIX: Allow Stage 5 endpoints when validating in Stage 5+
@@ -1028,6 +1065,7 @@ describe("Security Linter", () => {
         "workflow-triggers",
         "scheduled-triggers",
         "deferred-execution",
+        "admin", // PR-101: admin module (S2S onboarding, no tenant context)
       ];
 
       const violations: string[] = [];
@@ -1091,6 +1129,8 @@ describe("Security Linter", () => {
         { method: "GET", path: "/deferred-executions/:id" },
         { method: "GET", path: "/deferred-executions/:id/attempts" },
         { method: "POST", path: "/deferred-executions/:id/retry" },
+        // PR-101: Admin S2S onboarding endpoint
+        { method: "POST", path: "/api/v2/admin/organizations" },
       ];
 
       allFiles.forEach((file) => {
@@ -1356,6 +1396,7 @@ describe("Security Linter", () => {
         "workflow-triggers",
         "scheduled-triggers",
         "deferred-execution",
+        "admin", // PR-101: admin module (S2S onboarding, no tenant context)
       ];
 
       // Stage 6 ONLY adds these 3 modules
