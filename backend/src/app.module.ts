@@ -16,6 +16,7 @@ import { ScheduledTriggersModule } from "./modules/scheduled-triggers/scheduled-
 import { DeferredExecutionModule } from "./modules/deferred-execution/deferred-execution.module";
 import { SchedulerModule } from "./modules/scheduler/scheduler.module";
 import { ExecutorModule } from "./modules/executor/executor.module";
+import { AdminModule } from "./modules/admin/admin.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SharedModule } from "./shared/shared.module";
 import { TenantMiddleware } from "./shared/middleware/tenant.middleware";
@@ -37,6 +38,7 @@ import { TenantMiddleware } from "./shared/middleware/tenant.middleware";
     ScheduledTriggersModule,
     DeferredExecutionModule,
     SchedulerModule,
+    AdminModule,
     ExecutorModule,
   ],
 })
