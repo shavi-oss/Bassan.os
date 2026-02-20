@@ -24,8 +24,8 @@ describe("WorkflowInstancesService", () => {
 
   const mockPrismaService = {
     client: {
-      $transaction: jest.fn(async (fn: (tx: typeof mockTx) => Promise<unknown>) =>
-        fn(mockTx)
+      $transaction: jest.fn(
+        async (fn: (tx: typeof mockTx) => Promise<unknown>) => fn(mockTx),
       ),
     },
   };
@@ -110,7 +110,10 @@ describe("WorkflowInstancesService", () => {
         definition: { id: "def-2" },
         startState: { id: "state-2", isEnd: false },
       });
-      mockTx.workflowInstance.create.mockResolvedValue({ id: "inst-2", status: "RUNNING" });
+      mockTx.workflowInstance.create.mockResolvedValue({
+        id: "inst-2",
+        status: "RUNNING",
+      });
       mockTx.workflowExecutionLog.create.mockResolvedValue({});
 
       await service.create(
