@@ -53,18 +53,19 @@ export class AdminAuditService {
       ...record,
     });
 
+    // H1 FIX: Railway containers have ephemeral FS — make file write non-fatal.
+    // stdout is the authoritative audit trail for log aggregators (e.g. Railway logs).
     try {
       fs.appendFileSync(this.logFile, entry + "\n", { encoding: "utf8" });
-    } catch (err) {
-      // Also emit to NestJS logger so it appears in stdout
-      this.logger.error(
-        `[AUDIT WRITE FAIL] correlationId=${record.correlationId} error=${err instanceof Error ? err.message : "unknown"}`,
+    } catch (fsErr) {
+      // File write failed (e.g. ephemeral FS on Railway) — log warning but do NOT re-throw.
+      // The operation continues; stdout below is the audit trail.
+      this.logger.warn(
+        `[AUDIT FS FAIL] correlationId=${record.correlationId} fs_error=${fsErr instanceof Error ? fsErr.message : "unknown"} — falling back to stdout only`,
       );
-      // Re-throw so AdminService can abort the operation (fail-closed)
-      throw err;
     }
 
-    // Emit structured log to stdout as well (for log aggregators)
+    // Always emit structured audit entry to stdout (primary audit trail on Railway)
     this.logger.log(entry);
   }
 
