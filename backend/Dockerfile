@@ -8,6 +8,7 @@ RUN npm ci
 
 # Copy source and build
 COPY . .
+RUN npx prisma generate
 RUN npm run build
 
 # Expose default port (Railway injects $PORT at runtime)
