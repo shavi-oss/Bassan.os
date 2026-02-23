@@ -2,14 +2,21 @@
 // No private key leakage. Private key lives in Railway secrets only.
 // No npm dependencies — uses Node built-ins only.
 //
-// Config priority (highest → lowest):
-//   1. ADMIN_JWKS_B64   — base64-encoded JWKS JSON (PREFERRED — no JSON-quoting issues)
-//   2. ADMIN_JWKS_PAYLOAD — raw JSON string (legacy fallback)
+// ═══════════════════════════════════════════════════════════════════
+// REQUIRED: ADMIN_JWKS_B64 — base64-encoded JWKS JSON (B64-only config)
+// ═══════════════════════════════════════════════════════════════════
 //
-// Generate ADMIN_JWKS_B64 locally (never commit output):
-//   node -e "process.stdout.write(Buffer.from(require('fs').readFileSync('jwks.json','utf8')).toString('base64'))"
-// Set on Railway:
-//   railway variables set "ADMIN_JWKS_B64=<base64-string>" --service jwks-server
+// Why base64?
+//   Passing raw JSON via Railway CLI / PowerShell corrupts the value.
+//   JSON like {"keys":[...]} becomes {keys:[...]} — not valid JSON.
+//   Base64 is plain alphanumeric — zero shell quoting issues.
+//
+// Generate + set (PowerShell, run from dir containing jwks.json):
+//   $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((Get-Content -Raw .\jwks.json)))
+//   railway variables set "ADMIN_JWKS_B64=$b64" --service jwks-server
+//
+// Generate + set (bash):
+//   railway variables set "ADMIN_JWKS_B64=$(base64 -w0 jwks.json)" --service jwks-server
 
 const http = require('http');
 
@@ -21,68 +28,72 @@ const PRIVATE_FIELDS = ['d', 'p', 'q', 'dp', 'dq', 'qi', 'k'];
 // ─── Load and validate JWKS from environment ─────────────────────────────────
 let jwksPayload;
 (function loadJwks() {
-  // Step 1: resolve raw JSON string from env vars
-  let raw;
-
-  if (process.env.ADMIN_JWKS_B64) {
-    // Preferred path: base64-decode avoids all shell/PowerShell quoting issues
-    try {
-      raw = Buffer.from(process.env.ADMIN_JWKS_B64, 'base64').toString('utf8');
-    } catch (err) {
-      console.error('[jwks-server] FATAL: Failed to base64-decode ADMIN_JWKS_B64:', err.message);
-      console.error('[jwks-server] Expected: a base64-encoded string of the JWKS JSON object.');
-      process.exit(1);
-    }
-  } else if (process.env.ADMIN_JWKS_PAYLOAD) {
-    // Legacy fallback
-    raw = process.env.ADMIN_JWKS_PAYLOAD;
-  } else {
-    console.error('[jwks-server] FATAL: Neither ADMIN_JWKS_B64 nor ADMIN_JWKS_PAYLOAD is set.');
-    console.error('[jwks-server] Preferred: set ADMIN_JWKS_B64 to a base64-encoded JWKS JSON string.');
-    console.error('[jwks-server] Fallback:  set ADMIN_JWKS_PAYLOAD to the raw JWKS JSON string.');
-    console.error('[jwks-server] Expected format: {"keys":[{"kty":"RSA","n":"...","e":"AQAB","use":"sig","kid":"admin-key-2","alg":"RS256"}]}');
+  // Hard-fail if someone still has ADMIN_JWKS_PAYLOAD set — guide them to B64
+  if (process.env.ADMIN_JWKS_PAYLOAD) {
+    console.error('[jwks-server] FATAL: ADMIN_JWKS_PAYLOAD is no longer supported.');
+    console.error('[jwks-server] Reason: raw JSON via Railway CLI is corrupted by shell quoting.');
+    console.error('[jwks-server] Action: delete ADMIN_JWKS_PAYLOAD and set ADMIN_JWKS_B64 instead.');
+    console.error('[jwks-server] PowerShell:');
+    console.error('[jwks-server]   $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((Get-Content -Raw .\\jwks.json)))');
+    console.error('[jwks-server]   railway variables set "ADMIN_JWKS_B64=$b64" --service jwks-server');
+    console.error('[jwks-server]   railway variables delete ADMIN_JWKS_PAYLOAD --service jwks-server');
     process.exit(1);
   }
 
-  // Step 2: parse JSON
+  if (!process.env.ADMIN_JWKS_B64) {
+    console.error('[jwks-server] FATAL: ADMIN_JWKS_B64 environment variable is not set.');
+    console.error('[jwks-server] Set it to a base64-encoded JWKS JSON string.');
+    console.error('[jwks-server] PowerShell:');
+    console.error('[jwks-server]   $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((Get-Content -Raw .\\jwks.json)))');
+    console.error('[jwks-server]   railway variables set "ADMIN_JWKS_B64=$b64" --service jwks-server');
+    process.exit(1);
+  }
+
+  // Decode base64 → UTF-8 string
+  let raw;
+  try {
+    raw = Buffer.from(process.env.ADMIN_JWKS_B64, 'base64').toString('utf8');
+  } catch (err) {
+    console.error('[jwks-server] FATAL: Failed to base64-decode ADMIN_JWKS_B64:', err.message);
+    process.exit(1);
+  }
+
+  // Parse JSON
   let parsed;
   try {
     parsed = JSON.parse(raw);
   } catch (err) {
-    console.error('[jwks-server] FATAL: JWKS payload is not valid JSON:', err.message);
-    console.error('[jwks-server] If using ADMIN_JWKS_PAYLOAD, prefer ADMIN_JWKS_B64 to avoid quoting issues.');
-    console.error('[jwks-server] Raw value starts with:', String(raw).slice(0, 40));
+    console.error('[jwks-server] FATAL: Decoded ADMIN_JWKS_B64 is not valid JSON:', err.message);
+    console.error('[jwks-server] Decoded value starts with:', String(raw).slice(0, 60));
+    console.error('[jwks-server] Re-generate: ensure jwks.json has quoted keys, then re-encode.');
     process.exit(1);
   }
 
-  // Step 3: validate structure
+  // Validate structure
   if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.keys)) {
     console.error('[jwks-server] FATAL: JWKS payload must be an object with a "keys" array.');
-    console.error('[jwks-server] Got:', JSON.stringify(parsed).slice(0, 80));
     process.exit(1);
   }
 
   if (parsed.keys.length === 0) {
-    console.error('[jwks-server] FATAL: JWKS payload contains no keys.');
+    console.error('[jwks-server] FATAL: JWKS "keys" array is empty.');
     process.exit(1);
   }
 
-  // Step 4: validate each key — reject if private fields present, then strip defensively
+  // Validate + strip private fields (fail-closed on detect, then strip defensively)
   const safeKeys = parsed.keys.map((k, i) => {
     const found = PRIVATE_FIELDS.filter((f) => Object.prototype.hasOwnProperty.call(k, f));
     if (found.length > 0) {
       console.error(`[jwks-server] FATAL: Key[${i}] (kid=${k.kid}) contains private field(s): ${found.join(', ')}.`);
-      console.error('[jwks-server] JWKS payload must contain ONLY public fields (kty, n, e, use, kid, alg).');
+      console.error('[jwks-server] JWKS payload must contain ONLY public fields: kty, n, e, use, kid, alg.');
       process.exit(1);
     }
-    // Defensive strip (belt + suspenders)
     const { d, p, q, dp: _dp, dq: _dq, qi: _qi, k: _k, ...publicOnly } = k;
     return publicOnly;
   });
 
   jwksPayload = JSON.stringify({ keys: safeKeys });
-  const source = process.env.ADMIN_JWKS_B64 ? 'ADMIN_JWKS_B64' : 'ADMIN_JWKS_PAYLOAD';
-  console.log(`[jwks-server] Loaded ${safeKeys.length} key(s) from ${source}: ${safeKeys.map((k) => k.kid).join(', ')}`);
+  console.log(`[jwks-server] Loaded ${safeKeys.length} key(s) from ADMIN_JWKS_B64: ${safeKeys.map((k) => k.kid).join(', ')}`);
 })();
 
 // ─── HTTP server ──────────────────────────────────────────────────────────────
