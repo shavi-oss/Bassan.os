@@ -1,0 +1,70 @@
+# VERIFICATION_fix-workflow-instance-terminal-start.md
+**Branch:** `fix/workflow-instance-terminal-start` | **SHA:** `c83ec23`  
+**Base:** `pr/PR-101-admin-onboarding @ 918e18a`  
+**Date:** 2026-02-21 01:47 UTC+2
+
+---
+
+## git diff --name-only (918e18a → c83ec23)
+```
+backend/src/modules/workflow-instances/workflow-instances.service.ts  [modified]
+backend/tests/unit/workflow-instances/workflow-instances.service.spec.ts  [added]
+```
+**2 files changed** (scope-locked — only allowed files)
+
+---
+
+## B1 — workflow-instances.service.ts diff
+```diff
+-          status: "RUNNING",
++          // PR-101/B1: If start state is a terminal state, mark as COMPLETED immediately.
++          // Otherwise, instance begins execution in RUNNING.
++          status: startState.isEnd ? "COMPLETED" : "RUNNING",
+```
+✅ Confirmed on line 45.
+
+---
+
+## Verification Results
+
+| Check | Command | Result |
+|---|---|---|
+| TypeScript | `npx tsc --noEmit` | ✅ PASS (exit 0) |
+| Lint | `npm run lint` | ❌ **FAIL** — 132 CRLF errors in new test file |
+| Lint (baseline 918e18a) | `npm run lint` | ✅ PASS (exit 0) |
+| **Lint regression?** | — | ⚠️ **YES** — new failure introduced by this branch |
+| B1 unit tests | `npx jest tests/unit/workflow-instances/workflow-instances.service.spec.ts --runInBand` | ✅ 3/3 PASS |
+| security-linter | `npx jest tests/security/security-linter.spec.ts --runInBand` | ⚠️ 2 FAIL S4-L3 (pre-existing) |
+
+---
+
+## Lint Failure Detail
+
+**File:** [tests/unit/workflow-instances/workflow-instances.service.spec.ts](file:///D:/Basaan%20os/BassanOs/backend/tests/unit/workflow-instances/workflow-instances.service.spec.ts)  
+**Error type:** `prettier/prettier — Delete ␍` (CRLF line endings, Windows-created file)  
+**Count:** 132 errors, all same file  
+**Severity:** Blocks CI lint check
+
+**Fix (1 command):**
+```bash
+npx prettier --write tests/unit/workflow-instances/workflow-instances.service.spec.ts
+git add tests/unit/workflow-instances/workflow-instances.service.spec.ts
+git commit --amend --no-edit
+git push origin fix/workflow-instance-terminal-start --force-with-lease
+```
+
+---
+
+## B1 Test Results
+```
+✅ should set status RUNNING when startState.isEnd is false   (31ms)
+✅ should_mark_completed_when_startState_is_end               (6ms)  ← KEY INVARIANT
+✅ should include execution log with null fromStateId on start (5ms)
+Tests: 3 passed, 3 total  Time: 8.7s
+```
+
+## PR link
+https://github.com/shavi-oss/Bassan.os/pull/new/fix/workflow-instance-terminal-start
+
+## STOP condition
+**DO NOT MERGE** until lint CRLF is fixed. Lint must return exit 0.

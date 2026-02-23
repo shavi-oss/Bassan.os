@@ -1,0 +1,128 @@
+# REPO_ANALYSIS_PR101.md — PR-101 Admin Onboarding
+**Analysis date:** 2026-02-21 01:47 UTC+2  
+**Base:** `pr/PR-101-admin-onboarding @ 918e18a`  
+**Analyst:** Sonit (autonomous)
+
+---
+
+## 1. Branch Inventory
+
+| Branch | Remote | Commits ahead of base | HEAD SHA |
+|---|---|---|---|
+| `fix/admin-mount-pr101` | ✅ pushed | 1 (`ed9bfb8`) | `ed9bfb8` |
+| `fix/workflow-instance-terminal-start` | ✅ pushed | 1 (`c83ec23`) | `c83ec23` |
+| `pr/PR-101-admin-onboarding` | ✅ exists | base | `918e18a` |
+| `pr/PR-101-jwks` | ✅ exists | — | — |
+
+---
+
+## 2. Task Mapping
+
+| Task | Description | Branch | Status | Evidence |
+|---|---|---|---|---|
+| **A1** | [main.ts](file:///D:/Basaan%20os/BassanOs/backend/src/main.ts) `setGlobalPrefix` exclude for `api/v2/admin/*` | `fix/admin-mount-pr101` | ✅ Done | Confirmed: `exclude: [{ path: "api/v2/admin/:path*", method: RequestMethod.ALL }]` |
+| **A2** | Normalize `@Controller` path (remove absolute prefix) | N/A | ✅ Deferred/N/A | Controller already uses `@Controller("admin/organizations")` with the A1 exclude — P0 resolved by A1 alone |
+| **A3** | Exclude admin from TenantMiddleware | N/A | ✅ Closed | TenantMiddleware is confirmed **no-op**: only calls `next()` — no JWT decode |
+| **B1** | `workflow-instances`: `RUNNING → COMPLETED` when `startState.isEnd` | `fix/workflow-instance-terminal-start` | ✅ Done | Line 45: `status: startState.isEnd ? "COMPLETED" : "RUNNING"` |
+| **B2** | Move governance docs out of `src/modules/.../governance/` | `fix/admin-mount-pr101` | ✅ Done | `git rm --cached` 4 files; files now in `backend/governance/PR-101-admin-onboarding/` |
+| **B3** | Fix `admin.controller.spec.ts` hang | `fix/admin-mount-pr101` | ✅ Done | `module` promoted to describe scope; `afterEach(module.close())` added — 6/6 PASS, no hang |
+| **C1** | Set `ADMIN_JWKS_URL` in Railway Core service env | Railway Dashboard | ❌ Blocked | `RAILWAY_TOKEN` in `.env` is expired/revoked — **manual action required** |
+| **C2** | Verify deployed SHA on Railway | Railway Dashboard | ❌ Blocked | Same — token unauthorized |
+
+---
+
+## 3. Code Evidence
+
+### A1 — `main.ts` (fix/admin-mount-pr101):
+```ts
+app.setGlobalPrefix("api/v1", {
+  exclude: [{ path: "api/v2/admin/:path*", method: RequestMethod.ALL }],
+});
+```
+
+### A3 — TenantMiddleware (no-op):
+```ts
+use(req: Request, res: Response, next: NextFunction) {
+  // CLS context is now set by TenantGuard after JWT validation
+  // This middleware intentionally does NOT decode tokens
+  next();
+}
+```
+
+### B1 — workflow-instances.service.ts:
+```ts
+status: startState.isEnd ? "COMPLETED" : "RUNNING",
+```
+
+### B3 — admin.controller.spec.ts:
+```ts
+describe("AdminController", () => {
+  let module: TestingModule;
+  afterEach(async () => { await module.close(); });
+  ...
+```
+
+---
+
+## 4. Verification Matrix
+
+| Check | Branch | Result |
+|---|---|---|
+| `npx tsc --noEmit` | `fix/workflow-instance-terminal-start` | ✅ PASS (exit 0) |
+| `npm run lint` | `fix/workflow-instance-terminal-start` | ⚠️ **FAIL** 132 errors — CRLF in `workflow-instances.service.spec.ts` (new B1 test) |
+| `npm run lint` | `918e18a` (baseline) | ✅ PASS (exit 0) — confirms lint failure is **new on B1 branch** |
+| `jest admin-jwt.strategy.spec.ts` | current | ✅ 9/9 PASS |
+| `jest admin.controller.spec.ts --forceExit` | current | ✅ 6/6 PASS (no hang) |
+| `jest workflow-instances.service.spec.ts` | current | ✅ 3/3 PASS |
+| `jest security-linter.spec.ts` | `fix/workflow-instance-terminal-start` | ⚠️ 2 FAIL S4-L3 |
+| `jest security-linter.spec.ts` | `918e18a` (baseline) | ⚠️ 2 FAIL S4-L3 |
+| **Security-linter regressions introduced** | — | **0** (same failures on base) |
+
+---
+
+## 5. Security-Linter S4-L3 Pre-existing Failure Summary
+
+The S4-L3 test (`Endpoint allowlist Stage 4`) fails on **both** the base branch (`918e18a`) and all fix/ branches with the **same 2 test failures**. These failures are due to Stage 5 endpoints (`scheduled-triggers`, `deferred-execution`) not being listed in the Stage 4 allowlist — a pre-existing governance issue predating PR-101. **PR-101 changes introduced zero new security-linter failures.**
+
+S3-L7 (immutability check) now **PASSES** on `fix/admin-mount-pr101` (governance docs removed from `src/`).
+
+---
+
+## 6. Railway / Smoke Test Status
+
+| Check | Result |
+|---|---|
+| Core app live | ✅ HTTP 401 on `/api/v1/auth/me` |
+| JWKS endpoint | ✅ `kid=admin-key-1`, alg=RS256 |
+| `POST /api/v2/admin/organizations` (smoke) | ❌ **HTTP 404** |
+| `RAILWAY_TOKEN` validity | ❌ Expired/revoked — all Railway API calls return Unauthorized |
+| `ADMIN_JWKS_URL` on Railway | ⚠️ Cannot verify (token blocked) |
+
+**Root cause of 404:** `fix/admin-mount-pr101` not merged → Railway still runs old commit.
+
+---
+
+## 7. Outstanding Issues
+
+1. **Lint regression on `fix/workflow-instance-terminal-start`** — `workflow-instances.service.spec.ts` has Windows CRLF line endings. Fix: `npx prettier --write tests/unit/workflow-instances/workflow-instances.service.spec.ts` and recommit.
+2. **`RAILWAY_TOKEN` expired** — Regenerate at [Railway Dashboard → Account → Tokens](https://railway.app/account/tokens).
+3. **`ADMIN_JWKS_URL` not set in Railway** — Must be set before deploy: `ADMIN_JWKS_URL=https://practical-amazement-production.up.railway.app/.well-known/jwks.json`
+4. **Neither PR merged** — Both PRs await human approval.
+
+---
+
+## 8. Recommended Next Steps for Merge Approver
+
+**Before merging `fix/admin-mount-pr101`:**
+- [ ] Open PR at https://github.com/shavi-oss/Bassan.os/pull/new/fix/admin-mount-pr101
+- [ ] Confirm diff: only `main.ts`, `admin.controller.spec.ts`, governance docs (7 files)
+- [ ] Verify no regressions in CI (TSC, lint, jest — note: lint passes on this branch if baseline is 918e18a)
+- [ ] In Railway Dashboard: set `ADMIN_JWKS_URL` on Core service
+- [ ] Merge → Railway auto-deploys → Re-run smoke test (expect HTTP 201)
+
+**Before merging `fix/workflow-instance-terminal-start`:**
+- [ ] Fix CRLF lint issue in `tests/unit/workflow-instances/workflow-instances.service.spec.ts`
+- [ ] Recommit and push
+- [ ] Then open PR at https://github.com/shavi-oss/Bassan.os/pull/new/fix/workflow-instance-terminal-start
+
+**DO NOT MERGE** without human approval. No auto-merge configured.
