@@ -31,12 +31,14 @@ describe("Security Linter", () => {
 
   // Allowed modules
   // S2-L2: Added 'workflows'
+  // PR-101: Added 'admin' (S2S admin onboarding endpoint, see SECURITY_LINTER_PATCH.md)
   const ALLOWED_MODULES = [
     "auth",
     "organizations",
     "users",
     "roles",
     "workflows",
+    "admin", // PR-101: admin-safe S2S onboarding — AdminJwtAuthGuard, no TenantGuard
   ];
 
   // Allowed endpoints
@@ -72,6 +74,10 @@ describe("Security Linter", () => {
     { method: "POST", path: "/workflows/:id/transitions" },
     { method: "GET", path: "/workflows/:id/transitions" },
     { method: "DELETE", path: "/workflows/:id/transitions/:transitionId" },
+
+    // PR-101: Admin S2S onboarding — AdminJwtAuthGuard (no TenantGuard)
+    // See SECURITY_LINTER_PATCH.md for audit/scope conditions
+    { method: "POST", path: "/api/v2/admin/organizations" },
   ];
 
   // ============================================================

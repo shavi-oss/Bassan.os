@@ -1,35 +1,81 @@
-# PR Title: PR-101 Core: Add admin module & admin-safe onboarding endpoint (S2S)
+# PR Body Template — PR-101 JWKS + RS256 S2S Smoke Test
+
+## Title
+
+`feat(admin): JWKS RS256 S2S authentication — smoke test evidence`
 
 ## Summary
 
-This PR adds a new admin-only module `src/modules/admin` and the admin-safe onboarding endpoint:
-`POST /api/v2/admin/organizations`. The endpoint is protected by an S2S Admin JWT (AdminJwtAuthGuard)
-and reuses `OrganizationsService.create()` for bootstrap. No v1 endpoints or immutable modules were changed.
+This PR documents the RS256 S2S token pipeline for the Bassan admin module using a Railway-hosted
+JWKS endpoint. The JWKS server is live and serving the correct public key. The Core admin route
+requires deployment before the end-to-end smoke test can fully pass.
 
-## Scope
+## JWKS Endpoint (Live)
 
-Files changed:
+```
+https://practical-amazement-production.up.railway.app/.well-known/jwks.json
+```
 
-- `backend/src/modules/admin/*` (NEW)
-- `backend/tests/organizations/admin.controller.spec.ts` (NEW)
-- `backend/tests/auth/admin-jwt.strategy.spec.ts` (NEW)
-- `backend/tests/security/security-linter.spec.ts` (MINOR UPDATE)
-- `backend/src/modules/organizations/governance/pr/PR-101/*` (governance docs)
+- `kid: admin-key-1`
+- `alg: RS256`
+- `use: sig`
 
-## Verification
+## Smoke Test Result
 
-- Typecheck: `npx tsc --noEmit` — PASS
-- Lint: `npm run lint` — PASS
-- Security linter: `npx jest backend/tests/security/security-linter.spec.ts` — PASS
-- Unit tests (admin): `npx jest backend/tests/organizations/admin.controller.spec.ts` — PASS
-- Smoke curl: 201 with valid S2S token; 401 without token.
+| Check                                 | Result                     |
+| ------------------------------------- | -------------------------- |
+| Railway JWKS endpoint                 | ✅ HTTP 200                |
+| RS256 token signing                   | ✅ Signed locally, len 531 |
+| Core POST /api/v2/admin/organizations | ⚠️ HTTP 404 — Not deployed |
 
-## Risk & Rollback
+## Actions Required Before Full Smoke Pass
 
-- Risk: Low-Medium. We add an admin path and a linter exception; tenant isolation preserved.
-- Rollback: revert commit.
+### 1. Set Railway Environment Variable
 
-## Evidence
+In Railway dashboard → Core service → Variables:
 
-- `backend/src/modules/organizations/governance/pr/PR-101/PR_101_EXECUTION_REPORT.md`
-- `backend/src/modules/organizations/governance/pr/PR-101/PR_101_VERIFICATION_EVIDENCE.md`
+```
+ADMIN_JWKS_URL=https://practical-amazement-production.up.railway.app/.well-known/jwks.json
+```
+
+### 2. Deploy PR-101 Changes to Railway Core
+
+Merge commit `2dcfaf4` (AdminModule registration in AppModule) and trigger Railway deploy.
+After deploy, verify logs show:
+
+```
+AdminModule dependencies initialized
+AdminJwtStrategy initialized
+Mapped {/api/v2/admin/organizations, POST}
+```
+
+### 3. Re-run Smoke Test
+
+```bash
+# Re-sign token (5-min expiry)
+node backend/tools/jwks/sign-rs256.js > backend/tools/jwks/signed-token.txt
+
+# POST to Core
+$token = Get-Content backend/tools/jwks/signed-token.txt
+Invoke-RestMethod -Uri https://glorious-harmony-production-34b8.up.railway.app/api/v2/admin/organizations `
+  -Method POST `
+  -Headers @{ Authorization="Bearer $token"; "X-Correlation-Id"="smoke-002" } `
+  -Body '{"name":"SmokeOrg2","adminEmail":"smoke2@test.com","adminPassword":"Pass123!","adminFirstName":"Smoke","adminLastName":"Test"}' `
+  -ContentType application/json
+```
+
+Expected success response: HTTP 201 with `{ id, name, adminEmail }`.
+
+## Security Notes
+
+- `admin-private.pem` is LOCAL ONLY — never committed or pushed
+- Token expiry: 5 minutes (`exp: now + 300s`)
+- JWKS public key only is committed/deployed
+
+## Governance Evidence
+
+`backend/src/modules/organizations/governance/pr/PR-101-admin-onboarding/`
+
+- `PR_101_PLAN.md` — scope and task list
+- `PR_101_EXECUTION_REPORT.md` — all commands and STEP_COMPLETED entries
+- `PR_101_VERIFICATION_EVIDENCE.md` — raw outputs and safety audit
