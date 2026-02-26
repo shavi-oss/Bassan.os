@@ -1,0 +1,141 @@
+# PR_101_EXECUTION_REPORT.md — Admin Onboarding
+**Project:** Bassan.os | **PR:** PR-101  
+**Analyst:** Sonit (autonomous) | **Date:** 2026-02-21 01:47 UTC+2
+
+---
+
+## Executive Recommendation
+
+> ⚠️ **DO NOT MERGE** `fix/workflow-instance-terminal-start` until lint CRLF is fixed.  
+> ✅ **`fix/admin-mount-pr101` is merge-ready** pending human approval and Railway ops.
+
+---
+
+## Execution Timeline
+
+| Timestamp (UTC+2) | Step | Result |
+|---|---|---|
+| 2026-02-20 22:25 | Step A — Discovery audit | ✅ Complete — 6 issues found |
+| 2026-02-20 22:25 | Step B — Remediation plan | ✅ Plan approved |
+| 2026-02-20 23:08 | Step C — A1: main.ts prefix exclude | ✅ Committed ed9bfb8 |
+| 2026-02-20 23:08 | Step C — B3: admin.controller.spec hang fix | ✅ Committed ed9bfb8 |
+| 2026-02-20 23:08 | Step C — B2: governance docs moved from src/ | ✅ Committed ed9bfb8 |
+| 2026-02-20 23:08 | Step C — B1: workflow RUNNING→COMPLETED logic | ✅ Committed c83ec23 |
+| 2026-02-20 23:08 | Step C — B1: unit test with key invariant | ✅ Committed c83ec23 |
+| 2026-02-20 23:21 | Branch push — fix/admin-mount-pr101 | ✅ Pushed to origin |
+| 2026-02-20 23:21 | Branch push — fix/workflow-instance-terminal-start | ✅ Pushed to origin |
+| 2026-02-21 00:57 | Step D — Railway CLI install | ✅ npm i -g @railway/cli |
+| 2026-02-21 01:18 | Step D — RAILWAY_TOKEN test | ❌ Token expired |
+| 2026-02-21 01:47 | Repo analysis — full verification matrix | ✅ Complete |
+
+---
+
+## Verification Evidence
+
+### TSC
+```
+npx tsc --noEmit → exit 0 ✅
+```
+
+### Lint
+```
+Branch fix/admin-mount-pr101:   npm run lint → exit 0 ✅  (no new test file)
+Branch fix/workflow:            npm run lint → exit 1 ❌  (132 CRLF in spec.ts)
+Baseline 918e18a:               npm run lint → exit 0 ✅
+→ Regression: YES, on fix/workflow branch only
+```
+
+### Jest (all suites, combined run on fix/workflow-instance-terminal-start)
+```
+PASS tests/organizations/admin.controller.spec.ts (6/6, 6.76s, no hang)
+PASS tests/unit/workflow-instances/workflow-instances.service.spec.ts (3/3)
+PASS tests/auth/admin-jwt.strategy.spec.ts (9/9)
+Tests: 18 passed, 3 suites ✅
+```
+
+### Security Linter
+```
+Branch fix/workflow-instance-terminal-start:
+  FAIL S4-L3: 2 failures (Stage 5 endpoints not in Stage 4 allowlist)
+  S3-L7: N/A (no src/modules/organizations changes on this branch)
+  
+Branch fix/admin-mount-pr101:
+  FAIL S4-L3: 2 failures (pre-existing)
+  S3-L7: PASS ✅ (governance docs removed from src/)
+  
+Baseline 918e18a:
+  FAIL S4-L3: 2 failures → IDENTICAL
+  → Regressions vs baseline: 0
+```
+
+### Smoke Test
+```
+URL: POST https://glorious-harmony-production-34b8.up.railway.app/api/v2/admin/organizations
+Token: signed RS256 (kid=admin-key-1, alg=RS256, exp 2026-02-21T01:54Z)
+Result: HTTP 404 (empty body)
+Reason: fix/admin-mount-pr101 not merged → pr/PR-101-admin-onboarding still deployed
+Expected after merge+deploy: HTTP 201
+```
+
+---
+
+## Task Status Summary
+
+| Task | Status | Notes |
+|---|---|---|
+| A1 — setGlobalPrefix exclude | ✅ Done | `fix/admin-mount-pr101` |
+| A2 — controller path normalize | ✅ N/A | Resolved by A1 |
+| A3 — TenantMiddleware | ✅ Closed | Verified no-op |
+| B1 — workflow COMPLETED on isEnd | ✅ Done | `fix/workflow-instance-terminal-start` |
+| B2 — governance docs out of src/ | ✅ Done | Git rm --cached, S3-L7 now PASS |
+| B3 — admin.controller.spec hang | ✅ Done | afterEach module.close() |
+| C1 — Railway ADMIN_JWKS_URL | ❌ Blocked | Token expired |
+| C2 — Railway SHA verify | ❌ Blocked | Token expired |
+| Lint CRLF regression | ⚠️ Open | needs prettier fix on fix/workflow branch |
+
+---
+
+## Open Items Before Merge
+
+### Priority 1 — Lint Fix (blocks `fix/workflow-instance-terminal-start`)
+```bash
+git checkout fix/workflow-instance-terminal-start
+npx prettier --write tests/unit/workflow-instances/workflow-instances.service.spec.ts
+git add tests/unit/workflow-instances/workflow-instances.service.spec.ts
+git commit --amend --no-edit
+git push origin fix/workflow-instance-terminal-start --force-with-lease
+```
+
+### Priority 2 — Railway Token Regeneration
+- Go to https://railway.app/account/tokens → Create new token
+- Set in backend/.env and provide to Sonit for re-run
+
+### Priority 3 — Railway ADMIN_JWKS_URL
+- Railway Dashboard → Core service → Variables → Add:
+  ```
+  ADMIN_JWKS_URL=https://practical-amazement-production.up.railway.app/.well-known/jwks.json
+  ```
+
+### Priority 4 — Merge Sequence
+1. Merge `fix/admin-mount-pr101` first → Railway deploys
+2. Fix lint on `fix/workflow-instance-terminal-start` → merge second
+
+---
+
+## Artifacts Produced
+
+| File | Location |
+|---|---|
+| `smoke_resp.txt` | [backend/tools/jwks/smoke_resp.txt](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/smoke_resp.txt) |
+| `signed-token.txt` | [backend/tools/jwks/signed-token.txt](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/signed-token.txt) |
+| `railway_login.log` | [backend/tools/jwks/railway_login.log](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/railway_login.log) |
+| `railway_project_view.log` | [backend/tools/jwks/railway_project_view.log](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/railway_project_view.log) |
+| `railway_services.log` | [backend/tools/jwks/railway_services.log](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/railway_services.log) |
+| `railway_deploys.log` | [backend/tools/jwks/railway_deploys.log](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/railway_deploys.log) |
+| `railway_core_env.log` | [backend/tools/jwks/railway_core_env.log](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/railway_core_env.log) |
+| `railway_core_logs.log` | [backend/tools/jwks/railway_core_logs.log](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/railway_core_logs.log) |
+| `railway_env_set.log` | [backend/tools/jwks/railway_env_set.log](file:///d:/Basaan%20os/BassanOs/backend/tools/jwks/railway_env_set.log) |
+| [REPO_ANALYSIS_PR101.md](file:///C:/Users/Shavi/.gemini/antigravity/brain/73c9d29b-8c23-4edf-978f-5b7724511060/REPO_ANALYSIS_PR101.md) | brain artifacts |
+| [FILE_CHANGES.csv](file:///C:/Users/Shavi/.gemini/antigravity/brain/73c9d29b-8c23-4edf-978f-5b7724511060/FILE_CHANGES.csv) | brain artifacts |
+| [VERIFICATION_fix-admin-mount-pr101.md](file:///C:/Users/Shavi/.gemini/antigravity/brain/73c9d29b-8c23-4edf-978f-5b7724511060/VERIFICATION_fix-admin-mount-pr101.md) | brain artifacts |
+| [VERIFICATION_fix-workflow-instance-terminal-start.md](file:///C:/Users/Shavi/.gemini/antigravity/brain/73c9d29b-8c23-4edf-978f-5b7724511060/VERIFICATION_fix-workflow-instance-terminal-start.md) | brain artifacts |

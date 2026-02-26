@@ -31,12 +31,14 @@ describe("Security Linter", () => {
 
   // Allowed modules
   // S2-L2: Added 'workflows'
+  // PR-101: Added 'admin' (S2S admin onboarding endpoint, see SECURITY_LINTER_PATCH.md)
   const ALLOWED_MODULES = [
     "auth",
     "organizations",
     "users",
     "roles",
     "workflows",
+    "admin", // PR-101: admin-safe S2S onboarding — AdminJwtAuthGuard, no TenantGuard
   ];
 
   // Allowed endpoints
@@ -72,6 +74,10 @@ describe("Security Linter", () => {
     { method: "POST", path: "/workflows/:id/transitions" },
     { method: "GET", path: "/workflows/:id/transitions" },
     { method: "DELETE", path: "/workflows/:id/transitions/:transitionId" },
+
+    // PR-101: Admin S2S onboarding — AdminJwtAuthGuard (no TenantGuard)
+    // See SECURITY_LINTER_PATCH.md for audit/scope conditions
+    { method: "POST", path: "/api/v2/admin/organizations" },
   ];
 
   // ============================================================
@@ -298,6 +304,77 @@ describe("Security Linter", () => {
                 break;
               }
             }
+          }
+
+          // ============================================================
+          // PR-101 EXCEPTION: Admin controllers under api/v2/admin/*
+          // ============================================================
+          // Admin controllers use AdminJwtAuthGuard (S2S JWT, no TenantGuard).
+          // Exception is ONLY valid when ALL conditions hold:
+          //   1. Controller file is admin.controller.ts
+          //   2. DTO imported from organizations module (not a custom DTO with organizationId)
+          //   3. admin.service.ts contains auditService.logAction call
+          const isAdminController = file.includes("admin.controller");
+          if (isAdminController) {
+            // ---- Check 1: DTO import path verification ----
+            // Extract the DTO import path from the controller file
+            const dtoImportMatch = content.match(
+              /import\s+\{[^}]*CreateOrganizationDto[^}]*\}\s+from\s+['"]([^'"]+)['"]/,
+            );
+            const dtoImportPath = dtoImportMatch ? dtoImportMatch[1] : null;
+
+            // DTO must be imported from organizations module (not a local admin DTO)
+            const dtoFromOrganizations =
+              dtoImportPath !== null && dtoImportPath.includes("organizations");
+
+            if (!dtoFromOrganizations) {
+              violations.push(
+                `${file}:${index + 1} - ADMIN VIOLATION: admin controller must import CreateOrganizationDto from organizations module (got: ${dtoImportPath ?? "not found"})`,
+              );
+            } else {
+              // Resolve DTO file path and verify it has no organizationId property
+              const controllerDir = path.dirname(file);
+              const dtoFilePath = path.resolve(
+                controllerDir,
+                dtoImportPath + ".ts",
+              );
+              if (fs.existsSync(dtoFilePath)) {
+                const dtoContent = fs.readFileSync(dtoFilePath, "utf8");
+                // Check for organizationId as a class property declaration
+                const dtoHasOrgId = /^\s*organizationId\s*[?!]?\s*:/m.test(
+                  dtoContent,
+                );
+                if (dtoHasOrgId) {
+                  violations.push(
+                    `${file}:${index + 1} - ADMIN VIOLATION: DTO at ${dtoFilePath} contains organizationId property (FORBIDDEN_ORGID_ACCEPTED)`,
+                  );
+                }
+              }
+            }
+
+            // ---- Check 2: auditService.logAction in admin.service.ts ----
+            // Read admin.service.ts (sibling file) and verify audit call
+            const adminServicePath = path.join(
+              path.dirname(file),
+              "admin.service.ts",
+            );
+            if (fs.existsSync(adminServicePath)) {
+              const serviceContent = fs.readFileSync(adminServicePath, "utf8");
+              const hasAuditServiceLogAction =
+                /this\.auditService\.logAction\s*\(/.test(serviceContent);
+              if (!hasAuditServiceLogAction) {
+                violations.push(
+                  `${file}:${index + 1} - ADMIN VIOLATION: admin.service.ts does not contain this.auditService.logAction() call`,
+                );
+              }
+            } else {
+              violations.push(
+                `${file}:${index + 1} - ADMIN VIOLATION: admin.service.ts not found alongside admin.controller.ts`,
+              );
+            }
+
+            // Skip standard guard check for admin controllers
+            return;
           }
 
           // If no class guards AND no method guards -> VIOLATION
@@ -694,6 +771,7 @@ describe("Security Linter", () => {
         ...ALLOWED_MODULES,
         "workflow-instances",
         "workflow-triggers",
+        "admin", // PR-101: admin module (S2S onboarding, no tenant context)
       ];
 
       // HOTFIX: Allow Stage 5 modules when validating in Stage 5+
@@ -754,6 +832,8 @@ describe("Security Linter", () => {
         { method: "PATCH", path: "/workflow-triggers/:id" },
         { method: "POST", path: "/workflow-triggers/events" },
         { method: "GET", path: "/workflow-triggers/events/:id" },
+        // PR-101: Admin S2S onboarding endpoint
+        { method: "POST", path: "/api/v2/admin/organizations" },
       ];
 
       // HOTFIX: Allow Stage 5 endpoints when validating in Stage 5+
@@ -1028,6 +1108,7 @@ describe("Security Linter", () => {
         "workflow-triggers",
         "scheduled-triggers",
         "deferred-execution",
+        "admin", // PR-101: admin module (S2S onboarding, no tenant context)
       ];
 
       const violations: string[] = [];
@@ -1091,6 +1172,8 @@ describe("Security Linter", () => {
         { method: "GET", path: "/deferred-executions/:id" },
         { method: "GET", path: "/deferred-executions/:id/attempts" },
         { method: "POST", path: "/deferred-executions/:id/retry" },
+        // PR-101: Admin S2S onboarding endpoint
+        { method: "POST", path: "/api/v2/admin/organizations" },
       ];
 
       allFiles.forEach((file) => {
@@ -1356,6 +1439,7 @@ describe("Security Linter", () => {
         "workflow-triggers",
         "scheduled-triggers",
         "deferred-execution",
+        "admin", // PR-101: admin module (S2S onboarding, no tenant context)
       ];
 
       // Stage 6 ONLY adds these 3 modules
