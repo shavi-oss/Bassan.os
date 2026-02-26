@@ -28,7 +28,30 @@ Thumbs.db
 
 
 
-
 .local_archive/
 
+# ── Security: Key Material (MUST NEVER be committed) ──────────────────────
+*.pem
+*.key
+*.p12
+*.pfx
 
+# JWKS tool directory and server-bundled JWK file
+backend/tools/jwks/
+backend/tools/jwks-server/jwks.json
+
+# Token artefacts and key-signing / key-generation scripts (dev-only)
+**/signed-token.txt
+**/sign-rs256.js
+**/make-jwks.js
+**/gen-token.js
+
+# Railway CLI log dumps and smoke-test scratch files (generated during ops)
+**/railway_*.log
+**/smoke-response.txt
+**/smoke_resp.txt
+**/migrate_deploy.log
+**/lint_output.txt
+**/staged-files.txt
+**/jwks-server.stdout.txt
+**/PLAN_BEFORE_PUSH.txt
