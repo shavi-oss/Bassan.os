@@ -40,7 +40,9 @@ export class WorkflowInstancesService {
         data: {
           workflowDefinitionId: definition.id,
           currentStateId: startState.id,
-          status: "RUNNING",
+          // PR-101/B1: If start state is a terminal state, mark as COMPLETED immediately.
+          // Otherwise, instance begins execution in RUNNING.
+          status: startState.isEnd ? "COMPLETED" : "RUNNING",
           context: dto.context || null,
           version: 1,
           organizationId,
