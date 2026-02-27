@@ -1,6 +1,8 @@
 import {
   Controller,
   Post,
+  Patch,
+  Param,
   Body,
   UseGuards,
   Request,
@@ -67,5 +69,59 @@ export class AdminController {
       performedBy,
       correlationId: resolvedCorrelationId,
     });
+  }
+
+  /**
+   * PATCH /api/v2/admin/organizations/:id/suspend
+   * Suspends (deactivates) an organization via admin S2S token.
+   */
+  @Patch(":id/suspend")
+  @HttpCode(HttpStatus.OK)
+  async suspendOrganization(
+    @Param("id") id: string,
+    @Request() req: { user: { sub: string } },
+    @Headers("x-correlation-id") correlationId?: string,
+  ) {
+    const performedBy = req.user.sub;
+    const resolvedCorrelationId =
+      correlationId ??
+      `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return this.adminService.suspendOrganization(id, { performedBy, correlationId: resolvedCorrelationId });
+  }
+
+  /**
+   * PATCH /api/v2/admin/organizations/:id/unsuspend
+   * Re-activates a suspended organization via admin S2S token.
+   */
+  @Patch(":id/unsuspend")
+  @HttpCode(HttpStatus.OK)
+  async unsuspendOrganization(
+    @Param("id") id: string,
+    @Request() req: { user: { sub: string } },
+    @Headers("x-correlation-id") correlationId?: string,
+  ) {
+    const performedBy = req.user.sub;
+    const resolvedCorrelationId =
+      correlationId ??
+      `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return this.adminService.unsuspendOrganization(id, { performedBy, correlationId: resolvedCorrelationId });
+  }
+
+  /**
+   * PATCH /api/v2/admin/organizations/:id/deactivate
+   * Permanently deactivates an organization via admin S2S token.
+   */
+  @Patch(":id/deactivate")
+  @HttpCode(HttpStatus.OK)
+  async deactivateOrganization(
+    @Param("id") id: string,
+    @Request() req: { user: { sub: string } },
+    @Headers("x-correlation-id") correlationId?: string,
+  ) {
+    const performedBy = req.user.sub;
+    const resolvedCorrelationId =
+      correlationId ??
+      `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return this.adminService.deactivateOrganization(id, { performedBy, correlationId: resolvedCorrelationId });
   }
 }

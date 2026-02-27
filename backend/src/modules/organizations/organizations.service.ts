@@ -119,6 +119,27 @@ export class OrganizationsService {
     return organization;
   }
 
+  /**
+   * Set organization active state
+   *
+   * SECURITY: Only called by AdminService under AdminJwtAuthGuard.
+   * Uses _unsafeClient — no tenant context needed for admin ops.
+   */
+  async setOrgActive(id: string, isActive: boolean) {
+    const org = await this.prisma._unsafeClient.organization.findUnique({
+      where: { id },
+    });
+
+    if (!org) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return this.prisma._unsafeClient.organization.update({
+      where: { id },
+      data: { isActive, updatedAt: new Date() },
+    });
+  }
+
   private sanitizeUser(user: any) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...sanitized } = user;

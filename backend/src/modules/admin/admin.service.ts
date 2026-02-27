@@ -113,4 +113,79 @@ export class AdminService {
 
     return result;
   }
+
+  async suspendOrganization(id: string, meta: AdminOperationMeta) {
+    return this.setOrgActiveWithAudit(id, false, 'suspend', meta);
+  }
+
+  async unsuspendOrganization(id: string, meta: AdminOperationMeta) {
+    return this.setOrgActiveWithAudit(id, true, 'unsuspend', meta);
+  }
+
+  async deactivateOrganization(id: string, meta: AdminOperationMeta) {
+    return this.setOrgActiveWithAudit(id, false, 'deactivate', meta);
+  }
+
+  private async setOrgActiveWithAudit(
+    id: string,
+    isActive: boolean,
+    action: string,
+    meta: AdminOperationMeta,
+  ) {
+    try {
+      this.auditService.logAction({
+        correlationId: meta.correlationId,
+        entityType: 'organization',
+        entityId: id,
+        action,
+        performedBy: meta.performedBy,
+        performedByService: meta.performedByService,
+        result: 'attempt',
+        metadata: { isActive },
+      });
+    } catch {
+      throw new InternalServerErrorException(
+        `AUDIT_FAIL: Pre-operation audit log failed for ${action}; operation aborted`,
+      );
+    }
+
+    let result: any;
+    try {
+      result = await this.organizationsService.setOrgActive(id, isActive);
+    } catch (err) {
+      try {
+        this.auditService.logAction({
+          correlationId: meta.correlationId,
+          entityType: 'organization',
+          entityId: id,
+          action,
+          performedBy: meta.performedBy,
+          result: 'failure',
+          metadata: { error: err instanceof Error ? err.message : 'unknown' },
+        });
+      } catch { /* best effort */ }
+      throw err;
+    }
+
+    try {
+      this.auditService.logAction({
+        correlationId: meta.correlationId,
+        entityType: 'organization',
+        entityId: id,
+        action,
+        performedBy: meta.performedBy,
+        result: 'success',
+        metadata: { isActive },
+      });
+    } catch {
+      this.logger.error(
+        `[AUDIT FAIL] correlationId=${meta.correlationId} action=${action} error=audit_post_log_failed`,
+      );
+      throw new InternalServerErrorException(
+        `AUDIT_FAIL: Post-operation audit log failed for ${action}; manual review required`,
+      );
+    }
+
+    return result;
+  }
 }
