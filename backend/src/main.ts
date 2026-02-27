@@ -15,7 +15,12 @@ async function bootstrap() {
   );
 
   // Enable CORS
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.CORS_ALLOWED_ORIGINS
+      ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+      : ["http://localhost:3000"],
+    credentials: true,
+  });
 
   // Set Global Prefix (api/v1 for all routes except admin sub-app)
   // PR-101: admin routes use absolute path /api/v2/admin/* and must be
