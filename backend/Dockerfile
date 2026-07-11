@@ -5,12 +5,12 @@ WORKDIR /app
 # Install OpenSSL (required by Prisma engine linux-musl binary)
 RUN apk add --no-cache openssl openssl-dev libc6-compat
 
-# Install dependencies
-COPY package*.json ./
+# Install dependencies (build context is repo root, backend lives in /backend)
+COPY backend/package*.json ./
 RUN npm ci
 
 # Copy source and build
-COPY . .
+COPY backend/ ./
 RUN npx prisma generate
 RUN npm run build
 
