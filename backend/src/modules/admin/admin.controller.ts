@@ -86,7 +86,10 @@ export class AdminController {
     const resolvedCorrelationId =
       correlationId ??
       `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    return this.adminService.suspendOrganization(id, { performedBy, correlationId: resolvedCorrelationId });
+    return this.adminService.suspendOrganization(id, {
+      performedBy,
+      correlationId: resolvedCorrelationId,
+    });
   }
 
   /**
@@ -104,7 +107,10 @@ export class AdminController {
     const resolvedCorrelationId =
       correlationId ??
       `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    return this.adminService.unsuspendOrganization(id, { performedBy, correlationId: resolvedCorrelationId });
+    return this.adminService.unsuspendOrganization(id, {
+      performedBy,
+      correlationId: resolvedCorrelationId,
+    });
   }
 
   /**
@@ -122,6 +128,9 @@ export class AdminController {
     const resolvedCorrelationId =
       correlationId ??
       `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    return this.adminService.deactivateOrganization(id, { performedBy, correlationId: resolvedCorrelationId });
+    return this.adminService.deactivateOrganization(id, {
+      performedBy,
+      correlationId: resolvedCorrelationId,
+    });
   }
 }

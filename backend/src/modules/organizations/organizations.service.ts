@@ -131,7 +131,7 @@ export class OrganizationsService {
     });
 
     if (!org) {
-      throw new NotFoundException('Organization not found');
+      throw new NotFoundException("Organization not found");
     }
 
     return this.prisma._unsafeClient.organization.update({

@@ -16,10 +16,7 @@ import { Request } from "express";
  */
 @Injectable()
 export class ThrottleGuard implements CanActivate {
-  private readonly hits = new Map<
-    string,
-    { count: number; resetAt: number }
-  >();
+  private readonly hits = new Map<string, { count: number; resetAt: number }>();
   private readonly limit = 5; // max requests
   private readonly windowMs = 60_000; // per 60s
 

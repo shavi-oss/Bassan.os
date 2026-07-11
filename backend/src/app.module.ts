@@ -17,7 +17,6 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { SharedModule } from "./shared/shared.module";
 
 @Module({
-
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
