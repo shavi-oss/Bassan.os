@@ -140,6 +140,20 @@ export class OrganizationsService {
     });
   }
 
+  /**
+   * Admin-safe organization lookup by ID (NO tenant ownership check).
+   * Used by AdminService under AdminJwtAuthGuard for S2S verification.
+   */
+  async findByIdAdmin(id: string) {
+    const organization = await this.prisma._unsafeClient.organization.findUnique({
+      where: { id },
+    });
+    if (!organization) {
+      throw new NotFoundException("Organization not found");
+    }
+    return organization;
+  }
+
   private sanitizeUser(user: any) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash, ...sanitized } = user;

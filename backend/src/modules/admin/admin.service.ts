@@ -126,6 +126,70 @@ export class AdminService {
     return this.setOrgActiveWithAudit(id, false, "deactivate", meta);
   }
 
+  /**
+   * Admin-safe organization lookup by ID (S2S verification).
+   * Wraps OrganizationsService.findByIdAdmin with mandatory audit logging.
+   */
+  async getOrganizationById(id: string, meta: AdminOperationMeta) {
+    try {
+      this.auditService.logAction({
+        correlationId: meta.correlationId,
+        entityType: "organization",
+        entityId: id,
+        action: "verify",
+        performedBy: meta.performedBy,
+        performedByService: meta.performedByService,
+        result: "attempt",
+        metadata: { id },
+      });
+    } catch {
+      throw new InternalServerErrorException(
+        "AUDIT_FAIL: Pre-operation audit log failed for verify; operation aborted",
+      );
+    }
+
+    let result: any;
+    try {
+      result = await this.organizationsService.findByIdAdmin(id);
+    } catch (err) {
+      try {
+        this.auditService.logAction({
+          correlationId: meta.correlationId,
+          entityType: "organization",
+          entityId: id,
+          action: "verify",
+          performedBy: meta.performedBy,
+          result: "failure",
+          metadata: { error: err instanceof Error ? err.message : "unknown" },
+        });
+      } catch {
+        /* best effort */
+      }
+      throw err;
+    }
+
+    try {
+      this.auditService.logAction({
+        correlationId: meta.correlationId,
+        entityType: "organization",
+        entityId: id,
+        action: "verify",
+        performedBy: meta.performedBy,
+        result: "success",
+        metadata: { id },
+      });
+    } catch {
+      this.logger.error(
+        `[AUDIT FAIL] correlationId=${meta.correlationId} action=verify error=audit_post_log_failed`,
+      );
+      throw new InternalServerErrorException(
+        "AUDIT_FAIL: Post-operation audit log failed for verify; manual review required",
+      );
+    }
+
+    return result;
+  }
+
   private async setOrgActiveWithAudit(
     id: string,
     isActive: boolean,

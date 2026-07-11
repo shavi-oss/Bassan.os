@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Patch,
+  Get,
   Param,
   Body,
   UseGuards,
@@ -66,6 +67,29 @@ export class AdminController {
       `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
     return this.adminService.createOrganization(dto, {
+      performedBy,
+      correlationId: resolvedCorrelationId,
+    });
+  }
+
+  /**
+   * GET /api/v2/admin/organizations/:id
+   *
+   * Admin-safe organization verification via S2S token.
+   * Returns the organization record (no tenant ownership check).
+   */
+  @Get(":id")
+  @HttpCode(HttpStatus.OK)
+  async getOrganization(
+    @Param("id") id: string,
+    @Request() req: { user: { sub: string } },
+    @Headers("x-correlation-id") correlationId?: string,
+  ) {
+    const performedBy = req.user.sub;
+    const resolvedCorrelationId =
+      correlationId ??
+      `admin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return this.adminService.getOrganizationById(id, {
       performedBy,
       correlationId: resolvedCorrelationId,
     });
