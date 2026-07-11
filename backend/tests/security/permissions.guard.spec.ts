@@ -1,5 +1,4 @@
 import { ForbiddenException } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
 import { PermissionsGuard } from "../../src/shared/guards/permissions.guard";
 
 describe("PermissionsGuard", () => {
@@ -18,7 +17,7 @@ describe("PermissionsGuard", () => {
       switchToHttp: () => ({ getRequest: () => ({ user }) }),
       getHandler: () => ({}),
       getClass: () => ({}),
-    } as any);
+    }) as any;
 
   it("allows a route that has NO @RequirePermission (no enforcement)", async () => {
     reflector.getAllAndOverride.mockReturnValue(undefined);

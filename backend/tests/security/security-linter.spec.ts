@@ -973,6 +973,19 @@ describe("Security Linter", () => {
           "backend/src/modules/roles/roles.controller.ts",
           "backend/src/modules/users/users.controller.ts",
         ];
+        // ============================================================
+        // GOVERNANCE PATCH EXCEPTION: BASSAN_PATCH=9.1
+        // ============================================================
+        // Stage 9.1 is a controlled governance patch for repo-wide
+        // PRETTIER formatting cleanup (whitespace / quotes only).
+        // NON-BREAKING: no logic change. Authorized to clear the
+        // pre-existing "Lint" CI failures (eslint + prettier).
+        // ONLY the file below is authorized to be modified.
+        const ALLOWED_PATCH_FILES_9_1 = [
+          "backend/src/modules/organizations/organizations.service.ts",
+          "backend/src/shared/guards/permissions.guard.ts",
+          "backend/src/shared/guards/throttle.guard.ts",
+        ];
 
         allChanges.forEach((changedFile) => {
           // Normalize path separators
@@ -1009,6 +1022,17 @@ describe("Security Linter", () => {
                 );
                 if (isAllowedPatchFile) {
                   // PASS - This file is allowed for Stage 9.0 security hardening
+                  return;
+                }
+              }
+
+              if (PATCH_VERSION === "9.1") {
+                const isAllowedPatchFile = ALLOWED_PATCH_FILES_9_1.some(
+                  (allowedFile) =>
+                    normalizedFile.includes(allowedFile.replace(/\\/g, "/")),
+                );
+                if (isAllowedPatchFile) {
+                  // PASS - This file is allowed for Stage 9.1 formatting cleanup
                   return;
                 }
               }

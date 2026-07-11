@@ -36,10 +36,7 @@ export class PermissionsGuard implements CanActivate {
     const required = this.reflector.getAllAndOverride<{
       resource: string;
       action: string;
-    }>(REQUIRE_PERMISSION_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    }>(REQUIRE_PERMISSION_KEY, [context.getHandler(), context.getClass()]);
 
     // No @RequirePermission → not enforced on this route
     if (!required) {

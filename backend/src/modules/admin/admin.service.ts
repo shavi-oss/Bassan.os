@@ -115,15 +115,15 @@ export class AdminService {
   }
 
   async suspendOrganization(id: string, meta: AdminOperationMeta) {
-    return this.setOrgActiveWithAudit(id, false, 'suspend', meta);
+    return this.setOrgActiveWithAudit(id, false, "suspend", meta);
   }
 
   async unsuspendOrganization(id: string, meta: AdminOperationMeta) {
-    return this.setOrgActiveWithAudit(id, true, 'unsuspend', meta);
+    return this.setOrgActiveWithAudit(id, true, "unsuspend", meta);
   }
 
   async deactivateOrganization(id: string, meta: AdminOperationMeta) {
-    return this.setOrgActiveWithAudit(id, false, 'deactivate', meta);
+    return this.setOrgActiveWithAudit(id, false, "deactivate", meta);
   }
 
   private async setOrgActiveWithAudit(
@@ -135,12 +135,12 @@ export class AdminService {
     try {
       this.auditService.logAction({
         correlationId: meta.correlationId,
-        entityType: 'organization',
+        entityType: "organization",
         entityId: id,
         action,
         performedBy: meta.performedBy,
         performedByService: meta.performedByService,
-        result: 'attempt',
+        result: "attempt",
         metadata: { isActive },
       });
     } catch {
@@ -156,25 +156,27 @@ export class AdminService {
       try {
         this.auditService.logAction({
           correlationId: meta.correlationId,
-          entityType: 'organization',
+          entityType: "organization",
           entityId: id,
           action,
           performedBy: meta.performedBy,
-          result: 'failure',
-          metadata: { error: err instanceof Error ? err.message : 'unknown' },
+          result: "failure",
+          metadata: { error: err instanceof Error ? err.message : "unknown" },
         });
-      } catch { /* best effort */ }
+      } catch {
+        /* best effort */
+      }
       throw err;
     }
 
     try {
       this.auditService.logAction({
         correlationId: meta.correlationId,
-        entityType: 'organization',
+        entityType: "organization",
         entityId: id,
         action,
         performedBy: meta.performedBy,
-        result: 'success',
+        result: "success",
         metadata: { isActive },
       });
     } catch {
