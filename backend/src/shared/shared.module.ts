@@ -1,6 +1,8 @@
 import { Global, Module } from "@nestjs/common";
 import { ClsModule } from "nestjs-cls";
 import { TenantGuard } from "./guards/tenant.guard";
+import { PermissionsGuard } from "./guards/permissions.guard";
+import { ThrottleGuard } from "./guards/throttle.guard";
 
 @Global()
 @Module({
@@ -10,7 +12,7 @@ import { TenantGuard } from "./guards/tenant.guard";
       middleware: { mount: true },
     }),
   ],
-  providers: [TenantGuard],
-  exports: [ClsModule, TenantGuard],
+  providers: [TenantGuard, PermissionsGuard, ThrottleGuard],
+  exports: [ClsModule, TenantGuard, PermissionsGuard, ThrottleGuard],
 })
 export class SharedModule {}

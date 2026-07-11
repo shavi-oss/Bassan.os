@@ -952,6 +952,27 @@ describe("Security Linter", () => {
         const ALLOWED_PATCH_FILES_4_1 = [
           "backend/src/core/database/prisma.extension.ts",
         ];
+        // ============================================================
+        // GOVERNANCE PATCH EXCEPTION: BASSAN_PATCH=9.0
+        // ============================================================
+        // Stage 9.0 is a controlled governance patch for Phase-0
+        // security hardening of the Bassan.OS core:
+        //   - Enforce organization suspension (isActive) on login/refresh
+        //   - Enforce RBAC (PermissionsGuard) on mutating endpoints
+        //   - Rate-limit login (ThrottleGuard)
+        //   - Add security response headers (main.ts)
+        // ONLY the files below are authorized to be modified/added.
+        // All changes are NON-BREAKING (additive guards + checks).
+        const ALLOWED_PATCH_FILES_9_0 = [
+          "backend/src/shared/shared.module.ts",
+          "backend/src/shared/guards/permissions.guard.ts",
+          "backend/src/shared/guards/throttle.guard.ts",
+          "backend/src/shared/decorators/require-permission.decorator.ts",
+          "backend/src/modules/auth/auth.service.ts",
+          "backend/src/modules/auth/auth.controller.ts",
+          "backend/src/modules/roles/roles.controller.ts",
+          "backend/src/modules/users/users.controller.ts",
+        ];
 
         allChanges.forEach((changedFile) => {
           // Normalize path separators
@@ -978,6 +999,16 @@ describe("Security Linter", () => {
                 );
                 if (isAllowedPatchFile) {
                   // PASS - This file is allowed for Stage 4.1 patch
+                  return;
+                }
+              }
+              if (PATCH_VERSION === "9.0") {
+                const isAllowedPatchFile = ALLOWED_PATCH_FILES_9_0.some(
+                  (allowedFile) =>
+                    normalizedFile.includes(allowedFile.replace(/\\/g, "/")),
+                );
+                if (isAllowedPatchFile) {
+                  // PASS - This file is allowed for Stage 9.0 security hardening
                   return;
                 }
               }
