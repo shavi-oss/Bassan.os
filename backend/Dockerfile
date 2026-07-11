@@ -17,4 +17,4 @@ RUN npm run build
 # Expose default port (Railway injects $PORT at runtime)
 EXPOSE 3000
 
-CMD ["node", "dist/src/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main"]
