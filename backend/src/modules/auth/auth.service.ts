@@ -138,7 +138,7 @@ export class AuthService {
       },
     });
 
-    if (!user || !user.isActive) {
+    if (!user || !user.isActive || !user.organization?.isActive) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
@@ -164,10 +164,15 @@ export class AuthService {
   async refresh(refreshToken: string) {
     const token = await this.db.refreshToken.findUnique({
       where: { token: refreshToken },
-      include: { user: true },
+      include: { user: { include: { organization: true } } },
     });
 
     if (!token || token.revokedAt || token.expiresAt < new Date()) {
+      throw new UnauthorizedException("Invalid refresh token");
+    }
+
+    // Block suspended users / organizations from refreshing tokens
+    if (!token.user.isActive || !token.user.organization?.isActive) {
       throw new UnauthorizedException("Invalid refresh token");
     }
 

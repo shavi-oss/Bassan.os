@@ -12,6 +12,7 @@ import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { TenantGuard } from "../../shared/guards/tenant.guard";
+import { ThrottleGuard } from "../../shared/guards/throttle.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -19,6 +20,7 @@ export class AuthController {
 
   @Post("login")
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottleGuard)
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
